@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "./axios";
 
 // 1. Define your API class
 export class API {
@@ -8,12 +8,7 @@ export class API {
         this.pendingRequests = 0;
 
         // Create axios instance with defaults
-        this.client = axios.create({
-            baseURL: "https://api.example.com",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+        this.client = axios;
     }
 
     // Wrap API calls to track loading state
@@ -23,7 +18,7 @@ export class API {
 
         try {
             const result = await requestFn();
-            return result;
+            return result.data;
         } catch (err) {
             this.setError(err);
             throw err;
