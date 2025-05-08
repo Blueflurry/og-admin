@@ -1,0 +1,391 @@
+import React, { useEffect, useState } from "react";
+import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
+import {
+    Button,
+    Col,
+    DatePicker,
+    Drawer,
+    Form,
+    Input,
+    Row,
+    Select,
+    Space,
+    Upload,
+    message,
+} from "antd";
+import moment from "moment";
+import { useAPI } from "../../hooks/useAPI";
+
+const { OPTION } = Select;
+
+const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
+    const [form] = Form.useForm();
+    const isEditMode = !!initialValues;
+    const [imageFile, setImageFile] = useState(null);
+    const [imageUrl, setImageUrl] = useState("");
+    const [uploading, setUploading] = useState(false);
+    const { api, isLoading, error, resetError } = useAPI();
+
+    // Reset form and initialize values when drawer opens or initialValues changes
+    useEffect(() => {
+        if (open) {
+            form.resetFields();
+            setImageFile(null);
+            setImageUrl("");
+            setUploading(false);
+
+            if (initialValues) {
+                // Format the data for the form
+                const formattedValues = {
+                    firstName: initialValues.name?.first || "",
+                    middleName: initialValues.name?.middle || "",
+                    lastName: initialValues.name?.last || "",
+                    email: initialValues.email || "",
+                    primaryPhone: initialValues.phone1 || "",
+                    secondaryPhone: initialValues.phone2 || "",
+                    dob: initialValues.dob ? moment(initialValues.dob) : null,
+                    streetAddress: initialValues.address?.street || "",
+                    city: initialValues.address?.city || "",
+                    state: initialValues.address?.state || "",
+                    pincode: initialValues.address?.pincode || "",
+                    country: initialValues.address?.country || "",
+                };
+                form.setFieldsValue(formattedValues);
+
+                // Set image URL if available
+                if (initialValues.imageUrl) {
+                    setImageUrl(initialValues.imageUrl);
+                }
+            }
+        }
+    }, [form, initialValues, open]);
+
+    const handleSubmit = async () => {
+        try {
+            const values = await form.validateFields();
+
+            console.log("Form values:", values);
+            // Format the data for API
+            const userData = {
+                name: {
+                    first: values.firstName,
+                    middle: values.middleName,
+                    last: values.lastName,
+                },
+                email: values.email,
+                phone1: values.primaryPhone,
+                phone2: values.secondaryPhone,
+                dob: values.dob ? values.dob.format("YYYY-MM-DD") : null,
+                address: {
+                    street: values.streetAddress,
+                    city: values.city,
+                    state: values.state,
+                    pincode: values.pincode,
+                    country: values.country,
+                },
+                status: 1, // Default active status
+                imageFile: imageFile, // Send the image file directly
+                imageUrl: imageUrl, // Keep existing URL for updates
+            };
+
+            if (isEditMode) {
+                await api.updateUser(initialValues.id, userData);
+                message.success("User updated successfully");
+            } else {
+                await api.createUser(userData);
+                message.success("User created successfully");
+            }
+
+            if (onSuccess) onSuccess();
+            onClose();
+        } catch (error) {
+            console.error("Form submission error:", error);
+            message.error("There was an error processing your request.");
+        }
+    };
+
+    // Handle image upload
+    const handleImageUpload = (info) => {
+        setUploading(true);
+
+        // Get the file
+        const file = info.file.originFileObj;
+        setImageFile(file);
+
+        // Create a temporary URL for preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            setImageUrl(e.target.result);
+            setUploading(false);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // Custom file upload component without actual upload
+    const customRequest = ({ file, onSuccess }) => {
+        // Call onSuccess after a short delay to simulate upload
+        setTimeout(() => {
+            onSuccess("ok");
+        }, 100);
+    };
+
+    // Upload button component
+    const uploadButton = (
+        <div>
+            {uploading ? <LoadingOutlined /> : <PlusOutlined />}
+            <div style={{ marginTop: 8 }}>
+                {uploading ? "Processing" : "Upload"}
+            </div>
+        </div>
+    );
+
+    return (
+        <Drawer
+            title={isEditMode ? "Edit User" : "Create User"}
+            width={720}
+            onClose={onClose}
+            open={open}
+            styles={{
+                body: {
+                    paddingBottom: 80,
+                },
+            }}
+            extra={
+                <Space>
+                    <Button onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleSubmit} type="primary">
+                        {isEditMode ? "Update" : "Submit"}
+                    </Button>
+                </Space>
+            }
+        >
+            <Form layout="vertical" form={form} requiredMark>
+                <Row gutter={16}>
+                    <Col
+                        span={24}
+                        style={{ textAlign: "center", marginBottom: 24 }}
+                    >
+                        <Form.Item name="profileImage" label="Profile Image">
+                            <Upload
+                                name="avatar"
+                                listType="picture-circle"
+                                className="avatar-uploader"
+                                showUploadList={false}
+                                customRequest={customRequest}
+                                beforeUpload={(file) => {
+                                    const isJpgOrPng =
+                                        file.type === "image/jpeg" ||
+                                        file.type === "image/png";
+                                    if (!isJpgOrPng) {
+                                        message.error(
+                                            "You can only upload JPG/PNG file!"
+                                        );
+                                    }
+                                    const isLt2M = file.size / 1024 / 1024 < 2;
+                                    if (!isLt2M) {
+                                        message.error(
+                                            "Image must be smaller than 2MB!"
+                                        );
+                                    }
+                                    return isJpgOrPng && isLt2M;
+                                }}
+                                onChange={handleImageUpload}
+                            >
+                                {imageUrl ? (
+                                    <img
+                                        src={imageUrl}
+                                        alt="avatar"
+                                        style={{
+                                            width: "100%",
+                                            height: "100%",
+                                            borderRadius: "50%",
+                                            objectFit: "cover",
+                                        }}
+                                    />
+                                ) : (
+                                    uploadButton
+                                )}
+                            </Upload>
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
+                    <Col span={8}>
+                        <Form.Item
+                            name="firstName"
+                            label={<>First Name </>}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter first name",
+                                },
+                            ]}
+                        >
+                            <Input placeholder="First name" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="middleName" label="Middle Name">
+                            <Input placeholder="Middle name" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="lastName" label="Last Name">
+                            <Input placeholder="Last name" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            name="email"
+                            label={<>Email </>}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter email",
+                                },
+                                {
+                                    type: "email",
+                                    message: "Please enter a valid email",
+                                },
+                            ]}
+                        >
+                            <Input placeholder="Email address" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            name="primaryPhone"
+                            label={<>Primary Phone </>}
+                            rules={[
+                                {
+                                    required: true,
+                                    message:
+                                        "Please enter primary phone number",
+                                },
+                            ]}
+                        >
+                            <Input placeholder="Primary phone number" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            name="secondaryPhone"
+                            label="Secondary Phone"
+                        >
+                            <Input placeholder="Secondary phone number" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            name="dob"
+                            label={<>Date of Birth </>}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please select date of birth",
+                                },
+                            ]}
+                        >
+                            <DatePicker
+                                style={{ width: "100%" }}
+                                placeholder="Select date"
+                                format="YYYY-MM-DD"
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Form.Item
+                            name="streetAddress"
+                            label={<>Street Address </>}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter street address",
+                                },
+                            ]}
+                        >
+                            <Input.TextArea
+                                rows={3}
+                                placeholder="Street address"
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            name="city"
+                            label={<>City </>}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter city",
+                                },
+                            ]}
+                        >
+                            <Input placeholder="City" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            name="state"
+                            label={<>State </>}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter state",
+                                },
+                            ]}
+                        >
+                            <Input placeholder="State" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            name="pincode"
+                            label={<>Pincode </>}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter pincode",
+                                },
+                            ]}
+                        >
+                            <Input placeholder="Pincode" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            name="country"
+                            label={<>Country </>}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter country",
+                                },
+                            ]}
+                        >
+                            <Input placeholder="Country" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
+        </Drawer>
+    );
+};
+
+export default UserFormDrawer;

@@ -9,6 +9,8 @@ export class API {
 
         // Create axios instance with defaults
         this.client = axios;
+
+        this.client.get("/auth/csrf");
     }
 
     // Wrap API calls to track loading state
@@ -30,9 +32,11 @@ export class API {
         }
     }
 
-    // Define your API methods
-    getUsers() {
-        return this.request(() => this.client.get("/users"));
+    // USERS
+    getUsers(page = 1, limit = 10) {
+        return this.request(() =>
+            this.client.post(`/auth/search?page=${page}&limit=${limit}`)
+        );
     }
 
     getUserById(id) {
@@ -47,5 +51,34 @@ export class API {
         return this.request(() => this.client.put(`/users/${id}`, userData));
     }
 
-    // Add more API methods as needed...
+    // JOBS
+
+    // Add to API class in index.js
+    getJobs(page = 1, limit = 10, sort = "") {
+        return this.request(() =>
+            this.client.post(
+                `/jobs/search/admin?page=${page}&limit=${limit}&sort=${sort}`
+            )
+        );
+    }
+
+    getJobsConfig() {
+        return this.request(() => this.client.get("/jobs/config"));
+    }
+
+    getJobById(id) {
+        return this.request(() => this.client.get(`/jobs/${id}`));
+    }
+
+    createJob(jobData) {
+        return this.request(() => this.client.post("/jobs", jobData));
+    }
+
+    updateJob(id, jobData) {
+        return this.request(() => this.client.patch(`/jobs/${id}`, jobData));
+    }
+
+    deleteJob(id) {
+        return this.request(() => this.client.delete(`/jobs/${id}`));
+    }
 }

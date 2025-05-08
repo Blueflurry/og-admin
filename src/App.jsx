@@ -1,16 +1,11 @@
-import { useEffect, useState } from "react";
-import { useAPI } from "./hooks/useAPI";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import appRoutes from "./routes";
+import "./index.css";
 
-function App() {
-    const { api, isLoading, error, resetError } = useAPI();
-    const [users, setUsers] = useState([]);
+const App = () => {
+    const router = createBrowserRouter(appRoutes);
 
-    useEffect(() => api.getUsers().then((data) => setUsers(data)), []);
-    useEffect(() => api.getUserById().then((data) => setUsers(data)), []);
-    useEffect(() => api.getUsers().then((data) => setUsers(data)), []);
-    useEffect(() => api.getUserById().then((data) => setUsers(data)), []);
-
-    return <>hello world</>;
-}
+    return <RouterProvider router={router} />;
+};
 
 export default App;
