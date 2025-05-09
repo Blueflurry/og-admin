@@ -9,7 +9,6 @@ export class API {
 
         // Create axios instance with defaults
         this.client = axios;
-
         this.client.get("/auth/csrf");
     }
 
@@ -54,11 +53,11 @@ export class API {
     }
 
     // JOBS
-
-    getJobs(page = 1, limit = 10, sort = "") {
+    getJobs(page = 1, limit = 10, sort = "", filters = {}) {
         return this.request(() =>
             this.client.post(
-                `/jobs/search/admin?page=${page}&limit=${limit}&sort=${sort}`
+                `/jobs/search/admin?page=${page}&limit=${limit}&sort=${sort}`,
+                filters
             )
         );
     }
@@ -81,5 +80,16 @@ export class API {
 
     deleteJob(id) {
         return this.request(() => this.client.delete(`/jobs/${id}`));
+    }
+
+    getCompanies() {
+        return this.request(() => this.client.post(`/auth/company/search`, {}));
+    }
+
+    // Categories API methods (for dropdown in job form)
+    getCategories() {
+        return this.request(() =>
+            this.client.get("/content?limit=1000&type=3")
+        );
     }
 }

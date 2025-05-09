@@ -8,8 +8,14 @@ import {
     Typography,
     Tag,
     Divider,
+    Row,
+    Col,
 } from "antd";
-import { HomeOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import {
+    HomeOutlined,
+    EnvironmentOutlined,
+    TagOutlined,
+} from "@ant-design/icons";
 import moment from "moment";
 import ReactMarkdown from "react-markdown";
 
@@ -19,6 +25,38 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
     if (!jobData) {
         return null;
     }
+
+    // Helper to render category information
+    const renderCategory = () => {
+        const { category } = jobData;
+        if (!category) return "N/A";
+
+        if (typeof category === "object" && category.title) {
+            return (
+                <Row gutter={16} align="middle">
+                    <Col>
+                        {category.imageUrl && (
+                            <Avatar
+                                src={category.imageUrl}
+                                size={32}
+                                style={{
+                                    marginRight: 8,
+                                    objectFit: "contain",
+                                }}
+                            />
+                        )}
+                    </Col>
+                    <Col>
+                        <Tag icon={<TagOutlined />} color="blue">
+                            {category.title}
+                        </Tag>
+                    </Col>
+                </Row>
+            );
+        }
+
+        return <span>{category}</span>;
+    };
 
     return (
         <Drawer
@@ -41,7 +79,10 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
                 <Avatar
                     src={jobData.company?.data?.imageUrl || ""}
                     size={100}
-                    style={{ marginBottom: 16 }}
+                    style={{
+                        marginBottom: 16,
+                        objectFit: "contain",
+                    }}
                 >
                     {!jobData.company?.data?.imageUrl &&
                         (jobData.company?.data?.name?.charAt(0) || "J")}
@@ -65,7 +106,15 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
                 </Descriptions.Item>
                 <Descriptions.Item label="Job Type" span={1}>
                     <Tag color="blue">
-                        {jobData.type === 0 ? "Full-time" : "Part-time"}
+                        {jobData.type === 0
+                            ? "Internship"
+                            : jobData.type === 1
+                            ? "Contract"
+                            : jobData.type === 2
+                            ? "Part-time"
+                            : jobData.type === 3
+                            ? "Full-time"
+                            : "Other"}
                     </Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label="Remote" span={1}>
@@ -80,7 +129,7 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
                     )}
                 </Descriptions.Item>
                 <Descriptions.Item label="Category" span={1}>
-                    {jobData.category || "N/A"}
+                    {renderCategory()}
                 </Descriptions.Item>
                 <Descriptions.Item label="Salary Range" span={1}>
                     {jobData.salaryRange ||

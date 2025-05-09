@@ -11,7 +11,10 @@ import {
     Switch,
     InputNumber,
     message,
+    Avatar,
+    Divider,
 } from "antd";
+import { TagOutlined } from "@ant-design/icons";
 import { useAPI } from "../../hooks/useAPI";
 
 const { Option } = Select;
@@ -23,23 +26,42 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
     const { api, isLoading, error } = useAPI();
     const [companies, setCompanies] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [jobConfig, setJobConfig] = useState({
+        filters: {
+            status: { options: [] },
+            type: { options: [] },
+        },
+    });
+    const [loadingCompanies, setLoadingCompanies] = useState(false);
+    const [loadingCategories, setLoadingCategories] = useState(false);
+    const [loadingConfig, setLoadingConfig] = useState(false);
 
     // Reset form and initialize values when drawer opens or initialValues changes
     useEffect(() => {
         if (open) {
             form.resetFields();
 
-            // Fetch companies and categories for dropdowns
-            // This is just a placeholder. You'll need to implement these API methods
-            // fetchCompanies();
-            // fetchCategories();
+            // Fetch companies, categories, and job config for dropdowns
+            fetchCompanies();
+            fetchCategories();
+            fetchJobConfig();
 
             if (initialValues) {
+                console.log("Initial values:", initialValues);
+
                 // Format the data for the form
                 const formattedValues = {
                     title: initialValues.title || "",
-                    company: initialValues.company?._id || "",
-                    category: initialValues.category || "",
+                    company:
+                        initialValues.company?._id ||
+                        initialValues.company?.id ||
+                        "",
+                    // Handle category as object or string
+                    category:
+                        initialValues.category?._id ||
+                        initialValues.category?.id ||
+                        initialValues.category ||
+                        "",
                     description: initialValues.description || "",
                     isRemote: initialValues.isRemote || false,
                     minSalary: initialValues.minSalary || 0,
@@ -57,6 +79,76 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             }
         }
     }, [form, initialValues, open]);
+
+    // Fetch job configuration for dropdown options
+    const fetchJobConfig = async () => {
+        try {
+            setLoadingConfig(true);
+            const response = await api.getJobsConfig();
+            console.log("Job config API response:", response);
+
+            if (response && response.data) {
+                setJobConfig(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching job configuration:", error);
+            message.error("Failed to load job configuration");
+        } finally {
+            setLoadingConfig(false);
+        }
+    };
+
+    // Fetch companies for dropdown
+    const fetchCompanies = async () => {
+        try {
+            setLoadingCompanies(true);
+            const response = await api.getCompanies();
+            console.log("Companies API response:", response);
+
+            if (response && response.data) {
+                // Extract companies from the response based on the structure
+                let companyData = response.data;
+
+                // If the data is in docs structure
+                if (response.data.docs) {
+                    companyData = response.data.docs;
+                }
+
+                setCompanies(companyData || []);
+            }
+        } catch (error) {
+            console.error("Error fetching companies:", error);
+            message.error("Failed to load companies");
+        } finally {
+            setLoadingCompanies(false);
+        }
+    };
+
+    // Fetch categories for dropdown
+    const fetchCategories = async () => {
+        try {
+            setLoadingCategories(true);
+            const response = await api.getCategories();
+            console.log("Categories API response:", response);
+
+            if (response && response.data) {
+                // Extract categories from the response based on the structure
+                let categoryData = response.data;
+
+                // If the data is in docs structure
+                if (response.data.docs) {
+                    categoryData = response.data.docs;
+                }
+
+                setCategories(categoryData || []);
+            }
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+            message.error("Failed to load categories");
+        } finally {
+            setLoadingCategories(false);
+        }
+    };
 
     const handleSubmit = async () => {
         try {
@@ -101,21 +193,6 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             message.error("There was an error processing your request.");
         }
     };
-
-    // Mock companies and categories for now
-    // You would replace this with actual API data
-    useEffect(() => {
-        setCompanies([
-            { id: "1", name: "Jaro Education" },
-            { id: "2", name: "Another Company" },
-        ]);
-
-        setCategories([
-            { id: "681b2d837dc9103b3cf3047b", name: "Technology" },
-            { id: "2", name: "Finance" },
-            { id: "3", name: "Education" },
-        ]);
-    }, []);
 
     return (
         <Drawer
@@ -171,10 +248,35 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                                 },
                             ]}
                         >
-                            <Select placeholder="Select company">
+                            <Select
+                                placeholder="Select company"
+                                loading={loadingCompanies}
+                                optionLabelProp="label"
+                            >
                                 {companies.map((company) => (
-                                    <Option key={company.id} value={company.id}>
-                                        {company.name}
+                                    <Option
+                                        key={company._id || company.id}
+                                        value={company._id || company.id}
+                                        label={company.data?.name}
+                                    >
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                            }}
+                                        >
+                                            {company.data?.imageUrl && (
+                                                <Avatar
+                                                    src={company.data.imageUrl}
+                                                    size="small"
+                                                    style={{
+                                                        marginRight: 8,
+                                                        objectFit: "contain",
+                                                    }}
+                                                />
+                                            )}
+                                            <span>{company.data?.name}</span>
+                                        </div>
                                     </Option>
                                 ))}
                             </Select>
@@ -191,13 +293,40 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                                 },
                             ]}
                         >
-                            <Select placeholder="Select category">
+                            <Select
+                                placeholder="Select category"
+                                loading={loadingCategories}
+                                optionLabelProp="label"
+                            >
                                 {categories.map((category) => (
                                     <Option
-                                        key={category.id}
-                                        value={category.id}
+                                        key={category._id || category.id}
+                                        value={category._id || category.id}
+                                        label={category.title}
                                     >
-                                        {category.name}
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                            }}
+                                        >
+                                            {category.imageUrl && (
+                                                <Avatar
+                                                    src={category.imageUrl}
+                                                    size="small"
+                                                    style={{
+                                                        marginRight: 8,
+                                                        objectFit: "contain",
+                                                    }}
+                                                />
+                                            )}
+                                            <span>
+                                                <TagOutlined
+                                                    style={{ marginRight: 4 }}
+                                                />
+                                                {category.title}
+                                            </span>
+                                        </div>
                                     </Option>
                                 ))}
                             </Select>
@@ -241,52 +370,64 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                             label="Status"
                             initialValue={0}
                         >
-                            <Select>
-                                <Option value={1}>Active</Option>
-                                <Option value={0}>Inactive</Option>
+                            <Select loading={loadingConfig}>
+                                {jobConfig.filters?.status?.options?.map(
+                                    (option) => (
+                                        <Option
+                                            key={option.value}
+                                            value={option.value}
+                                        >
+                                            {option.label}
+                                        </Option>
+                                    )
+                                ) || [
+                                    <Option key={1} value={1}>
+                                        Active
+                                    </Option>,
+                                    <Option key={0} value={0}>
+                                        Inactive
+                                    </Option>,
+                                ]}
                             </Select>
                         </Form.Item>
                     </Col>
                 </Row>
 
                 <Row gutter={16}>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item
-                            name="minSalary"
-                            label="Minimum Salary (₹)"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter minimum salary",
-                                },
-                            ]}
+                            name="type"
+                            label="Job Type"
+                            initialValue={0}
                         >
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Minimum salary"
-                            />
+                            <Select loading={loadingConfig}>
+                                {jobConfig.filters?.type?.options?.map(
+                                    (option) => (
+                                        <Option
+                                            key={option.value}
+                                            value={option.value}
+                                        >
+                                            {option.label}
+                                        </Option>
+                                    )
+                                ) || [
+                                    <Option key={0} value={0}>
+                                        Internship
+                                    </Option>,
+                                    <Option key={1} value={1}>
+                                        Contract
+                                    </Option>,
+                                    <Option key={2} value={2}>
+                                        Part Time
+                                    </Option>,
+                                    <Option key={3} value={3}>
+                                        Full Time
+                                    </Option>,
+                                ]}
+                            </Select>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
-                        <Form.Item
-                            name="maxSalary"
-                            label="Maximum Salary (₹)"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter maximum salary",
-                                },
-                            ]}
-                        >
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Maximum salary"
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item
                             name="minExperience"
                             label="Minimum Experience (years)"
@@ -305,6 +446,47 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
+
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            name="minSalary"
+                            label="Minimum Salary (₹)"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter minimum salary",
+                                },
+                            ]}
+                        >
+                            <InputNumber
+                                style={{ width: "100%" }}
+                                min={0}
+                                placeholder="Minimum salary"
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            name="maxSalary"
+                            label="Maximum Salary (₹)"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter maximum salary",
+                                },
+                            ]}
+                        >
+                            <InputNumber
+                                style={{ width: "100%" }}
+                                min={0}
+                                placeholder="Maximum salary"
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Divider orientation="left">Location</Divider>
 
                 <Row gutter={16}>
                     <Col span={24}>

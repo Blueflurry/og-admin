@@ -22,7 +22,6 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
                     size={50}
                     src={record.company?.data?.imageUrl || ""}
                     style={{
-                        // backgroundColor: "#f56a00",
                         objectFit: "contain",
                         borderRadius: "50%",
                     }}
@@ -97,7 +96,7 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         dataIndex: "salaryRange",
         key: "salary",
         align: "center",
-        width: 150,
+        width: 120,
     },
     {
         title: "Posted Date",
@@ -112,7 +111,6 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         dataIndex: "status",
         key: "status",
         align: "center",
-        fixed: "right",
         width: 100,
         render: (status) => (
             <Tag color={status === 1 ? "green" : "red"}>

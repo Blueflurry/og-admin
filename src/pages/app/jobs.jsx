@@ -14,6 +14,7 @@ const Jobs = () => {
         page: 1,
         limit: 10,
         sort: "",
+        filters: {},
     });
 
     useEffect(() => {
@@ -22,11 +23,11 @@ const Jobs = () => {
 
     const fetchJobs = async () => {
         try {
-            const data = await api.getJobs(
-                updateRecords.page,
-                updateRecords.limit,
-                updateRecords.sort
-            );
+            // Extract filters and sort from updateRecords
+            const { page, limit, sort, filters = {} } = updateRecords;
+
+            const data = await api.getJobs(page, limit, sort, filters);
+
             console.log("Jobs data:", data);
             setJobs(data.data.docs || []);
 
@@ -34,6 +35,7 @@ const Jobs = () => {
             setPagination({
                 page: updateRecords.page,
                 limit: updateRecords.limit,
+                sort: updateRecords.sort,
                 totalDocs: data.data.pagination?.totalDocs || 0,
                 ...data.data.pagination,
             });
