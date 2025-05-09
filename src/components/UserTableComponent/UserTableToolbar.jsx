@@ -1,5 +1,6 @@
+// Updated UserTableToolbar.jsx with filter badge
 import React from "react";
-import { Button } from "antd";
+import { Button, Badge } from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { createStyles } from "antd-style";
 
@@ -20,7 +21,7 @@ const useStyle = createStyles(({ css }) => ({
     `,
 }));
 
-const UserTableToolbar = ({ onSearch, onCreateNew }) => {
+const UserTableToolbar = ({ onSearch, onCreateNew, filterActive = false }) => {
     const { styles } = useStyle();
 
     return (
@@ -29,10 +30,12 @@ const UserTableToolbar = ({ onSearch, onCreateNew }) => {
                 {/* Left side controls if needed */}
             </div>
             <div className={styles.rightControls}>
-                <Button onClick={onSearch}>
-                    <SearchOutlined />
-                    Search and Filter
-                </Button>
+                <Badge dot={filterActive} offset={[-5, 5]}>
+                    <Button onClick={onSearch}>
+                        <SearchOutlined />
+                        Search and Filter
+                    </Button>
+                </Badge>
                 <Button type="primary" onClick={onCreateNew}>
                     <PlusOutlined />
                     Create New

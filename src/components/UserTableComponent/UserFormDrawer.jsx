@@ -1,3 +1,4 @@
+// Fixed UserFormDrawer.jsx with pre-filled profile picture
 import React, { useEffect, useState } from "react";
 import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 import {
@@ -16,7 +17,7 @@ import {
 import moment from "moment";
 import { useAPI } from "../../hooks/useAPI";
 
-const { OPTION } = Select;
+const { Option } = Select;
 
 const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
     const [form] = Form.useForm();
@@ -30,11 +31,15 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
     useEffect(() => {
         if (open) {
             form.resetFields();
+
+            // Reset image states
             setImageFile(null);
             setImageUrl("");
             setUploading(false);
 
             if (initialValues) {
+                console.log("Initial values for edit:", initialValues);
+
                 // Format the data for the form
                 const formattedValues = {
                     firstName: initialValues.name?.first || "",
@@ -49,12 +54,26 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                     state: initialValues.address?.state || "",
                     pincode: initialValues.address?.pincode || "",
                     country: initialValues.address?.country || "",
+                    status: initialValues.status || 1,
                 };
                 form.setFieldsValue(formattedValues);
 
-                // Set image URL if available
+                // Set image URL if available - FIXED: Handle different image URL properties
                 if (initialValues.imageUrl) {
+                    console.log("Setting image URL:", initialValues.imageUrl);
                     setImageUrl(initialValues.imageUrl);
+                } else if (initialValues.imgUrl) {
+                    console.log(
+                        "Setting image URL from imgUrl:",
+                        initialValues.imgUrl
+                    );
+                    setImageUrl(initialValues.imgUrl);
+                } else if (initialValues.img) {
+                    console.log(
+                        "Setting image URL from img:",
+                        initialValues.img
+                    );
+                    setImageUrl(initialValues.img);
                 }
             }
         }
@@ -83,13 +102,16 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                     pincode: values.pincode,
                     country: values.country,
                 },
-                status: 1, // Default active status
+                status: values.status, // Added status field
                 imageFile: imageFile, // Send the image file directly
                 imageUrl: imageUrl, // Keep existing URL for updates
             };
 
             if (isEditMode) {
-                await api.updateUser(initialValues.id, userData);
+                await api.updateUser(
+                    initialValues.id || initialValues._id,
+                    userData
+                );
                 message.success("User updated successfully");
             } else {
                 await api.createUser(userData);
@@ -153,7 +175,11 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             extra={
                 <Space>
                     <Button onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleSubmit} type="primary">
+                    <Button
+                        onClick={handleSubmit}
+                        type="primary"
+                        loading={isLoading}
+                    >
                         {isEditMode ? "Update" : "Submit"}
                     </Button>
                 </Space>
@@ -380,6 +406,29 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                             ]}
                         >
                             <Input placeholder="Country" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                {/* Status field */}
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Form.Item
+                            name="status"
+                            label={<>Status </>}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please select user status",
+                                },
+                            ]}
+                            initialValue={1}
+                        >
+                            <Select placeholder="Select user status">
+                                <Option value={1}>Active</Option>
+                                <Option value={0}>Unauthorized</Option>
+                                <Option value={-1}>Disabled</Option>
+                            </Select>
                         </Form.Item>
                     </Col>
                 </Row>

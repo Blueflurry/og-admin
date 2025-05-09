@@ -32,10 +32,12 @@ export class API {
     }
 
     // USERS
-    getUsers(page = 1, limit = 10, sort = "") {
+    getUsers(page = 1, limit = 10, sort = "", filters = {}) {
+        // Always use POST with filters in the body
         return this.request(() =>
             this.client.post(
-                `/auth/search?page=${page}&limit=${limit}&sort=${sort}`
+                `/auth/search?page=${page}&limit=${limit}&sort=${sort}`,
+                filters || {} // Ensure we always send an object, even if filters is undefined
             )
         );
     }
@@ -50,6 +52,14 @@ export class API {
 
     updateUser(id, userData) {
         return this.request(() => this.client.patch(`/auth/${id}`, userData));
+    }
+
+    deleteUser(id) {
+        return this.request(() => this.client.delete(`/auth/${id}`));
+    }
+
+    getUsersConfig() {
+        return this.request(() => this.client.get("/auth/config"));
     }
 
     // JOBS
