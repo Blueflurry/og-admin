@@ -13,19 +13,26 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         title: "User Information",
         key: "userInfo",
         align: "left",
-        width: 320,
+        width: 250,
         render: (_, record) => (
             <div style={{ display: "flex", alignItems: "center" }}>
                 <Avatar
-                    size={40}
+                    size={50}
                     src={
                         record.imageUrl ||
+                        record.imgUrl ||
                         "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
                     }
+                    style={{
+                        objectFit: "contain",
+                        borderRadius: "50%",
+                    }}
                 />
                 <div style={{ marginLeft: 12 }}>
                     <div style={{ fontWeight: 500 }}>
-                        {`${record.name.first || ""} ${record.name.last || ""}`}
+                        {record.name.first || ""}
+                        {record.name.middle ? ` ${record.name.middle} ` : " "}
+                        {record.name.last || ""}
                     </div>
                     <div style={{ fontSize: "12px", color: "#8c8c8c" }}>
                         ID: {record.id || record._id}
@@ -34,71 +41,66 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => [
             </div>
         ),
     },
-    // {
-    //     title: "ID",
-    //     dataIndex: "id",
-    //     key: "id",
-    //     align: "center",
-    // },
-    // {
-    //     title: "Profile",
-    //     dataIndex: "imageUrl",
-    //     key: "avatar",
-    //     width: 80,
-    //     align: "center",
-    //     render: (imageUrl) => (
-    //         <Avatar
-    //             src={
-    //                 imageUrl ||
-    //                 "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-    //             }
-    //         />
-    //     ),
-    // },
-    // {
-    //     title: "Name",
-    //     dataIndex: "name",
-    //     key: "name",
-    //     align: "center",
-    //     render: (name) => `${name.first} ${name.last}`,
-    // },
     {
         title: "Email",
         dataIndex: "email",
         key: "email",
         align: "left",
-        render: (email) => <a href={`mailto:${email}`}>{email}</a>,
+        width: 220,
+        render: (email) =>
+            email ? <a href={`mailto:${email}`}>{email}</a> : "N/A",
     },
     {
         title: "Primary Phone",
         dataIndex: "phone1",
         key: "phone",
         align: "center",
-        render: (phone) => `+91-${phone}`,
+        width: 150,
+        render: (phone) => (phone ? `+91-${phone}` : "N/A"),
+    },
+    {
+        title: "Secondary Phone",
+        dataIndex: "phone2",
+        key: "phone2",
+        align: "center",
+        width: 150,
+        render: (phone) => (phone ? `+91-${phone}` : "N/A"),
     },
     {
         title: "Date of Birth",
         dataIndex: "dob",
         key: "dob",
         align: "center",
-        render: (dob) => moment(dob).format("DD MMM, YYYY"),
+        width: 120,
+        render: (dob) => (dob ? moment(dob).format("DD MMM, YYYY") : "N/A"),
     },
     {
-        title: "Street Address",
+        title: "Location",
         dataIndex: "address",
         key: "address",
-        align: "center",
-        render: (address) => (
-            <span>
-                {address.street}, {address.pincode}
-            </span>
-        ),
+        align: "left",
+        width: 200,
+        render: (address) =>
+            address ? (
+                <span>
+                    {address.city || ""}
+                    {address.city && address.state ? ", " : ""}
+                    {address.state || ""}
+                    {(address.city || address.state) && address.country
+                        ? ", "
+                        : ""}
+                    {address.country || ""}
+                </span>
+            ) : (
+                "N/A"
+            ),
     },
     {
         title: "Status",
         dataIndex: "status",
         key: "status",
         align: "center",
+        width: 100,
         render: (status) => (
             <Tag color={status === 1 ? "green" : "red"}>
                 {status === 1 ? "Active" : "Inactive"}
@@ -120,19 +122,20 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => [
                                 key: "View",
                                 label: "View",
                                 icon: <EyeOutlined />,
-                                onClick: () => handleView(record),
+                                onClick: () => handleView && handleView(record),
                             },
                             {
                                 key: "Edit",
                                 label: "Edit",
                                 icon: <EditOutlined />,
-                                onClick: () => handleEdit(record),
+                                onClick: () => handleEdit && handleEdit(record),
                             },
                             {
                                 key: "Delete",
                                 label: "Delete",
                                 icon: <DeleteOutlined />,
-                                onClick: () => handleDelete(record),
+                                onClick: () =>
+                                    handleDelete && handleDelete(record),
                             },
                         ],
                     }}

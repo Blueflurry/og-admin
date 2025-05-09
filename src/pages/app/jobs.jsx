@@ -5,7 +5,11 @@ import JobTable from "../../components/JobTableComponent/JobTable";
 const Jobs = () => {
     const { api, isLoading, error, resetError } = useAPI();
     const [jobs, setJobs] = useState([]);
-    const [pagination, setPagination] = useState({});
+    const [pagination, setPagination] = useState({
+        page: 1,
+        limit: 10,
+        totalDocs: 0,
+    });
     const [updateRecords, setUpdateRecords] = useState({
         page: 1,
         limit: 10,
@@ -25,13 +29,25 @@ const Jobs = () => {
             );
             console.log("Jobs data:", data);
             setJobs(data.data.docs || []);
-            setPagination(data.data.pagination || {});
+
+            // Update pagination with current values
+            setPagination({
+                page: updateRecords.page,
+                limit: updateRecords.limit,
+                totalDocs: data.data.pagination?.totalDocs || 0,
+                ...data.data.pagination,
+            });
         } catch (err) {
             console.error("Error fetching jobs:", err);
         }
     };
 
-    if (isLoading) return <div>Loading...</div>;
+    const handleUpdateRecords = (newRecords) => {
+        console.log("Updating records with:", newRecords);
+        setUpdateRecords(newRecords);
+    };
+
+    if (isLoading && jobs.length === 0) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
 
     return (
@@ -39,7 +55,7 @@ const Jobs = () => {
             <JobTable
                 jobData={jobs}
                 pagination={pagination}
-                setUpdateRecords={setUpdateRecords}
+                setUpdateRecords={handleUpdateRecords}
             />
         </div>
     );

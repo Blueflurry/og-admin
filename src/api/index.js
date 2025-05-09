@@ -33,27 +33,28 @@ export class API {
     }
 
     // USERS
-    getUsers(page = 1, limit = 10) {
+    getUsers(page = 1, limit = 10, sort = "") {
         return this.request(() =>
-            this.client.post(`/auth/search?page=${page}&limit=${limit}`)
+            this.client.post(
+                `/auth/search?page=${page}&limit=${limit}&sort=${sort}`
+            )
         );
     }
 
     getUserById(id) {
-        return this.request(() => this.client.get(`/users/${id}`));
+        return this.request(() => this.client.get(`/auth/${id}`));
     }
 
     createUser(userData) {
-        return this.request(() => this.client.post("/users", userData));
+        return this.request(() => this.client.post("/auth", userData));
     }
 
     updateUser(id, userData) {
-        return this.request(() => this.client.put(`/users/${id}`, userData));
+        return this.request(() => this.client.patch(`/auth/${id}`, userData));
     }
 
     // JOBS
 
-    // Add to API class in index.js
     getJobs(page = 1, limit = 10, sort = "") {
         return this.request(() =>
             this.client.post(

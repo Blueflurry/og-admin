@@ -6,7 +6,7 @@ import { createStyles } from "antd-style";
 import UserTableToolbar from "./UserTableToolbar";
 import getUserTableColumns from "./UserTableColumns";
 import UserFormDrawer from "./UserFormDrawer";
-import UserViewDrawer from "./UserViewDrawer"; // Import the view drawer
+import UserViewDrawer from "./UserViewDrawer";
 import {
     useTableConfig,
     getPaginationConfig,
@@ -67,12 +67,19 @@ const UserTable = ({
     const handleFormSuccess = () => {
         // Refresh the table data
         if (setUpdateRecords) {
-            setUpdateRecords({ page: 1, limit: 10 });
+            setUpdateRecords({ page: 1, limit: 10, sort: "" });
         }
     };
 
     const onChangePagination = (page, pageSize) => {
-        setUpdateRecords({ page: page, limit: pageSize });
+        // Update records with new page and limit values
+        if (setUpdateRecords) {
+            setUpdateRecords({
+                page: page,
+                limit: pageSize,
+                sort: "",
+            });
+        }
     };
 
     const columns = getUserTableColumns({
