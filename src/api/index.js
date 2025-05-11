@@ -9,7 +9,7 @@ export class API {
 
         // Create axios instance with defaults
         this.client = axios;
-        this.client.get("/auth/csrf");
+        // this.client.get("/auth/csrf");
     }
 
     // Wrap API calls to track loading state
@@ -47,7 +47,7 @@ export class API {
     }
 
     createUser(userData) {
-        return this.request(() => this.client.post("/auth", userData));
+        return this.request(() => this.client.post("/auth/register", userData));
     }
 
     updateUser(id, userData) {
@@ -64,12 +64,7 @@ export class API {
 
     // JOBS
     getJobs(page = 1, limit = 10, sort = "", filters = {}) {
-        return this.request(() =>
-            this.client.post(
-                `/jobs/search/admin?page=${page}&limit=${limit}&sort=${sort}`,
-                filters
-            )
-        );
+        return this.request(() => this.client.post(`/jobs/search/admin?page=${page}&limit=${limit}&sort=${sort}`, filters));
     }
 
     getJobsConfig() {
@@ -98,9 +93,7 @@ export class API {
 
     // Categories API methods (for dropdown in job form)
     getCategories() {
-        return this.request(() =>
-            this.client.get("/content?limit=1000&type=3")
-        );
+        return this.request(() => this.client.get("/content?limit=1000&type=3"));
     }
 
     // Updated API methods for Courses with filter support
@@ -114,8 +107,7 @@ export class API {
         }
 
         // Get status from filters or use default status=1 for courses
-        const status =
-            filters && filters.status !== undefined ? filters.status : 1;
+        const status = filters && filters.status !== undefined ? filters.status : 1;
         queryParams += `&status=${status}`;
 
         // Process remaining filters and add them to the query string
@@ -133,15 +125,11 @@ export class API {
                         if (Array.isArray(opValue) && operator === "$in") {
                             // Handle $in operator with array values
                             opValue.forEach((item) => {
-                                queryParams += `&${key}[${paramOperator}][]=${encodeURIComponent(
-                                    item
-                                )}`;
+                                queryParams += `&${key}[${paramOperator}][]=${encodeURIComponent(item)}`;
                             });
                         } else {
                             // Handle other operators
-                            queryParams += `&${key}[${paramOperator}]=${encodeURIComponent(
-                                opValue
-                            )}`;
+                            queryParams += `&${key}[${paramOperator}]=${encodeURIComponent(opValue)}`;
                         }
                     });
                 } else {
@@ -218,9 +206,7 @@ export class API {
 
     updateCourse(id, courseData) {
         // Handle both FormData and regular objects
-        return this.request(() =>
-            this.client.patch(`/courses/${id}`, courseData)
-        );
+        return this.request(() => this.client.patch(`/courses/${id}`, courseData));
     }
 
     updateWebinar(id, webinarData) {

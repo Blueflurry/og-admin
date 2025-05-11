@@ -5,35 +5,18 @@ import { createStyles } from "antd-style";
 
 // Import separated components and utilities
 import getUserTableColumns from "./UserTableColumns";
-import {
-    useTableConfig,
-    getPaginationConfig,
-    tableStyles,
-} from "./UserTableConfig";
+import { useTableConfig, getPaginationConfig, tableStyles } from "./UserTableConfig";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
-const UserTable = ({
-    userData,
-    pagination,
-    setUpdateRecords,
-    handleView,
-    handleEdit,
-    handleDelete,
-    ...props
-}) => {
+const UserTable = ({ userData, pagination, setUpdateRecords, handleView, handleEdit, handleDelete, ...props }) => {
     const { styles } = useStyle();
-    const { selectionType, rowSelection, handleChange, clearFilters } =
-        useTableConfig();
+    const { selectionType, rowSelection, handleChange, clearFilters } = useTableConfig();
 
     console.log("UserTable received handleDelete:", !!handleDelete); // Debug
 
     const handleTableChange = (pagination, filters, sorter) => {
-        const { handleChange: originalHandleChange } = handleChange(
-            pagination,
-            filters,
-            sorter
-        );
+        const { handleChange: originalHandleChange } = handleChange(pagination, filters, sorter);
 
         // Handle sorting
         let sort = "";
@@ -93,6 +76,7 @@ const UserTable = ({
             columns={columns}
             dataSource={dataSource}
             onChange={handleTableChange}
+            tableLayout="fixed"
             pagination={getPaginationConfig({
                 pagination,
                 onChangePagination: (page, pageSize) => {

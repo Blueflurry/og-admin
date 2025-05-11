@@ -1,13 +1,7 @@
 // Updated UserTableColumns.jsx with complete address details
 import React from "react";
 import { Space, Avatar, Tag, Button, Dropdown, Tooltip } from "antd";
-import {
-    DeleteOutlined,
-    DownOutlined,
-    EditOutlined,
-    EyeOutlined,
-    EnvironmentOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, DownOutlined, EditOutlined, EyeOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import moment from "moment";
 
 const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
@@ -18,17 +12,12 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             title: "User Information",
             key: "userInfo",
             align: "left",
-            width: 250,
+            width: 280,
             render: (_, record) => (
                 <div style={{ display: "flex", alignItems: "center" }}>
                     <Avatar
                         size={50}
-                        src={
-                            record.imageUrl ||
-                            record.imgUrl ||
-                            record.img ||
-                            "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                        }
+                        src={record.imageUrl || record.imgUrl || record.img || "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"}
                         style={{
                             objectFit: "contain",
                             borderRadius: "50%",
@@ -37,94 +26,13 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
                     <div style={{ marginLeft: 12 }}>
                         <div style={{ fontWeight: 500 }}>
                             {record.name?.first || ""}
-                            {record.name?.middle
-                                ? ` ${record.name.middle} `
-                                : " "}
+                            {record.name?.middle ? ` ${record.name.middle} ` : " "}
                             {record.name?.last || ""}
                         </div>
-                        <div style={{ fontSize: "12px", color: "#8c8c8c" }}>
-                            ID: {record.id || record._id}
-                        </div>
+                        <div style={{ fontSize: "12px", color: "#8c8c8c" }}>ID: {record.id || record._id}</div>
                     </div>
                 </div>
             ),
-        },
-        {
-            title: "Email",
-            dataIndex: "email",
-            key: "email",
-            align: "left",
-            width: 220,
-            render: (email) =>
-                email ? <a href={`mailto:${email}`}>{email}</a> : "N/A",
-        },
-        {
-            title: "Primary Phone",
-            dataIndex: "phone1",
-            key: "phone",
-            align: "center",
-            width: 150,
-            render: (phone) => (phone ? `+91-${phone}` : "N/A"),
-        },
-        {
-            title: "Date of Birth",
-            dataIndex: "dob",
-            key: "dob",
-            align: "center",
-            width: 120,
-            render: (dob) => (dob ? moment(dob).format("DD MMM, YYYY") : "N/A"),
-        },
-        {
-            title: "Location",
-            dataIndex: "address",
-            key: "address",
-            align: "left",
-            width: 100,
-            render: (address) => {
-                if (!address) return "N/A";
-
-                // Create a complete address string with all details
-                const fullAddress = [
-                    address.street,
-                    address.city,
-                    address.state,
-                    address.pincode,
-                    address.country,
-                ]
-                    .filter(Boolean) // Remove empty/undefined values
-                    .join(", ");
-
-                // Create a truncated version for the table cell
-                const displayAddress = [
-                    address.street,
-                    address.city,
-                    address.state,
-                    address.pincode,
-                    address.country,
-                ]
-                    .filter(Boolean)
-                    .join(", ");
-
-                // Show a tooltip with the full address on hover
-                return (
-                    <Tooltip title={fullAddress}>
-                        <Space>
-                            <EnvironmentOutlined />
-                            <span
-                                style={{
-                                    maxWidth: "120px",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
-                                }}
-                            >
-                                {displayAddress || "N/A"}
-                                {/* {address.pincode ? ` - ${address.pincode}` : ""} */}
-                            </span>
-                        </Space>
-                    </Tooltip>
-                );
-            },
         },
         {
             title: "Created At",
@@ -132,9 +40,8 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             key: "createdAt",
             align: "center",
             width: 150,
-            sorter: true,
-            render: (createdAt) =>
-                createdAt ? moment(createdAt).format("DD MMM, YYYY") : "N/A",
+            // sorter: true,
+            render: (createdAt) => (createdAt ? moment(createdAt).format("DD MMM, YYYY") : "N/A"),
         },
         {
             title: "Status",
@@ -167,10 +74,102 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             },
         },
         {
+            title: "Email",
+            dataIndex: "email",
+            key: "email",
+            align: "left",
+            width: 220,
+            render: (email) => (email ? <a href={`mailto:${email}`}>{email}</a> : "N/A"),
+        },
+        {
+            title: "Primary Phone",
+            dataIndex: "phone1",
+            key: "phone",
+            align: "center",
+            width: 150,
+            render: (phone) => (phone ? `+91-${phone}` : "N/A"),
+        },
+
+        {
+            title: "Date of Birth",
+            dataIndex: "dob",
+            key: "dob",
+            align: "center",
+            width: 120,
+            render: (dob) => (dob ? moment(dob).format("DD MMM, YYYY") : "N/A"),
+        },
+        {
+            title: "Location",
+            dataIndex: "address",
+            key: "address",
+            align: "left",
+            width: 100,
+            ellipsis: true,
+            render: (address) => {
+                if (!address) return "N/A";
+
+                // Create a complete address string with all details
+                const fullAddress = [address.street, address.city, address.state, address.pincode, address.country]
+                    .filter(Boolean) // Remove empty/undefined values
+                    .join(", ");
+
+                const streetParts = address.street.split(",");
+
+                const part1 = address.city
+                    ? address.city
+                    : streetParts.length > 3
+                    ? streetParts[streetParts.length - 3]
+                    : streetParts.length > 2
+                    ? streetParts[streetParts.length - 2]
+                    : streetParts.length > 1
+                    ? streetParts[1]
+                    : streetParts[0];
+
+                let part2,
+                    part3 = null;
+
+                if (part1.length < 20) {
+                    part2 = address.state
+                        ? address.state
+                        : streetParts.length > 3
+                        ? streetParts[streetParts.length - 2]
+                        : streetParts.length > 2
+                        ? streetParts[0]
+                        : null;
+
+                    part3 = address.country ? address.country : streetParts.length > 3 ? streetParts[1] : null;
+                }
+
+                // Create a truncated version for the table cell
+                const displayAddress = [part1, part2, part3].filter(Boolean).join(", ");
+                // Show a tooltip with the full address on hover
+                return (
+                    <Tooltip title={fullAddress}>
+                        <Space>
+                            <EnvironmentOutlined />
+                            <span
+                                style={{
+                                    maxWidth: "120px",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    wordBreak: "break-word",
+                                    wordWrap: "break-word",
+                                }}
+                            >
+                                {displayAddress || "N/A"}
+                                {/* {address.pincode ? ` - ${address.pincode}` : ""} */}
+                            </span>
+                        </Space>
+                    </Tooltip>
+                );
+            },
+        },
+        {
             title: "Actions",
             key: "actions",
             fixed: "right",
-            width: 100,
+            width: 120,
             align: "center",
             render: (_, record) => {
                 // Create menu items array for dropdown

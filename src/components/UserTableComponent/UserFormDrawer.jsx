@@ -1,22 +1,9 @@
-// Fixed UserFormDrawer.jsx with pre-filled profile picture
+// UserFormDrawer.jsx with FormData for multipart/form-data submissions
 import React, { useEffect, useState } from "react";
 import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
-import {
-    Button,
-    Col,
-    DatePicker,
-    Drawer,
-    Form,
-    Input,
-    Row,
-    Select,
-    Space,
-    Upload,
-    message,
-} from "antd";
+import { Button, Col, DatePicker, Drawer, Form, Input, Row, Select, Space, Upload, message } from "antd";
 import moment from "moment";
 import { useAPI } from "../../hooks/useAPI";
-
 const { Option } = Select;
 
 const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
@@ -31,15 +18,12 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
     useEffect(() => {
         if (open) {
             form.resetFields();
-
             // Reset image states
             setImageFile(null);
             setImageUrl("");
             setUploading(false);
-
             if (initialValues) {
                 console.log("Initial values for edit:", initialValues);
-
                 // Format the data for the form
                 const formattedValues = {
                     firstName: initialValues.name?.first || "",
@@ -57,22 +41,15 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                     status: initialValues.status || 1,
                 };
                 form.setFieldsValue(formattedValues);
-
-                // Set image URL if available - FIXED: Handle different image URL properties
+                // Set image URL if available - Handle different image URL properties
                 if (initialValues.imageUrl) {
                     console.log("Setting image URL:", initialValues.imageUrl);
                     setImageUrl(initialValues.imageUrl);
                 } else if (initialValues.imgUrl) {
-                    console.log(
-                        "Setting image URL from imgUrl:",
-                        initialValues.imgUrl
-                    );
+                    console.log("Setting image URL from imgUrl:", initialValues.imgUrl);
                     setImageUrl(initialValues.imgUrl);
                 } else if (initialValues.img) {
-                    console.log(
-                        "Setting image URL from img:",
-                        initialValues.img
-                    );
+                    console.log("Setting image URL from img:", initialValues.img);
                     setImageUrl(initialValues.img);
                 }
             }
@@ -82,42 +59,45 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-
             console.log("Form values:", values);
-            // Format the data for API
-            const userData = {
-                name: {
-                    first: values.firstName,
-                    middle: values.middleName,
-                    last: values.lastName,
-                },
-                email: values.email,
-                phone1: values.primaryPhone,
-                phone2: values.secondaryPhone,
-                dob: values.dob ? values.dob.format("YYYY-MM-DD") : null,
-                address: {
-                    street: values.streetAddress,
-                    city: values.city,
-                    state: values.state,
-                    pincode: values.pincode,
-                    country: values.country,
-                },
-                status: values.status, // Added status field
-                imageFile: imageFile, // Send the image file directly
-                imageUrl: imageUrl, // Keep existing URL for updates
-            };
 
-            if (isEditMode) {
-                await api.updateUser(
-                    initialValues.id || initialValues._id,
-                    userData
-                );
-                message.success("User updated successfully");
-            } else {
-                await api.createUser(userData);
-                message.success("User created successfully");
+            // Create FormData object for multipart/form-data
+            const formData = new FormData();
+
+            formData.append("name[first]", values.firstName);
+            formData.append("name[middle]", values.middleName || "");
+            formData.append("name[last]", values.lastName || "");
+            formData.append("email", values.email);
+            formData.append("phone1", values.primaryPhone);
+            formData.append("phone2", values.secondaryPhone || "");
+            formData.append("dob", values.dob ? values.dob.format("YYYY-MM-DD") : "");
+
+            // Add address fields using bracket notation
+            formData.append("address[street]", values.streetAddress);
+            formData.append("address[city]", values.city);
+            formData.append("address[state]", values.state);
+            formData.append("address[country]", values.country);
+            formData.append("address[pincode]", values.pincode);
+
+            formData.append("status", values.status);
+
+            // Add image file to FormData if it exists
+            if (imageFile) {
+                formData.append("image", imageFile);
             }
 
+            // For edit mode, add the existing image URL if there's no new file
+            if (isEditMode && !imageFile && imageUrl) {
+                formData.append("imgUrl", imageUrl);
+            }
+
+            if (isEditMode) {
+                await api.updateUser(initialValues.id || initialValues._id, formData);
+                message.success("User updated successfully");
+            } else {
+                await api.createUser(formData);
+                message.success("User created successfully");
+            }
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
@@ -129,11 +109,9 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
     // Handle image upload
     const handleImageUpload = (info) => {
         setUploading(true);
-
         // Get the file
         const file = info.file.originFileObj;
         setImageFile(file);
-
         // Create a temporary URL for preview
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -155,9 +133,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
     const uploadButton = (
         <div>
             {uploading ? <LoadingOutlined /> : <PlusOutlined />}
-            <div style={{ marginTop: 8 }}>
-                {uploading ? "Processing" : "Upload"}
-            </div>
+            <div style={{ marginTop: 8 }}>{uploading ? "Processing" : "Upload"}</div>
         </div>
     );
 
@@ -175,11 +151,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             extra={
                 <Space>
                     <Button onClick={onClose}>Cancel</Button>
-                    <Button
-                        onClick={handleSubmit}
-                        type="primary"
-                        loading={isLoading}
-                    >
+                    <Button onClick={handleSubmit} type="primary" loading={isLoading}>
                         {isEditMode ? "Update" : "Submit"}
                     </Button>
                 </Space>
@@ -187,10 +159,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
         >
             <Form layout="vertical" form={form} requiredMark>
                 <Row gutter={16}>
-                    <Col
-                        span={24}
-                        style={{ textAlign: "center", marginBottom: 24 }}
-                    >
+                    <Col span={24} style={{ textAlign: "center", marginBottom: 24 }}>
                         <Form.Item name="profileImage" label="Profile Image">
                             <Upload
                                 name="avatar"
@@ -199,19 +168,13 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                                 showUploadList={false}
                                 customRequest={customRequest}
                                 beforeUpload={(file) => {
-                                    const isJpgOrPng =
-                                        file.type === "image/jpeg" ||
-                                        file.type === "image/png";
+                                    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
                                     if (!isJpgOrPng) {
-                                        message.error(
-                                            "You can only upload JPG/PNG file!"
-                                        );
+                                        message.error("You can only upload JPG/PNG file!");
                                     }
                                     const isLt2M = file.size / 1024 / 1024 < 2;
                                     if (!isLt2M) {
-                                        message.error(
-                                            "Image must be smaller than 2MB!"
-                                        );
+                                        message.error("Image must be smaller than 2MB!");
                                     }
                                     return isJpgOrPng && isLt2M;
                                 }}
@@ -235,7 +198,6 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
-
                 <Row gutter={16}>
                     <Col span={8}>
                         <Form.Item
@@ -262,7 +224,6 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
-
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
@@ -289,8 +250,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                             rules={[
                                 {
                                     required: true,
-                                    message:
-                                        "Please enter primary phone number",
+                                    message: "Please enter primary phone number",
                                 },
                             ]}
                         >
@@ -298,13 +258,9 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
-
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            name="secondaryPhone"
-                            label="Secondary Phone"
-                        >
+                        <Form.Item name="secondaryPhone" label="Secondary Phone">
                             <Input placeholder="Secondary phone number" />
                         </Form.Item>
                     </Col>
@@ -319,15 +275,10 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                                 },
                             ]}
                         >
-                            <DatePicker
-                                style={{ width: "100%" }}
-                                placeholder="Select date"
-                                format="YYYY-MM-DD"
-                            />
+                            <DatePicker style={{ width: "100%" }} placeholder="Select date" format="YYYY-MM-DD" />
                         </Form.Item>
                     </Col>
                 </Row>
-
                 <Row gutter={16}>
                     <Col span={24}>
                         <Form.Item
@@ -340,14 +291,10 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                                 },
                             ]}
                         >
-                            <Input.TextArea
-                                rows={3}
-                                placeholder="Street address"
-                            />
+                            <Input.TextArea rows={3} placeholder="Street address" />
                         </Form.Item>
                     </Col>
                 </Row>
-
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
@@ -378,7 +325,6 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
-
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
@@ -409,7 +355,6 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
-
                 {/* Status field */}
                 <Row gutter={16}>
                     <Col span={24}>
