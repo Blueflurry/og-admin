@@ -79,7 +79,7 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             dataIndex: "address",
             key: "address",
             align: "left",
-            width: 120,
+            width: 100,
             render: (address) => {
                 if (!address) return "N/A";
 

@@ -4,6 +4,8 @@ import Login from "./pages/auth/login";
 import Signup from "./pages/auth/signup";
 import AuthLayout from "./layouts/auth";
 import AppLayout from "./layouts/app";
+import Courses from "./pages/app/courses";
+import Webinars from "./pages/app/webinars";
 
 const appRoutes = [
     {
@@ -29,8 +31,16 @@ const appRoutes = [
                 element: <Users />,
             },
             {
-                path: "jobs", // Add this route
+                path: "jobs",
                 element: <Jobs />,
+            },
+            {
+                path: "courses",
+                element: <Courses />,
+            },
+            {
+                path: "webinars",
+                element: <Webinars />,
             },
         ],
     },
