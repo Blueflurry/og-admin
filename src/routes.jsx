@@ -1,41 +1,74 @@
+// routes.jsx
 import Users from "./pages/app/users";
-import Jobs from "./pages/app/jobs"; // Add this import
+import Jobs from "./pages/app/jobs";
 import Login from "./pages/auth/login";
 import AuthLayout from "./layouts/auth";
 import AppLayout from "./layouts/app";
 import Courses from "./pages/app/courses";
 import Webinars from "./pages/app/webinars";
+import ProtectedLayout from "./components/ProtectedLayout";
+import PrivateRoute from "./components/PrivateRoute";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
+import paths from "./constants/appUrls";
 
 const appRoutes = [
     {
-        path: "/auth/",
+        path: paths.auth,
         element: <AuthLayout />,
         children: [
             {
-                path: "login",
+                path: paths.login,
                 element: <Login />,
             },
         ],
     },
     {
         path: "/",
-        element: <AppLayout />,
+        element: (
+            <ProtectedLayout>
+                <AppLayout />
+            </ProtectedLayout>
+        ),
         children: [
             {
-                path: "users",
-                element: <Users />,
+                path: "",
+                element: <div>Dashboard</div>,
             },
             {
-                path: "jobs",
-                element: <Jobs />,
+                path: paths.users,
+                element: (
+                    <PrivateRoute module="users" action="view">
+                        <Users />
+                    </PrivateRoute>
+                ),
             },
             {
-                path: "courses",
-                element: <Courses />,
+                path: paths.jobs,
+                element: (
+                    <PrivateRoute module="jobs" action="view">
+                        <Jobs />
+                    </PrivateRoute>
+                ),
             },
             {
-                path: "webinars",
-                element: <Webinars />,
+                path: paths.courses,
+                element: (
+                    <PrivateRoute module="courses" action="view">
+                        <Courses />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: paths.webinars,
+                element: (
+                    <PrivateRoute module="webinars" action="view">
+                        <Webinars />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: paths.unauthorized,
+                element: <UnauthorizedPage />,
             },
         ],
     },

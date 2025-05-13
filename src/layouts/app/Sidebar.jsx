@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Layout, Menu, Grid } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import paths from "../../constants/appUrls";
+import { useUserPermission } from "../../hooks/useUserPermission";
 
 const { Sider } = Layout;
 const { useBreakpoint } = Grid;
@@ -43,6 +44,33 @@ const Sidebar = ({ collapsed }) => {
     const [selectedKey, setSelectedKey] = useState(paths.home);
     const navigate = useNavigate();
     const location = useLocation();
+    const { can } = useUserPermission();
+
+    const filteredItems = items.filter((item) => {
+        const moduleMap = {
+            [paths.users]: { module: "users", action: "view" },
+            [paths.jobs]: { module: "jobs", action: "view" },
+            [paths.courses]: { module: "courses", action: "view" },
+            [paths.webinars]: { module: "webinars", action: "view" },
+            [paths.notifications]: { module: "notifications", action: "view" },
+            [paths.referrals]: { module: "referrals", action: "view" },
+            [paths.manageOptins]: { module: "optins", action: "view" },
+            [paths.manageEmployess]: { module: "employees", action: "view" },
+            [paths.manageCompanies]: { module: "companies", action: "view" },
+            [paths.manageInstitutes]: { module: "institutes", action: "view" },
+        };
+
+        if (item.key === paths.home) return true;
+
+        // Check permission if the path is in the map
+        if (moduleMap[item.key]) {
+            const { module, action } = moduleMap[item.key];
+            return can(module, action);
+        }
+
+        // By default, show the menu item if not in the map
+        return true;
+    });
 
     useEffect(() => {
         setSelectedKey(location.pathname);
@@ -66,7 +94,7 @@ const Sidebar = ({ collapsed }) => {
                 theme="dark"
                 mode="inline"
                 selectedKeys={[selectedKey]}
-                items={items}
+                items={filteredItems}
                 onClick={onMenuItemClick}
             />
         </Sider>

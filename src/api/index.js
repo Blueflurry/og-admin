@@ -31,6 +31,13 @@ export class API {
         }
     }
 
+    // AUTH
+    login(email, password) {
+        return this.request(() =>
+            this.client.post("/auth/admin/login", { email, password })
+        );
+    }
+
     // USERS
     getUsers(page = 1, limit = 10, sort = "", filters = {}) {
         // Always use POST with filters in the body
@@ -181,23 +188,6 @@ export class API {
         // FormData is handled automatically by axios
         return this.request(() => this.client.post("/courses", courseData));
     }
-
-    // createWebinar(webinarData) {
-    //     // Ensure status is set to 0 for webinars
-    //     const data = new FormData();
-
-    //     // Copy all fields from the provided webinarData
-    //     for (const [key, value] of Object.entries(webinarData)) {
-    //         if (key !== "status") {
-    //             data.append(key, value);
-    //         }
-    //     }
-
-    //     // Set the status to 0 for webinars
-    //     data.append("status", 0);
-
-    //     return this.createCourse(data);
-    // }
 
     createWebinar(webinarData) {
         // Check if webinarData is FormData
