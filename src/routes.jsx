@@ -1,7 +1,6 @@
 import Users from "./pages/app/users";
 import Jobs from "./pages/app/jobs"; // Add this import
 import Login from "./pages/auth/login";
-import Signup from "./pages/auth/signup";
 import AuthLayout from "./layouts/auth";
 import AppLayout from "./layouts/app";
 import Courses from "./pages/app/courses";
@@ -15,10 +14,6 @@ const appRoutes = [
             {
                 path: "login",
                 element: <Login />,
-            },
-            {
-                path: "signup",
-                element: <Signup />,
             },
         ],
     },
