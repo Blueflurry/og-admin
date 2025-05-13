@@ -1,18 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-    Button,
-    Col,
-    Drawer,
-    Form,
-    Input,
-    Row,
-    Select,
-    Space,
-    DatePicker,
-    InputNumber,
-    Upload,
-    message,
-} from "antd";
+import { Button, Col, Drawer, Form, Input, Row, Select, Space, DatePicker, InputNumber, Upload, message } from "antd";
 import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 import { useAPI } from "../../hooks/useAPI";
 import moment from "moment";
@@ -20,12 +7,7 @@ import moment from "moment";
 const { Option } = Select;
 const { TextArea } = Input;
 
-const CoursesFormDrawer = ({
-    open,
-    onClose,
-    initialValues = null,
-    onSuccess,
-}) => {
+const CoursesFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
     const [form] = Form.useForm();
     const isEditMode = !!initialValues;
     const { api, isLoading, error } = useAPI();
@@ -57,18 +39,10 @@ const CoursesFormDrawer = ({
                     description: initialValues.description || "",
                     courseUrl: initialValues.courseUrl || "",
                     inviteUrl: initialValues.inviteUrl || "",
-                    startDate: initialValues.startDate
-                        ? moment(initialValues.startDate)
-                        : null,
-                    endDate: initialValues.endDate
-                        ? moment(initialValues.endDate)
-                        : null,
+                    startDate: initialValues.startDate ? moment(initialValues.startDate) : null,
+                    endDate: initialValues.endDate ? moment(initialValues.endDate) : null,
                     duration: initialValues.duration || null,
-                    category:
-                        initialValues.category?._id ||
-                        initialValues.category?.id ||
-                        initialValues.category ||
-                        "",
+                    category: initialValues.category?._id || initialValues.category?.id || initialValues.category || "",
                     // For status, set isActive to true if status is 1, false if -1
                     isActive: initialValues.status !== -1,
                 };
@@ -136,10 +110,7 @@ const CoursesFormDrawer = ({
 
             if (isEditMode) {
                 // For edit mode
-                await api.updateCourse(
-                    initialValues.id || initialValues._id,
-                    formData
-                );
+                await api.updateCourse(initialValues.id || initialValues._id, formData);
                 message.success("Course updated successfully");
             } else {
                 // For create mode
@@ -184,9 +155,7 @@ const CoursesFormDrawer = ({
     const uploadButton = (
         <div>
             {uploading ? <LoadingOutlined /> : <PlusOutlined />}
-            <div style={{ marginTop: 8 }}>
-                {uploading ? "Processing" : "Upload"}
-            </div>
+            <div style={{ marginTop: 8 }}>{uploading ? "Processing" : "Upload"}</div>
         </div>
     );
 
@@ -204,11 +173,7 @@ const CoursesFormDrawer = ({
             extra={
                 <Space>
                     <Button onClick={onClose}>Cancel</Button>
-                    <Button
-                        onClick={handleSubmit}
-                        type="primary"
-                        loading={isLoading}
-                    >
+                    <Button onClick={handleSubmit} type="primary" loading={isLoading}>
                         {isEditMode ? "Update" : "Submit"}
                     </Button>
                 </Space>
@@ -216,31 +181,22 @@ const CoursesFormDrawer = ({
         >
             <Form layout="vertical" form={form} requiredMark>
                 <Row gutter={16}>
-                    <Col
-                        span={24}
-                        style={{ textAlign: "center", marginBottom: 24 }}
-                    >
+                    <Col span={24} style={{ textAlign: "center", marginBottom: 24 }}>
                         <Form.Item name="courseImage" label="Image">
                             <Upload
                                 name="avatar"
-                                listType="picture-card"
+                                listType="picture"
                                 className="avatar-uploader"
                                 showUploadList={false}
                                 customRequest={customRequest}
                                 beforeUpload={(file) => {
-                                    const isJpgOrPng =
-                                        file.type === "image/jpeg" ||
-                                        file.type === "image/png";
+                                    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
                                     if (!isJpgOrPng) {
-                                        message.error(
-                                            "You can only upload JPG/PNG file!"
-                                        );
+                                        message.error("You can only upload JPG/PNG file!");
                                     }
                                     const isLt2M = file.size / 1024 / 1024 < 2;
                                     if (!isLt2M) {
-                                        message.error(
-                                            "Image must be smaller than 2MB!"
-                                        );
+                                        message.error("Image must be smaller than 2MB!");
                                     }
                                     return isJpgOrPng && isLt2M;
                                 }}
@@ -251,9 +207,10 @@ const CoursesFormDrawer = ({
                                         src={imageUrl}
                                         alt="avatar"
                                         style={{
-                                            width: "100%",
-                                            height: "100%",
+                                            width: 500,
+                                            height: (500 * 9) / 16,
                                             objectFit: "cover",
+                                            cursor: "pointer",
                                         }}
                                     />
                                 ) : (
@@ -310,15 +267,9 @@ const CoursesFormDrawer = ({
                                 },
                             ]}
                         >
-                            <Select
-                                placeholder="Select category"
-                                loading={loadingCategories}
-                            >
+                            <Select placeholder="Select category" loading={loadingCategories}>
                                 {categories.map((category) => (
-                                    <Option
-                                        key={category._id || category.id}
-                                        value={category._id || category.id}
-                                    >
+                                    <Option key={category._id || category.id} value={category._id || category.id}>
                                         {category.title}
                                     </Option>
                                 ))}
@@ -326,12 +277,7 @@ const CoursesFormDrawer = ({
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            name="isActive"
-                            label="Status"
-                            valuePropName="checked"
-                            initialValue={true}
-                        >
+                        <Form.Item name="isActive" label="Status" valuePropName="checked" initialValue={true}>
                             <Select>
                                 <Option value={true}>Enabled</Option>
                                 <Option value={false}>Disabled</Option>
@@ -383,11 +329,7 @@ const CoursesFormDrawer = ({
                                 },
                             ]}
                         >
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={1}
-                                placeholder="Duration in minutes"
-                            />
+                            <InputNumber style={{ width: "100%" }} min={1} placeholder="Duration in minutes" />
                         </Form.Item>
                     </Col>
                 </Row>
