@@ -7,7 +7,7 @@ import CoursesFormDrawer from "../../components/CoursesTableComponent/CoursesFor
 import CoursesViewDrawer from "../../components/CoursesTableComponent/CoursesViewDrawer";
 import CoursesSearchFilterDrawer from "../../components/CoursesTableComponent/CoursesSearchFilterDrawer";
 
-const { confirm } = Modal;
+// const { confirm } = Modal;
 
 const Courses = () => {
     const { api, isLoading, error } = useAPI();

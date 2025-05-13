@@ -40,8 +40,7 @@ const UserViewDrawer = ({ open, onClose, userData = null }) => {
             <div style={{ marginBottom: 32, textAlign: "center" }}>
                 <Avatar
                     src={
-                        userData.imageUrl ||
-                        "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
+                        userData.imageUrl || "https://fakeimg.pl/400x400/33FFA1"
                     }
                     size={100}
                     style={{ marginBottom: 16 }}

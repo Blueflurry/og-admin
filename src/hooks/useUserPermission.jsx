@@ -14,6 +14,7 @@ export const useUserPermission = () => {
 
         // If your API returns a role property directly
         if (currentUser.role) {
+            // console.log(currentUser.role);
             return currentUser.role;
         }
 

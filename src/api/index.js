@@ -71,7 +71,12 @@ export class API {
 
     // JOBS
     getJobs(page = 1, limit = 10, sort = "", filters = {}) {
-        return this.request(() => this.client.post(`/jobs/search/admin?page=${page}&limit=${limit}&sort=${sort}`, filters));
+        return this.request(() =>
+            this.client.post(
+                `/jobs/search/admin?page=${page}&limit=${limit}&sort=${sort}`,
+                filters
+            )
+        );
     }
 
     getJobsConfig() {
@@ -100,7 +105,9 @@ export class API {
 
     // Categories API methods (for dropdown in job form)
     getCategories() {
-        return this.request(() => this.client.get("/content?limit=1000&type=3"));
+        return this.request(() =>
+            this.client.get("/content?limit=1000&type=3")
+        );
     }
 
     // Updated API methods for Courses with filter support
@@ -114,7 +121,8 @@ export class API {
         }
 
         // Get status from filters or use default status=1 for courses
-        const status = filters && filters.status !== undefined ? filters.status : 1;
+        const status =
+            filters && filters.status !== undefined ? filters.status : 1;
         queryParams += `&status=${status}`;
 
         // Process remaining filters and add them to the query string
@@ -132,11 +140,15 @@ export class API {
                         if (Array.isArray(opValue) && operator === "$in") {
                             // Handle $in operator with array values
                             opValue.forEach((item) => {
-                                queryParams += `&${key}[${paramOperator}][]=${encodeURIComponent(item)}`;
+                                queryParams += `&${key}[${paramOperator}][]=${encodeURIComponent(
+                                    item
+                                )}`;
                             });
                         } else {
                             // Handle other operators
-                            queryParams += `&${key}[${paramOperator}]=${encodeURIComponent(opValue)}`;
+                            queryParams += `&${key}[${paramOperator}]=${encodeURIComponent(
+                                opValue
+                            )}`;
                         }
                     });
                 } else {
@@ -146,7 +158,7 @@ export class API {
             });
         }
 
-        console.log("Query Params:", filters, `${queryParams}`);
+        // console.log("Query Params:", filters, `${queryParams}`);
         // Make the request with all query parameters
         return this.request(() => this.client.get(`/courses?${queryParams}`));
     }
@@ -159,7 +171,7 @@ export class API {
         delete webinarFilters.status;
         webinarFilters.status = 0;
 
-        console.log("HEREEEEE", page, limit, sort, webinarFilters);
+        // console.log("HEREEEEE", page, limit, sort, webinarFilters);
         return this.getCourses(page, limit, sort, webinarFilters);
     }
 
@@ -196,7 +208,9 @@ export class API {
 
     updateCourse(id, courseData) {
         // Handle both FormData and regular objects
-        return this.request(() => this.client.patch(`/courses/${id}`, courseData));
+        return this.request(() =>
+            this.client.patch(`/courses/${id}`, courseData)
+        );
     }
 
     updateWebinar(id, webinarData) {
@@ -211,5 +225,58 @@ export class API {
     deleteWebinar(id) {
         // Same API as deleting courses
         return this.deleteCourse(id);
+    }
+
+    // Company API methods
+    getManageCompanies(params = {}) {
+        if (params.sort == "") {
+            params.sort = "-createdAt";
+        }
+
+        const {
+            page = 1,
+            limit = 10,
+            sort = "-createdAt",
+            filters = {},
+        } = params;
+
+        console.log(params);
+
+        return this.request(() =>
+            this.client.post("/auth/company/search/admin", filters, {
+                params: { page, limit, sort },
+            })
+        );
+    }
+
+    getManageCompany(id) {
+        return this.request(() => this.client.get(`/auth/company/${id}`));
+    }
+
+    createManageCompany(data) {
+        // For FormData (with image upload)
+        return this.request(() =>
+            this.client.post("/auth/company", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            })
+        );
+    }
+
+    updateManageCompany(id, data) {
+        // For FormData (with image upload)
+        return this.request(() =>
+            this.client.patch(`/auth/company/${id}`, data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    deleteManageCompany(id) {
+        return this.request(() => this.client.delete(`/auth/company/${id}`));
     }
 }

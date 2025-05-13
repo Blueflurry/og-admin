@@ -73,7 +73,7 @@ const CoursesTable = ({
     };
 
     const handleApplyFilters = (filters) => {
-        console.log("Applying filters:", filters);
+        // console.log("Applying filters:", filters);
 
         // Extract sort value if present
         const sortValue = filters.sort || "";

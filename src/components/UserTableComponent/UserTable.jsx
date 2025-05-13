@@ -5,18 +5,35 @@ import { createStyles } from "antd-style";
 
 // Import separated components and utilities
 import getUserTableColumns from "./UserTableColumns";
-import { useTableConfig, getPaginationConfig, tableStyles } from "./UserTableConfig";
+import {
+    useTableConfig,
+    getPaginationConfig,
+    tableStyles,
+} from "./UserTableConfig";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
-const UserTable = ({ userData, pagination, setUpdateRecords, handleView, handleEdit, handleDelete, ...props }) => {
+const UserTable = ({
+    userData,
+    pagination,
+    setUpdateRecords,
+    handleView,
+    handleEdit,
+    handleDelete,
+    ...props
+}) => {
     const { styles } = useStyle();
-    const { selectionType, rowSelection, handleChange, clearFilters } = useTableConfig();
+    const { selectionType, rowSelection, handleChange, clearFilters } =
+        useTableConfig();
 
-    console.log("UserTable received handleDelete:", !!handleDelete); // Debug
+    // console.log("UserTable received handleDelete:", !!handleDelete); // Debug
 
     const handleTableChange = (pagination, filters, sorter) => {
-        const { handleChange: originalHandleChange } = handleChange(pagination, filters, sorter);
+        const { handleChange: originalHandleChange } = handleChange(
+            pagination,
+            filters,
+            sorter
+        );
 
         // Handle sorting
         let sort = "";
@@ -37,19 +54,19 @@ const UserTable = ({ userData, pagination, setUpdateRecords, handleView, handleE
 
     // Create column handlers with explicit parameters
     const onView = (record) => {
-        console.log("View clicked for record:", record);
+        // console.log("View clicked for record:", record);
         if (handleView) handleView(record);
     };
 
     const onEdit = (record) => {
-        console.log("Edit clicked for record:", record);
+        // console.log("Edit clicked for record:", record);
         if (handleEdit) handleEdit(record);
     };
 
     const onDelete = (record) => {
-        console.log("Delete clicked for record:", record);
+        // console.log("Delete clicked for record:", record);
         if (handleDelete) {
-            console.log("Calling handleDelete from UserTable");
+            // console.log("Calling handleDelete from UserTable");
             handleDelete(record);
         } else {
             console.error("handleDelete is not provided to UserTable");

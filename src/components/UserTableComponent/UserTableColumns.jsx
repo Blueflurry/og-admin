@@ -1,23 +1,36 @@
 // Updated UserTableColumns.jsx with complete address details
 import React from "react";
 import { Space, Avatar, Tag, Button, Dropdown, Tooltip } from "antd";
-import { DeleteOutlined, DownOutlined, EditOutlined, EyeOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import {
+    DeleteOutlined,
+    DownOutlined,
+    EditOutlined,
+    EyeOutlined,
+    EnvironmentOutlined,
+} from "@ant-design/icons";
 import moment from "moment";
+// import PermissionGate from "../../components/PermissionGate";
+import { useUserPermission } from "../../hooks/useUserPermission";
 
 const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
-    console.log("getUserTableColumns received handleDelete:", !!handleDelete); // Debug
+    // console.log("getUserTableColumns received handleDelete:", !!handleDelete); // Debug
 
     return [
         {
             title: "User Information",
             key: "userInfo",
             align: "left",
-            width: 280,
+            width: 320,
             render: (_, record) => (
                 <div style={{ display: "flex", alignItems: "center" }}>
                     <Avatar
                         size={50}
-                        src={record.imageUrl || record.imgUrl || record.img || "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"}
+                        src={
+                            record.imageUrl ||
+                            record.imgUrl ||
+                            record.img ||
+                            "https://fakeimg.pl/400x400/33FFA1"
+                        }
                         style={{
                             objectFit: "contain",
                             borderRadius: "50%",
@@ -26,10 +39,14 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
                     <div style={{ marginLeft: 12 }}>
                         <div style={{ fontWeight: 500 }}>
                             {record.name?.first || ""}
-                            {record.name?.middle ? ` ${record.name.middle} ` : " "}
+                            {record.name?.middle
+                                ? ` ${record.name.middle} `
+                                : " "}
                             {record.name?.last || ""}
                         </div>
-                        <div style={{ fontSize: "12px", color: "#8c8c8c" }}>ID: {record.id || record._id}</div>
+                        <div style={{ fontSize: "12px", color: "#8c8c8c" }}>
+                            ID: {record.id || record._id}
+                        </div>
                     </div>
                 </div>
             ),
@@ -41,7 +58,8 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             align: "center",
             width: 150,
             // sorter: true,
-            render: (createdAt) => (createdAt ? moment(createdAt).format("DD MMM, YYYY") : "N/A"),
+            render: (createdAt) =>
+                createdAt ? moment(createdAt).format("DD MMM, YYYY") : "N/A",
         },
         {
             title: "Status",
@@ -57,11 +75,11 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
                         color = "green";
                         text = "Active";
                         break;
-                    case 0:
+                    case "0":
                         color = "gold";
                         text = "Unauthorized";
                         break;
-                    case -1:
+                    case "-1":
                         color = "red";
                         text = "Disabled";
                         break;
@@ -79,7 +97,8 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             key: "email",
             align: "left",
             width: 220,
-            render: (email) => (email ? <a href={`mailto:${email}`}>{email}</a> : "N/A"),
+            render: (email) =>
+                email ? <a href={`mailto:${email}`}>{email}</a> : "N/A",
         },
         {
             title: "Primary Phone",
@@ -109,7 +128,13 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
                 if (!address) return "N/A";
 
                 // Create a complete address string with all details
-                const fullAddress = [address.street, address.city, address.state, address.pincode, address.country]
+                const fullAddress = [
+                    address.street,
+                    address.city,
+                    address.state,
+                    address.pincode,
+                    address.country,
+                ]
                     .filter(Boolean) // Remove empty/undefined values
                     .join(", ");
 
@@ -137,11 +162,17 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
                         ? streetParts[0]
                         : null;
 
-                    part3 = address.country ? address.country : streetParts.length > 3 ? streetParts[1] : null;
+                    part3 = address.country
+                        ? address.country
+                        : streetParts.length > 3
+                        ? streetParts[1]
+                        : null;
                 }
 
                 // Create a truncated version for the table cell
-                const displayAddress = [part1, part2, part3].filter(Boolean).join(", ");
+                const displayAddress = [part1, part2, part3]
+                    .filter(Boolean)
+                    .join(", ");
                 // Show a tooltip with the full address on hover
                 return (
                     <Tooltip title={fullAddress}>
@@ -172,40 +203,53 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             width: 120,
             align: "center",
             render: (_, record) => {
+                const { can } = useUserPermission();
+                const items = [];
+
                 // Create menu items array for dropdown
-                const items = [
-                    {
+                // const items = [
+                if (can("users", "view")) {
+                    items.push({
                         key: "view",
                         label: "View",
                         icon: <EyeOutlined />,
                         onClick: () => {
-                            console.log("View clicked for record:", record);
+                            // console.log("View clicked for record:", record);
                             if (handleView) handleView(record);
                         },
-                    },
-                    {
+                    });
+                }
+
+                if (can("users", "edit")) {
+                    items.push({
                         key: "edit",
                         label: "Edit",
                         icon: <EditOutlined />,
                         onClick: () => {
-                            console.log("Edit clicked for record:", record);
+                            // console.log("Edit clicked for record:", record);
                             if (handleEdit) handleEdit(record);
                         },
-                    },
-                ];
+                    });
+                }
+                // ];
 
                 // Only add delete option if handleDelete is provided
-                if (handleDelete) {
+                if (handleDelete && can("users", "delete")) {
                     items.push({
                         key: "delete",
                         label: "Delete",
                         icon: <DeleteOutlined />,
                         danger: true,
                         onClick: () => {
-                            console.log("Delete clicked for record:", record);
+                            // console.log("Delete clicked for record:", record);
                             handleDelete(record);
                         },
                     });
+                }
+
+                // Don't render the dropdown if there are no permitted actions
+                if (items.length === 0) {
+                    return null;
                 }
 
                 return (

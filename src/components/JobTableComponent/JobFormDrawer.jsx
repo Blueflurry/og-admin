@@ -47,7 +47,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             fetchJobConfig();
 
             if (initialValues) {
-                console.log("Initial values:", initialValues);
+                // console.log("Initial values:", initialValues);
 
                 // Format the data for the form
                 const formattedValues = {
@@ -85,7 +85,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
         try {
             setLoadingConfig(true);
             const response = await api.getJobsConfig();
-            console.log("Job config API response:", response);
+            // console.log("Job config API response:", response);
 
             if (response && response.data) {
                 setJobConfig(response.data);
@@ -103,7 +103,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
         try {
             setLoadingCompanies(true);
             const response = await api.getCompanies();
-            console.log("Companies API response:", response);
+            // console.log("Companies API response:", response);
 
             if (response && response.data) {
                 // Extract companies from the response based on the structure
@@ -129,7 +129,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
         try {
             setLoadingCategories(true);
             const response = await api.getCategories();
-            console.log("Categories API response:", response);
+            // console.log("Categories API response:", response);
 
             if (response && response.data) {
                 // Extract categories from the response based on the structure

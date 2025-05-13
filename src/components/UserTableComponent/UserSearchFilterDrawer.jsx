@@ -235,9 +235,9 @@ const UserSearchFilterDrawer = ({
     const handleApply = () => {
         form.validateFields()
             .then((values) => {
-                console.log("Form values:", values);
+                // console.log("Form values:", values);
                 const formattedFilters = formatFiltersForApi(values);
-                console.log("Formatted filters:", formattedFilters);
+                // console.log("Formatted filters:", formattedFilters);
                 onSearch(formattedFilters);
                 onClose();
             })

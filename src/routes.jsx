@@ -10,6 +10,7 @@ import ProtectedLayout from "./components/ProtectedLayout";
 import PrivateRoute from "./components/PrivateRoute";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import paths from "./constants/appUrls";
+import ManageCompanies from "./pages/app/manageCompanies";
 
 const appRoutes = [
     {
@@ -63,6 +64,15 @@ const appRoutes = [
                 element: (
                     <PrivateRoute module="webinars" action="view">
                         <Webinars />
+                    </PrivateRoute>
+                ),
+            },
+
+            {
+                path: paths.manageCompanies,
+                element: (
+                    <PrivateRoute module="companies" permission="view">
+                        <ManageCompanies />
                     </PrivateRoute>
                 ),
             },

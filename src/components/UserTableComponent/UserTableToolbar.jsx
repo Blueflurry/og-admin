@@ -3,6 +3,7 @@ import React from "react";
 import { Button, Badge } from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { createStyles } from "antd-style";
+import PermissionGate from "../../components/PermissionGate";
 
 const useStyle = createStyles(({ css }) => ({
     tableControls: css`
@@ -36,10 +37,12 @@ const UserTableToolbar = ({ onSearch, onCreateNew, filterActive = false }) => {
                         Search and Filter
                     </Button>
                 </Badge>
-                <Button type="primary" onClick={onCreateNew}>
-                    <PlusOutlined />
-                    Create New
-                </Button>
+                <PermissionGate module="users" action="create">
+                    <Button type="primary" onClick={onCreateNew}>
+                        <PlusOutlined />
+                        Create New
+                    </Button>
+                </PermissionGate>
             </div>
         </div>
     );

@@ -50,7 +50,7 @@ const JobTable = ({
     const fetchFilterConfig = async () => {
         try {
             const config = await api.getJobsConfig();
-            console.log("Filter config:", config);
+            // console.log("Filter config:", config);
 
             if (config && config.data) {
                 setFilterConfig(config.data.filters || {});
@@ -96,7 +96,7 @@ const JobTable = ({
     };
 
     const handleApplyFilters = (filters) => {
-        console.log("Applying filters:", filters);
+        // console.log("Applying filters:", filters);
 
         // Extract sort value if present
         const sortValue = filters.sort || "";

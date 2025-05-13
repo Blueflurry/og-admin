@@ -1,7 +1,7 @@
 // src/pages/auth/login.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Card, message } from "antd";
+import { Form, Input, Button, Card, message, Checkbox } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -45,7 +45,12 @@ const Login = () => {
             }}
         >
             <Card title="Login" style={{ width: 400 }}>
-                <Form form={form} name="login" onFinish={onFinish}>
+                <Form
+                    form={form}
+                    name="login"
+                    onFinish={onFinish}
+                    autoComplete="on"
+                >
                     <Form.Item
                         name="email"
                         rules={[
@@ -63,6 +68,9 @@ const Login = () => {
                             prefix={<UserOutlined />}
                             placeholder="Email"
                             size="large"
+                            type="email"
+                            autoComplete="username"
+                            id="email"
                         />
                     </Form.Item>
 
@@ -79,7 +87,14 @@ const Login = () => {
                             prefix={<LockOutlined />}
                             placeholder="Password"
                             size="large"
+                            type="password"
+                            id="password"
+                            autoComplete="current-password"
                         />
+                    </Form.Item>
+
+                    <Form.Item name="remember" valuePropName="checked">
+                        <Checkbox>Remember me</Checkbox>
                     </Form.Item>
 
                     <Form.Item>

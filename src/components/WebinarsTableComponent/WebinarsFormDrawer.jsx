@@ -55,7 +55,7 @@ const WebinarsFormDrawer = ({
             fetchCategories();
 
             if (initialValues) {
-                console.log("Initial values:", initialValues);
+                // console.log("Initial values:", initialValues);
 
                 // Format the data for the form
                 const formattedValues = {
@@ -93,7 +93,7 @@ const WebinarsFormDrawer = ({
         try {
             setLoadingCategories(true);
             const response = await api.getCategories();
-            console.log("Categories API response:", response);
+            // console.log("Categories API response:", response);
 
             if (response && response.data) {
                 // Extract categories from the response based on the structure

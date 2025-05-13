@@ -32,9 +32,11 @@ export const AuthProvider = ({ children }) => {
             // Check if we have a valid response with user data
             if (response && response.data) {
                 const userData = response.data.user;
+                const token = response.data.accessToken;
 
                 // Store user in localStorage
                 localStorage.setItem("user", JSON.stringify(userData));
+                localStorage.setItem("token", token);
                 setCurrentUser(userData);
                 return userData;
             } else {
