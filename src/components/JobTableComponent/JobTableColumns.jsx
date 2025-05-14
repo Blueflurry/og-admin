@@ -1,7 +1,15 @@
 import React from "react";
 import { Space, Tag, Button, Dropdown, Avatar } from "antd";
-import { DeleteOutlined, DownOutlined, EditOutlined, EyeOutlined, EnvironmentOutlined, HomeOutlined } from "@ant-design/icons";
+import {
+    DeleteOutlined,
+    DownOutlined,
+    EditOutlined,
+    EyeOutlined,
+    EnvironmentOutlined,
+    HomeOutlined,
+} from "@ant-design/icons";
 import moment from "moment";
+import { useUserPermission } from "../../hooks/useUserPermission";
 
 const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
     {
@@ -22,8 +30,12 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
                     {record.company?.data?.name?.charAt(0) || "J"}
                 </Avatar>
                 <div style={{ marginLeft: 12 }}>
-                    <div style={{ fontWeight: 500 }}>{record.title || "Untitled Job"}</div>
-                    <div style={{ fontSize: "12px", color: "#8c8c8c" }}>ID: {record.id || record._id}</div>
+                    <div style={{ fontWeight: 500 }}>
+                        {record.title || "Untitled Job"}
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#8c8c8c" }}>
+                        ID: {record.id || record._id}
+                    </div>
                 </div>
             </div>
         ),
@@ -34,7 +46,11 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         key: "status",
         align: "center",
         width: 120,
-        render: (status) => <Tag color={status === 1 ? "green" : "red"}>{status === 1 ? "Active" : "Inactive"}</Tag>,
+        render: (status) => (
+            <Tag color={status === 1 ? "green" : "red"}>
+                {status === 1 ? "Active" : "Inactive"}
+            </Tag>
+        ),
     },
     {
         title: "Experience",
@@ -43,7 +59,8 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         width: 100,
         render: (_, record) => (
             <span>
-                {record.minExperience} {record.minExperience === 1 ? "year" : "years"}+
+                {record.minExperience}{" "}
+                {record.minExperience === 1 ? "year" : "years"}+
             </span>
         ),
     },
@@ -110,38 +127,66 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         fixed: "right",
         width: 100,
         align: "center",
-        render: (_, record) => (
-            <Space size="middle">
-                <Dropdown
-                    menu={{
-                        items: [
-                            {
-                                key: "View",
-                                label: "View",
-                                icon: <EyeOutlined />,
-                                onClick: () => handleView && handleView(record),
-                            },
-                            {
-                                key: "Edit",
-                                label: "Edit",
-                                icon: <EditOutlined />,
-                                onClick: () => handleEdit && handleEdit(record),
-                            },
-                            {
-                                key: "Delete",
-                                label: "Delete",
-                                icon: <DeleteOutlined />,
-                                onClick: () => handleDelete && handleDelete(record),
-                            },
-                        ],
-                    }}
-                >
-                    <Button color="primary" variant="outlined">
-                        Actions <DownOutlined />
-                    </Button>
-                </Dropdown>
-            </Space>
-        ),
+        render: (_, record) => {
+            const { can } = useUserPermission();
+            const items = [];
+
+            // Create menu items array for dropdown
+            // const items = [
+            if (can("jobs", "view")) {
+                items.push({
+                    key: "view",
+                    label: "View",
+                    icon: <EyeOutlined />,
+                    onClick: () => {
+                        // console.log("View clicked for record:", record);
+                        if (handleView) handleView(record);
+                    },
+                });
+            }
+
+            if (can("jobs", "edit")) {
+                items.push({
+                    key: "edit",
+                    label: "Edit",
+                    icon: <EditOutlined />,
+                    onClick: () => {
+                        // console.log("Edit clicked for record:", record);
+                        if (handleEdit) handleEdit(record);
+                    },
+                });
+            }
+            // ];
+
+            // Only add delete option if handleDelete is provided
+            if (handleDelete && can("jobs", "delete")) {
+                items.push({
+                    key: "delete",
+                    label: "Delete",
+                    icon: <DeleteOutlined />,
+                    danger: true,
+                    onClick: () => {
+                        // console.log("Delete clicked for record:", record);
+                        handleDelete(record);
+                    },
+                });
+            }
+
+            // Don't render the dropdown if there are no permitted actions
+            if (items.length === 0) {
+                return null;
+            }
+
+            return (
+                <Space size="middle">
+                    <Dropdown menu={{ items }}>
+                        <Button>
+                            Actions <DownOutlined />
+                        </Button>
+                    </Dropdown>
+                </Space>
+            );
+        },
     },
 ];
 

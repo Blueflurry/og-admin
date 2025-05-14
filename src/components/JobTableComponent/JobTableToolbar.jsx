@@ -2,6 +2,7 @@ import React from "react";
 import { Button, Badge } from "antd";
 import { PlusOutlined, FilterOutlined } from "@ant-design/icons";
 import { createStyles } from "antd-style";
+import PermissionGate from "../PermissionGate";
 
 const useStyle = createStyles(({ css }) => ({
     tableControls: css`
@@ -34,13 +35,15 @@ const JobTableToolbar = ({ onSearch, onCreateNew, filterActive = false }) => {
                         Search and Filter
                     </Button>
                 </Badge>
-                <Button
-                    type="primary"
-                    onClick={onCreateNew}
-                    icon={<PlusOutlined />}
-                >
-                    Create New
-                </Button>
+                <PermissionGate module="jobs" action="create">
+                    <Button
+                        type="primary"
+                        onClick={onCreateNew}
+                        icon={<PlusOutlined />}
+                    >
+                        Create New
+                    </Button>
+                </PermissionGate>
             </div>
         </div>
     );

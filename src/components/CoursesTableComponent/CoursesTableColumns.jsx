@@ -11,6 +11,7 @@ import {
     LinkOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
+import { useUserPermission } from "../../hooks/useUserPermission";
 
 const getCoursesTableColumns = ({ handleView, handleEdit, handleDelete }) => [
     {
@@ -162,39 +163,66 @@ const getCoursesTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         fixed: "right",
         width: 100,
         align: "center",
-        render: (_, record) => (
-            <Space size="middle">
-                <Dropdown
-                    menu={{
-                        items: [
-                            {
-                                key: "View",
-                                label: "View",
-                                icon: <EyeOutlined />,
-                                onClick: () => handleView && handleView(record),
-                            },
-                            {
-                                key: "Edit",
-                                label: "Edit",
-                                icon: <EditOutlined />,
-                                onClick: () => handleEdit && handleEdit(record),
-                            },
-                            {
-                                key: "Delete",
-                                label: "Delete",
-                                icon: <DeleteOutlined />,
-                                onClick: () =>
-                                    handleDelete && handleDelete(record),
-                            },
-                        ],
-                    }}
-                >
-                    <Button color="primary" variant="outlined">
-                        Actions <DownOutlined />
-                    </Button>
-                </Dropdown>
-            </Space>
-        ),
+        render: (_, record) => {
+            const { can } = useUserPermission();
+            const items = [];
+
+            // Create menu items array for dropdown
+            // const items = [
+            if (can("courses", "view")) {
+                items.push({
+                    key: "view",
+                    label: "View",
+                    icon: <EyeOutlined />,
+                    onClick: () => {
+                        // console.log("View clicked for record:", record);
+                        if (handleView) handleView(record);
+                    },
+                });
+            }
+
+            if (can("courses", "edit")) {
+                items.push({
+                    key: "edit",
+                    label: "Edit",
+                    icon: <EditOutlined />,
+                    onClick: () => {
+                        // console.log("Edit clicked for record:", record);
+                        if (handleEdit) handleEdit(record);
+                    },
+                });
+            }
+            // ];
+
+            // Only add delete option if handleDelete is provided
+            if (handleDelete && can("courses", "delete")) {
+                items.push({
+                    key: "delete",
+                    label: "Delete",
+                    icon: <DeleteOutlined />,
+                    danger: true,
+                    onClick: () => {
+                        // console.log("Delete clicked for record:", record);
+                        handleDelete(record);
+                    },
+                });
+            }
+
+            // Don't render the dropdown if there are no permitted actions
+            if (items.length === 0) {
+                return null;
+            }
+
+            return (
+                <Space size="middle">
+                    <Dropdown menu={{ items }}>
+                        <Button>
+                            Actions <DownOutlined />
+                        </Button>
+                    </Dropdown>
+                </Space>
+            );
+        },
     },
 ];
 
