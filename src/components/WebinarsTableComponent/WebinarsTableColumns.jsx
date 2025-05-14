@@ -12,6 +12,7 @@ import {
     VideoCameraOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
+import { useUserPermission } from "../../hooks/useUserPermission";
 
 const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
     {
