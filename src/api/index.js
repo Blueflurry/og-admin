@@ -279,4 +279,105 @@ export class API {
     deleteManageCompany(id) {
         return this.request(() => this.client.delete(`/auth/company/${id}`));
     }
+
+    // Institutes API methods (type=1)
+    getInstitutes(params = {}) {
+        if (params.sort == "") {
+            params.sort = "-createdAt";
+        }
+
+        const {
+            page = 1,
+            limit = 10,
+            sort = "-createdAt",
+            filters = {},
+        } = params;
+
+        // Make sure type=1 is included in the filters
+        const instituteFilters = { ...filters, type: 1 };
+
+        return this.request(() =>
+            this.client.post("/content/search", instituteFilters, {
+                params: { page, limit, sort },
+            })
+        );
+    }
+
+    getInstitute(id) {
+        return this.request(() => this.client.get(`/content/${id}`));
+    }
+
+    createInstitute(data) {
+        return this.request(() =>
+            this.client.post("/content", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    updateInstitute(id, data) {
+        return this.request(() =>
+            this.client.patch(`/content/${id}`, data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    deleteInstitute(id) {
+        return this.request(() => this.client.delete(`/content/${id}`));
+    }
+
+    // ManageOptins API methods (type=0)
+    getManageOptins(params = {}) {
+        if (params.sort == "") {
+            params.sort = "-createdAt";
+        }
+        const {
+            page = 1,
+            limit = 10,
+            sort = "-createdAt",
+            filters = {},
+        } = params;
+
+        // Make sure type=0 is included in the filters
+        const optinFilters = { ...filters, type: 0 };
+
+        return this.request(() =>
+            this.client.post("/content/search", optinFilters, {
+                params: { page, limit, sort },
+            })
+        );
+    }
+
+    getManageOptin(id) {
+        return this.request(() => this.client.get(`/content/${id}`));
+    }
+
+    createManageOptin(data) {
+        return this.request(() =>
+            this.client.post("/content", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    updateManageOptin(id, data) {
+        return this.request(() =>
+            this.client.patch(`/content/${id}`, data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    deleteManageOptin(id) {
+        return this.request(() => this.client.delete(`/content/${id}`));
+    }
 }

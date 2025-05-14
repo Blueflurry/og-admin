@@ -11,6 +11,8 @@ import PrivateRoute from "./components/PrivateRoute";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import paths from "./constants/appUrls";
 import ManageCompanies from "./pages/app/manageCompanies";
+import Institutes from "./pages/app/institutes";
+import ManageOptins from "./pages/app/manageOptins";
 
 const appRoutes = [
     {
@@ -73,6 +75,22 @@ const appRoutes = [
                 element: (
                     <PrivateRoute module="companies" permission="view">
                         <ManageCompanies />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: paths.manageInstitutes,
+                element: (
+                    <PrivateRoute module="institutes" action="view">
+                        <Institutes />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: paths.manageOptins,
+                element: (
+                    <PrivateRoute module="optins" action="view">
+                        <ManageOptins />
                     </PrivateRoute>
                 ),
             },
