@@ -102,7 +102,6 @@ const ManageOptins = () => {
         <div className="manage-optins-page">
             <Card
                 title="Manage Optins"
-                bordered={false}
                 loading={isLoading && optins.length === 0}
             >
                 <ManageOptinsTable

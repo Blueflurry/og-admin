@@ -123,7 +123,6 @@ const Courses = () => {
     return (
         <Card
             title="Manage Courses"
-            bordered={false}
             loading={isLoading && courses.length === 0}
         >
             <CoursesTable

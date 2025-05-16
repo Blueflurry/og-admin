@@ -102,7 +102,6 @@ const Institutes = () => {
         <div className="institutes-page">
             <Card
                 title="Manage Institutes"
-                bordered={false}
                 loading={isLoading && institutes.length === 0}
             >
                 <ManageInstitutesTable

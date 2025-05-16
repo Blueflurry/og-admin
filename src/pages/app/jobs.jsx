@@ -54,11 +54,7 @@ const Jobs = () => {
     // if (error) return <div>Error: {error.message}</div>;
 
     return (
-        <Card
-            title="Manage Jobs"
-            bordered={false}
-            loading={isLoading && jobs.length === 0}
-        >
+        <Card title="Manage Jobs" loading={isLoading && jobs.length === 0}>
             <JobTable
                 jobData={jobs}
                 pagination={pagination}

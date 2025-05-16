@@ -1,12 +1,10 @@
-// src/components/NotificationsTableComponent/NotificationsTable.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Table, message } from "antd";
 import { createStyles } from "antd-style";
 
 // Import separated components and utilities
 import NotificationsTableToolbar from "./NotificationsTableToolbar";
 import getNotificationsTableColumns from "./NotificationsTableColumns";
-import NotificationsFormDrawer from "./NotificationsFormDrawer";
 import NotificationsViewDrawer from "./NotificationsViewDrawer";
 import NotificationsSearchFilterDrawer from "./NotificationsSearchFilterDrawer";
 import {
@@ -14,8 +12,29 @@ import {
     getPaginationConfig,
     tableStyles,
 } from "./NotificationsTableConfig";
+import { useUserPermission } from "../../hooks/useUserPermission";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
+
+// Define these outside the component to prevent recreation
+const DEFAULT_FILTER_CONFIG = {
+    title: { type: "text", label: "Title" },
+    text: { type: "text", label: "Text" },
+    date: { type: "date", label: "Date" },
+    repeat: {
+        type: "multi-select",
+        label: "Repeat",
+        options: [
+            { value: true, label: "Yes" },
+            { value: false, label: "No" },
+        ],
+    },
+};
+
+const DEFAULT_SORT_OPTIONS = [
+    { label: "Newest First", value: "-date" },
+    { label: "Oldest First", value: "date" },
+];
 
 const NotificationsTable = ({
     notificationData = [],
@@ -26,37 +45,23 @@ const NotificationsTable = ({
     handleDelete,
     onCreateNew,
 }) => {
+    // All hooks at the top
     const { styles } = useStyle();
+    const { can } = useUserPermission();
     const { selectionType, rowSelection, handleChange, clearFilters } =
         useTableConfig();
 
-    // State for view and search drawers
+    // State hooks
     const [viewDrawerOpen, setViewDrawerOpen] = useState(false);
     const [viewingNotification, setViewingNotification] = useState(null);
     const [searchFilterDrawerOpen, setSearchFilterDrawerOpen] = useState(false);
     const [activeFilters, setActiveFilters] = useState({});
 
-    // Hardcoded filter configuration
-    const filterConfig = {
-        title: { type: "text", label: "Title" },
-        text: { type: "text", label: "Text" },
-        date: { type: "date", label: "Date" },
-        repeat: {
-            type: "multi-select",
-            label: "Repeat",
-            options: [
-                { value: true, label: "Yes" },
-                { value: false, label: "No" },
-            ],
-        },
-    };
+    // Use static configs defined outside component
+    const filterConfig = DEFAULT_FILTER_CONFIG;
+    const sortOptions = DEFAULT_SORT_OPTIONS;
 
-    // Hardcoded sort options
-    const sortOptions = [
-        { label: "Newest First", value: "-date" },
-        { label: "Oldest First", value: "date" },
-    ];
-
+    // Handler functions
     const openSearchFilterDrawer = () => {
         setSearchFilterDrawerOpen(true);
     };
@@ -66,17 +71,13 @@ const NotificationsTable = ({
     };
 
     const handleApplyFilters = (filters) => {
-        // Extract sort value if present
         const sortValue = filters.sort || "";
         delete filters.sort;
-
-        // Save applied filters for future reference
         setActiveFilters(filters);
 
-        // Update records with new filters and trigger data fetch
         if (setUpdateRecords) {
             setUpdateRecords({
-                page: 1, // Reset to first page when filters change
+                page: 1,
                 limit: pagination.limit || 10,
                 sort: sortValue,
                 filters: filters,
@@ -87,7 +88,6 @@ const NotificationsTable = ({
     };
 
     const onChangePagination = (page, pageSize) => {
-        // Update records with new page and limit values while preserving filters
         if (setUpdateRecords) {
             setUpdateRecords({
                 page: page,
@@ -112,18 +112,57 @@ const NotificationsTable = ({
         setViewingNotification(null);
     };
 
-    const columns = getNotificationsTableColumns({
-        handleView: localHandleView,
-        handleEdit,
-        handleDelete,
-    });
+    // Memoize columns with dependencies
+    const columns = useMemo(() => {
+        // Pass the can function to columns
+        return getNotificationsTableColumns({
+            handleView: localHandleView,
+            handleEdit,
+            handleDelete,
+            can,
+        });
+    }, [localHandleView, handleEdit, handleDelete, can]);
 
-    const dataSource = Array.isArray(notificationData)
-        ? notificationData.map((notification) => ({
-              ...notification,
-              key: notification.id || notification._id,
-          }))
-        : [];
+    // Prepare data source with useMemo
+    const dataSource = useMemo(() => {
+        if (!Array.isArray(notificationData)) return [];
+
+        return notificationData.map((notification) => ({
+            ...notification,
+            key: notification.id || notification._id,
+        }));
+    }, [notificationData]);
+
+    // IMPORTANT: Create a stable table props object to prevent reordering of internal hooks
+    const tableProps = useMemo(() => {
+        return {
+            className: styles.customTable,
+            size: "middle",
+            scroll: { x: "max-content" },
+            rowSelection: rowSelection
+                ? {
+                      type: selectionType,
+                      ...rowSelection,
+                  }
+                : null,
+            columns,
+            dataSource,
+            onChange: handleChange,
+            pagination: getPaginationConfig({
+                pagination,
+                onChangePagination,
+            }),
+        };
+    }, [
+        styles.customTable,
+        selectionType,
+        rowSelection,
+        columns,
+        dataSource,
+        handleChange,
+        pagination,
+        onChangePagination,
+    ]);
 
     return (
         <>
@@ -133,35 +172,15 @@ const NotificationsTable = ({
                 filterActive={Object.keys(activeFilters).length > 0}
             />
 
-            <Table
-                className={styles.customTable}
-                size="middle"
-                scroll={{ x: "max-content" }}
-                rowSelection={
-                    rowSelection
-                        ? {
-                              type: selectionType,
-                              ...rowSelection,
-                          }
-                        : null
-                }
-                columns={columns}
-                dataSource={dataSource}
-                onChange={handleChange}
-                pagination={getPaginationConfig({
-                    pagination,
-                    onChangePagination,
-                })}
-            />
+            {/* Use spread operator to pass all props at once */}
+            <Table {...tableProps} />
 
-            {/* View drawer for read-only display */}
             <NotificationsViewDrawer
                 open={viewDrawerOpen}
                 onClose={closeViewDrawer}
                 notificationData={viewingNotification}
             />
 
-            {/* Search and filter drawer */}
             <NotificationsSearchFilterDrawer
                 open={searchFilterDrawerOpen}
                 onClose={closeSearchFilterDrawer}

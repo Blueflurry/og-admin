@@ -26,10 +26,6 @@ const Notifications = () => {
     const [viewDrawerOpen, setViewDrawerOpen] = useState(false);
     const [selectedNotification, setSelectedNotification] = useState(null);
 
-    useEffect(() => {
-        fetchNotifications();
-    }, [updateRecords]);
-
     const fetchNotifications = async () => {
         try {
             const { page, limit, sort, filters = {} } = updateRecords;
@@ -48,6 +44,10 @@ const Notifications = () => {
             message.error("Failed to fetch notifications");
         }
     };
+
+    useEffect(() => {
+        fetchNotifications();
+    }, [updateRecords]);
 
     // Handlers for CRUD operations
     const handleCreate = () => {
@@ -95,8 +95,7 @@ const Notifications = () => {
     return (
         <Card
             title="Notification Management"
-            bordered={false}
-            isLoading={isLoading && notifications.length === 0}
+            loading={isLoading && notifications.length === 0}
         >
             <NotificationsTable
                 notificationData={notifications}

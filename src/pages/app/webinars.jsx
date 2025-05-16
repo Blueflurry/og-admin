@@ -129,7 +129,6 @@ const Webinars = () => {
     return (
         <Card
             title="Manage Webinars"
-            bordered={false}
             loading={isLoading && webinars.length === 0}
         >
             <WebinarsTable
