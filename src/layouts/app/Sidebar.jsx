@@ -15,11 +15,11 @@ const items = [
     { key: paths.jobs, label: "Jobs", icon: <UserOutlined /> },
     { key: paths.courses, label: "Courses", icon: <UserOutlined /> },
     { key: paths.webinars, label: "Webinars", icon: <UserOutlined /> },
-    // {
-    //     key: paths.notifications,
-    //     label: "Notifications",
-    //     icon: <UserOutlined />,
-    // },
+    {
+        key: paths.notifications,
+        label: "Notifications",
+        icon: <UserOutlined />,
+    },
     // { key: paths.referrals, label: "Referrals", icon: <UserOutlined /> },
     { key: paths.manageOptins, label: "Manage Optins", icon: <UserOutlined /> },
     // {

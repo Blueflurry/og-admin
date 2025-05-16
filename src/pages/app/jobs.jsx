@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAPI } from "../../hooks/useAPI";
 import JobTable from "../../components/JobTableComponent/JobTable";
+import { Card } from "antd";
 
 const Jobs = () => {
     const { api, isLoading, error, resetError } = useAPI();
@@ -49,17 +50,21 @@ const Jobs = () => {
         setUpdateRecords(newRecords);
     };
 
-    if (isLoading && jobs.length === 0) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
+    // if (isLoading && jobs.length === 0) return <div>Loading...</div>;
+    // if (error) return <div>Error: {error.message}</div>;
 
     return (
-        <div>
+        <Card
+            title="Manage Jobs"
+            bordered={false}
+            loading={isLoading && jobs.length === 0}
+        >
             <JobTable
                 jobData={jobs}
                 pagination={pagination}
                 setUpdateRecords={handleUpdateRecords}
             />
-        </div>
+        </Card>
     );
 };
 

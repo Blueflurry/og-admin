@@ -123,11 +123,15 @@ const Webinars = () => {
         setFormDrawerOpen(false);
     };
 
-    if (isLoading && webinars.length === 0) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
+    // if (isLoading && webinars.length === 0) return <div>Loading...</div>;
+    // if (error) return <div>Error: {error.message}</div>;
 
     return (
-        <Card title="Webinars">
+        <Card
+            title="Manage Webinars"
+            bordered={false}
+            loading={isLoading && webinars.length === 0}
+        >
             <WebinarsTable
                 webinarData={webinars}
                 pagination={pagination}

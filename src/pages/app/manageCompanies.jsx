@@ -102,7 +102,11 @@ const ManageCompanies = () => {
 
     return (
         <div className="companies-page">
-            <Card title="Manage Companies" bordered={false} loading={isLoading}>
+            <Card
+                title="Manage Companies"
+                bordered={false}
+                loading={isLoading && companies.length === 0}
+            >
                 <ManageCompaniesTable
                     companyData={companies}
                     pagination={pagination}

@@ -380,4 +380,31 @@ export class API {
     deleteManageOptin(id) {
         return this.request(() => this.client.delete(`/content/${id}`));
     }
+
+    // API methods in index.js
+    getNotifications(page = 1, limit = 10, sort = "-date", filters = {}) {
+        return this.request(() =>
+            this.client.get(`/cron?page=${page}&limit=${limit}&sort=${sort}`, {
+                params: filters,
+            })
+        );
+    }
+
+    getNotificationById(id) {
+        return this.request(() => this.client.get(`/cron/${id}`));
+    }
+
+    createNotification(notificationData) {
+        return this.request(() => this.client.post("/cron", notificationData));
+    }
+
+    updateNotification(id, notificationData) {
+        return this.request(() =>
+            this.client.patch(`/cron/${id}`, notificationData)
+        );
+    }
+
+    deleteNotification(id) {
+        return this.request(() => this.client.delete(`/cron/${id}`));
+    }
 }

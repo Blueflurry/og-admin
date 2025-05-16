@@ -117,11 +117,15 @@ const Courses = () => {
         }));
     };
 
-    if (isLoading && courses.length === 0) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
+    // if (isLoading && courses.length === 0) return <div>Loading...</div>;
+    // if (error) return <div>Error: {error.message}</div>;
 
     return (
-        <Card>
+        <Card
+            title="Manage Courses"
+            bordered={false}
+            loading={isLoading && courses.length === 0}
+        >
             <CoursesTable
                 courseData={courses}
                 pagination={pagination}

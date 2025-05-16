@@ -13,6 +13,7 @@ import paths from "./constants/appUrls";
 import ManageCompanies from "./pages/app/manageCompanies";
 import Institutes from "./pages/app/institutes";
 import ManageOptins from "./pages/app/manageOptins";
+import Notifications from "./pages/app/notifications";
 
 const appRoutes = [
     {
@@ -66,6 +67,14 @@ const appRoutes = [
                 element: (
                     <PrivateRoute module="webinars" action="view">
                         <Webinars />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: paths.notifications,
+                element: (
+                    <PrivateRoute module="notifications" action="view">
+                        <Notifications />
                     </PrivateRoute>
                 ),
             },

@@ -168,11 +168,15 @@ const Users = () => {
         });
     };
 
-    if (isLoading && users.length === 0) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
+    // if (isLoading && users.length === 0) return <div>Loading...</div>;
+    // if (error) return <div>Error: {error.message}</div>;
 
     return (
-        <Card>
+        <Card
+            title="Manage Users"
+            bordered={false}
+            loading={isLoading && users.length === 0}
+        >
             {/* title="User Management" */}
             {/* Toolbar with actions */}
             <UserTableToolbar
