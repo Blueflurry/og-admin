@@ -20,7 +20,7 @@ const items = [
         label: "Notifications",
         icon: <UserOutlined />,
     },
-    // { key: paths.referrals, label: "Referrals", icon: <UserOutlined /> },
+    { key: paths.referrals, label: "Referrals", icon: <UserOutlined /> },
     { key: paths.manageOptins, label: "Manage Optins", icon: <UserOutlined /> },
     // {
     //     key: paths.manageEmployess,
@@ -45,6 +45,33 @@ const Sidebar = ({ collapsed }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { can } = useUserPermission();
+
+    // Determine the active key based on current location
+    const getActiveKey = (pathname) => {
+        // Find the longest matching path
+        let matchedKey = "/";
+        let maxMatchLength = 0;
+
+        // Check each item to find the best match
+        items.forEach((item) => {
+            // Skip if not a string key
+            if (typeof item.key !== "string") return;
+
+            // Check if this path is a match and is longer than previous matches
+            if (
+                pathname.includes(item.key) &&
+                item.key.length > maxMatchLength
+            ) {
+                matchedKey = item.key;
+                maxMatchLength = item.key.length;
+            }
+        });
+
+        return matchedKey;
+    };
+
+    // Get the current active key
+    const activeKey = getActiveKey(location.pathname);
 
     const filteredItems = items.filter((item) => {
         const moduleMap = {
@@ -93,9 +120,10 @@ const Sidebar = ({ collapsed }) => {
             <Menu
                 theme="dark"
                 mode="inline"
-                selectedKeys={[selectedKey]}
+                selectedKeys={[activeKey]}
                 items={filteredItems}
                 onClick={onMenuItemClick}
+                defaultSelectedKeys={[activeKey]}
             />
         </Sider>
     );

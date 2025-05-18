@@ -109,7 +109,7 @@ const ManageCompaniesSearchFilterDrawer = ({
         <Drawer
             title={
                 <div style={{ display: "flex", alignItems: "center" }}>
-                    <FilterOutlined style={{ marginRight: 8 }} />
+                    {/* <FilterOutlined style={{ marginRight: 8 }} /> */}
                     <span>Search & Filter Companies</span>
                 </div>
             }

@@ -23,7 +23,7 @@ const getNotificationsTableColumns = ({
         title: "Notification",
         key: "notification",
         align: "left",
-        width: 300,
+        width: 320,
         render: (_, record) => (
             <div style={{ display: "flex", alignItems: "center" }}>
                 <Avatar
@@ -58,15 +58,28 @@ const getNotificationsTableColumns = ({
         render: (text) => text || "No text provided",
     },
     {
-        title: "Date",
+        title: "Created At",
+        dataIndex: "createdAt",
+        key: "createdAt",
+        align: "center",
+        width: 150,
+        render: (date) => (
+            <Space>
+                {/* <ClockCircleOutlined /> */}
+                {moment(date).format("DD MMM, YYYY HH:mm")}
+            </Space>
+        ),
+    },
+    {
+        title: "Scheduled for",
         dataIndex: "date",
         key: "date",
         align: "center",
         width: 150,
         render: (date) => (
             <Space>
-                <ClockCircleOutlined />
-                {moment(date).format("DD MMM, YYYY HH:mm")}
+                {/* <ClockCircleOutlined /> */}
+                {date ? moment(date).format("DD MMM, YYYY HH:mm") : "NA"}
             </Space>
         ),
     },
@@ -113,19 +126,7 @@ const getNotificationsTableColumns = ({
                 "-"
             ),
     },
-    {
-        title: "Created At",
-        dataIndex: "createdAt",
-        key: "createdAt",
-        align: "center",
-        width: 150,
-        render: (date) => (
-            <Space>
-                <ClockCircleOutlined />
-                {moment(date).format("DD MMM, YYYY HH:mm")}
-            </Space>
-        ),
-    },
+
     {
         title: "Actions",
         key: "actions",

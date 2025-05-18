@@ -407,4 +407,146 @@ export class API {
     deleteNotification(id) {
         return this.request(() => this.client.delete(`/cron/${id}`));
     }
+
+    // REFERRALS
+    getReferrals(page = 1, limit = 10, sort = "", filters = {}) {
+        // Start with pagination parameters
+        let queryParams = `page=${page}&limit=${limit}&populate=user`;
+
+        // Add sort if provided
+        if (sort) {
+            queryParams += `&sort=${sort}`;
+        }
+
+        // Process filters and convert to MongoDB query format
+        if (filters && Object.keys(filters).length > 0) {
+            Object.entries(filters).forEach(([key, value]) => {
+                if (typeof value === "object") {
+                    // Handle MongoDB operators ($regex, $in, $gte, etc.)
+                    Object.entries(value).forEach(([operator, opValue]) => {
+                        if (Array.isArray(opValue) && operator === "$in") {
+                            // Handle $in operator with array values
+                            opValue.forEach((item) => {
+                                queryParams += `&${key}[${operator}][]=${encodeURIComponent(
+                                    item
+                                )}`;
+                            });
+                        } else {
+                            // Handle other operators
+                            queryParams += `&${key}[${operator}]=${encodeURIComponent(
+                                opValue
+                            )}`;
+                        }
+                    });
+                } else {
+                    // Handle simple values
+                    queryParams += `&${key}=${encodeURIComponent(value)}`;
+                }
+            });
+        }
+
+        return this.request(() =>
+            this.client.get(`/referral?${queryParams}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            })
+        );
+    }
+
+    getReferralById(id) {
+        return this.request(() =>
+            this.client.get(`/referral/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            })
+        );
+    }
+
+    // createReferral(referralData) {
+    //     return this.request(() => this.client.post("/referral", referralData));
+    // }
+
+    updateReferral(id, referralData) {
+        return this.request(() =>
+            this.client.patch(`/referral/${id}`, referralData, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            })
+        );
+    }
+
+    deleteReferral(id) {
+        return this.request(() =>
+            this.client.delete(`/referral/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            })
+        );
+    }
+
+    // Employees API methods
+    getManageEmployees(params = {}) {
+        const {
+            page = 1,
+            limit = 10,
+            sort = "-createdAt",
+            filters = {},
+        } = params;
+
+        // Always include the role filter to get only employees, managers, and admins
+        const employeeFilters = {
+            ...filters,
+            appUserRole: { $in: [2, 3, 5] }, // 2=employee, 3=manager, 5=admin
+        };
+
+        // Use the search POST endpoint with the filters in the body
+        return this.request(() =>
+            this.client.post(
+                `/auth/search?page=${page}&limit=${limit}&sort=${sort}`,
+                employeeFilters
+            )
+        );
+    }
+
+    getManageEmployee(id) {
+        // Use the regular user GET endpoint
+        return this.request(() => this.client.get(`/auth/${id}`));
+    }
+
+    createManageEmployee(data) {
+        // Set default role to 2 (employee) if not specified
+        if (!data.has("appUserRole")) {
+            data.append("appUserRole", 2);
+        }
+
+        // Use the register/admin endpoint for employee creation
+        return this.request(() =>
+            this.client.post("/auth/register/admin", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            })
+        );
+    }
+
+    updateManageEmployee(id, data) {
+        // Use the regular user PATCH endpoint
+        return this.request(() =>
+            this.client.patch(`/auth/${id}`, data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    deleteManageEmployee(id) {
+        // Use the regular user DELETE endpoint
+        return this.request(() => this.client.delete(`/auth/${id}`));
+    }
 }

@@ -72,7 +72,7 @@ const NotificationsFormDrawer = ({
                 title: values.title,
                 text: values.text,
                 link: values.link || "",
-                date: new Date().toISOString(), // Set to current time
+                date: null, // Set to current time
                 repeat: false,
                 frequency: 0, // Set frequency to 0 for immediate notifications
             };

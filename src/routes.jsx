@@ -14,6 +14,8 @@ import ManageCompanies from "./pages/app/manageCompanies";
 import Institutes from "./pages/app/institutes";
 import ManageOptins from "./pages/app/manageOptins";
 import Notifications from "./pages/app/notifications";
+import Referrals from "./pages/app/referrals";
+import ManageEmployees from "./pages/app/manageEmployees";
 
 const appRoutes = [
     {
@@ -78,6 +80,24 @@ const appRoutes = [
                     </PrivateRoute>
                 ),
             },
+
+            {
+                path: paths.referrals,
+                element: (
+                    <PrivateRoute module="referrals" action="view">
+                        <Referrals />
+                    </PrivateRoute>
+                ),
+            },
+
+            // {
+            //     path: paths.manageEmployess,
+            //     element: (
+            //         <PrivateRoute module="employees" action="view">
+            //             <ManageEmployees />
+            //         </PrivateRoute>
+            //     ),
+            // },
 
             {
                 path: paths.manageCompanies,
