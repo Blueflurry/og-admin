@@ -118,6 +118,16 @@ const getCoursesTableColumns = ({ handleView, handleEdit, handleDelete }) => [
                         title="Invite URL"
                     />
                 )}
+                {!record.inviteUrl && !record.courseUrl && (
+                    <Button
+                        type="link"
+                        // icon={<LinkOutlined />}
+                        disabled
+                        title="No Links Available"
+                    >
+                        N/A
+                    </Button>
+                )}
             </Space>
         ),
     },

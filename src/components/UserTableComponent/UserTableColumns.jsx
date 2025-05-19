@@ -71,15 +71,18 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
                 let color, text;
 
                 switch (status) {
+                    case "1":
                     case 1:
                         color = "green";
                         text = "Active";
                         break;
                     case "0":
+                    case 0:
                         color = "gold";
                         text = "Unauthorized";
                         break;
                     case "-1":
+                    case -1:
                         color = "red";
                         text = "Disabled";
                         break;

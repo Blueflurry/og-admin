@@ -124,8 +124,10 @@ const WebinarsFormDrawer = ({
             // Add all form fields to FormData
             formData.append("title", values.title);
             formData.append("description", values.description);
-            formData.append("courseUrl", values.courseUrl || "");
-            formData.append("inviteUrl", values.inviteUrl || "");
+            if (values.courseUrl && values.courseUrl != "")
+                formData.append("courseUrl", values.courseUrl || "");
+            if (values.inviteUrl && values.inviteUrl != "")
+                formData.append("inviteUrl", values.inviteUrl || "");
             formData.append("startDate", values.startDate.format("YYYY-MM-DD"));
             formData.append("endDate", values.endDate.format("YYYY-MM-DD"));
             formData.append("duration", values.duration);
