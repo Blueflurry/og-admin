@@ -259,7 +259,6 @@ export class API {
             this.client.post("/auth/company", data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
             })
         );
@@ -445,23 +444,11 @@ export class API {
             });
         }
 
-        return this.request(() =>
-            this.client.get(`/referral?${queryParams}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            })
-        );
+        return this.request(() => this.client.get(`/referral?${queryParams}`));
     }
 
     getReferralById(id) {
-        return this.request(() =>
-            this.client.get(`/referral/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            })
-        );
+        return this.request(() => this.client.get(`/referral/${id}`));
     }
 
     // createReferral(referralData) {
@@ -470,22 +457,12 @@ export class API {
 
     updateReferral(id, referralData) {
         return this.request(() =>
-            this.client.patch(`/referral/${id}`, referralData, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            })
+            this.client.patch(`/referral/${id}`, referralData)
         );
     }
 
     deleteReferral(id) {
-        return this.request(() =>
-            this.client.delete(`/referral/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            })
-        );
+        return this.request(() => this.client.delete(`/referral/${id}`));
     }
 
     // Employees API methods
@@ -528,7 +505,6 @@ export class API {
             this.client.post("/auth/register/admin", data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
             })
         );
@@ -548,5 +524,341 @@ export class API {
     deleteManageEmployee(id) {
         // Use the regular user DELETE endpoint
         return this.request(() => this.client.delete(`/auth/${id}`));
+    }
+
+    // Add this method to your API class in src/api/index.js
+
+    // DASHBOARD
+    getDashboardStats(timeRange = "7days") {
+        return this.request(() =>
+            this.client.get(`/dashboard/stats?range=${timeRange}`)
+        );
+    }
+
+    // Alternative: If your backend expects different endpoints for dashboard data
+    getDashboardData() {
+        return this.request(async () => {
+            // Fetch multiple data points in parallel
+            const [usersResponse, jobsResponse, applicationsResponse] =
+                await Promise.all([
+                    this.client.get("/dashboard/users-stats"),
+                    this.client.get("/dashboard/jobs-stats"),
+                    this.client.get("/dashboard/applications-stats"),
+                ]);
+
+            // Combine the responses
+            return {
+                data: {
+                    users: usersResponse.data,
+                    jobs: jobsResponse.data,
+                    applications: applicationsResponse.data,
+                },
+            };
+        });
+    }
+
+    // Alternative: Mock data for development/testing
+    getMockDashboardStats(timeRange = "7days") {
+        // Generate mock data based on time range
+        const days =
+            timeRange === "7days" ? 7 : timeRange === "30days" ? 30 : 90;
+
+        // Generate user growth data
+        const userGrowthData = [];
+        const today = new Date();
+        for (let i = days - 1; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            userGrowthData.push({
+                date: date.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                }),
+                users: Math.floor(Math.random() * 50) + 100,
+                activeUsers: Math.floor(Math.random() * 40) + 80,
+            });
+        }
+
+        // Generate job category data
+        const jobCategoryData = [
+            { category: "Tech", active: 45, inactive: 10 },
+            { category: "Sales", active: 38, inactive: 8 },
+            { category: "Marketing", active: 25, inactive: 5 },
+            { category: "Finance", active: 32, inactive: 7 },
+            { category: "HR", active: 18, inactive: 4 },
+        ];
+
+        // Generate recent activities
+        const recentActivities = [
+            {
+                type: "user",
+                description: "New user registered: John Doe",
+                timestamp: new Date(Date.now() - 1000 * 60 * 5),
+            },
+            {
+                type: "job",
+                description: "New job posted: Senior Developer",
+                timestamp: new Date(Date.now() - 1000 * 60 * 30),
+            },
+            {
+                type: "user",
+                description: "User updated profile: Jane Smith",
+                timestamp: new Date(Date.now() - 1000 * 60 * 60),
+            },
+            {
+                type: "job",
+                description: "Job application received for: UI Designer",
+                timestamp: new Date(Date.now() - 1000 * 60 * 120),
+            },
+            {
+                type: "user",
+                description: "New user registered: Mike Johnson",
+                timestamp: new Date(Date.now() - 1000 * 60 * 180),
+            },
+        ];
+
+        return Promise.resolve({
+            data: {
+                totalUsers: 1234,
+                activeUsers: 987,
+                inactiveUsers: 247,
+                totalJobs: 156,
+                activeJobs: 98,
+                inactiveJobs: 58,
+                jobApplications: 423,
+                monthlyRegistrations: 87,
+                registrationTrend: 12.5,
+                userGrowthData,
+                jobCategoryData,
+                recentActivities,
+            },
+        });
+    }
+
+    // Carousels API methods (type=2)
+    getCarousels(page = 1, limit = 10, sort = "", filters = {}) {
+        // Start with pagination parameters
+        let queryParams = `page=${page}&limit=${limit}`;
+
+        // Add sort if provided
+        if (sort) {
+            queryParams += `&sort=${sort}`;
+        }
+
+        // Get status from filters or don't set default (show all statuses)
+        if (filters && filters.status !== undefined) {
+            queryParams += `&status=${filters.status}`;
+        }
+
+        // Always ensure type=2 for carousels
+        queryParams += `&type=2`;
+
+        // Process remaining filters and add them to the query string
+        if (filters && Object.keys(filters).length > 0) {
+            Object.entries(filters).forEach(([key, value]) => {
+                // Skip status and type as they're already processed
+                if (key === "status" || key === "type") return;
+
+                if (typeof value === "object") {
+                    // Handle MongoDB operators ($regex, $in, $gte, $lte, etc.)
+                    Object.entries(value).forEach(([operator, opValue]) => {
+                        const paramOperator = operator;
+
+                        if (Array.isArray(opValue) && operator === "$in") {
+                            // Handle $in operator with array values
+                            opValue.forEach((item) => {
+                                queryParams += `&${key}[${paramOperator}][]=${encodeURIComponent(
+                                    item
+                                )}`;
+                            });
+                        } else {
+                            // Handle other operators
+                            queryParams += `&${key}[${paramOperator}]=${encodeURIComponent(
+                                opValue
+                            )}`;
+                        }
+                    });
+                } else {
+                    // Handle simple values
+                    queryParams += `&${key}=${encodeURIComponent(value)}`;
+                }
+            });
+        }
+
+        return this.request(() => this.client.get(`/content?${queryParams}`));
+    }
+
+    getCarousel(id) {
+        return this.request(() => this.client.get(`/content/${id}`));
+    }
+
+    createCarousel(data) {
+        return this.request(() =>
+            this.client.post("/content", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    updateCarousel(id, data) {
+        return this.request(() =>
+            this.client.patch(`/content/${id}`, data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    deleteCarousel(id) {
+        return this.request(() => this.client.delete(`/content/${id}`));
+    }
+
+    // JOB APPLICATIONS - Add these methods to the API class
+    getJobApplications(
+        jobId,
+        page = 1,
+        limit = 10,
+        sort = "-createdAt",
+        filters = {}
+    ) {
+        // Start with pagination parameters
+        let queryParams = `page=${page}&limit=${limit}`;
+
+        // Add sort if provided
+        if (sort) {
+            queryParams += `&sort=${sort}`;
+        }
+
+        // Process filters and add them to the query string
+        if (filters && Object.keys(filters).length > 0) {
+            Object.entries(filters).forEach(([key, value]) => {
+                if (typeof value === "object") {
+                    // Handle MongoDB operators ($regex, $in, $gte, $lte, etc.)
+                    Object.entries(value).forEach(([operator, opValue]) => {
+                        // Keep MongoDB operators intact
+                        const paramOperator = operator;
+
+                        if (Array.isArray(opValue) && operator === "$in") {
+                            // Handle $in operator with array values
+                            opValue.forEach((item) => {
+                                queryParams += `&${key}[${paramOperator}][]=${encodeURIComponent(
+                                    item
+                                )}`;
+                            });
+                        } else {
+                            // Handle other operators
+                            queryParams += `&${key}[${paramOperator}]=${encodeURIComponent(
+                                opValue
+                            )}`;
+                        }
+                    });
+                } else {
+                    // Handle simple values
+                    queryParams += `&${key}=${encodeURIComponent(value)}`;
+                }
+            });
+        }
+
+        console.log("Job Applications Query Params:", `${queryParams}`);
+
+        // Make the request with all query parameters
+        return this.request(() =>
+            this.client.get(`/jobs/${jobId}/applications?${queryParams}`)
+        );
+    }
+
+    updateJobApplication(applicationId, applicationData) {
+        return this.request(() =>
+            this.client.patch(
+                `/jobs/applications/${applicationId}`,
+                applicationData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            )
+        );
+    }
+
+    bulkUpdateJobApplications(bulkUpdateData) {
+        // bulkUpdateData should be: { ids: [...], update: { ... } }
+        return this.request(() =>
+            this.client.patch(`/jobs/applications`, bulkUpdateData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    deleteJobApplication(applicationId) {
+        return this.request(() =>
+            this.client.delete(`/jobs/applications/${applicationId}`, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    } // Get job applications statistics
+    getJobApplicationsStats() {
+        return this.request(() => this.client.get("/job-applications/stats"));
+    }
+
+    // Helper method to get job applications by status
+    getJobApplicationsByStatus(status, page = 1, limit = 10, sort = "") {
+        return this.getJobApplications(page, limit, sort, { status });
+    }
+
+    // Helper method to get job applications by job ID
+    getJobApplicationsByJob(jobId, page = 1, limit = 10, sort = "") {
+        return this.getJobApplications(page, limit, sort, { job: jobId });
+    }
+
+    // Helper method to get job applications by applicant ID
+    getJobApplicationsByApplicant(
+        applicantId,
+        page = 1,
+        limit = 10,
+        sort = ""
+    ) {
+        return this.getJobApplications(page, limit, sort, {
+            applicant: applicantId,
+        });
+    }
+
+    // DASHBOARD - Updated methods for new endpoints
+
+    // Helper function to format dates for API
+    formatDateForAPI(timeRange) {
+        const today = new Date();
+        const days =
+            timeRange === "7days" ? 7 : timeRange === "30days" ? 30 : 90;
+        const fromDate = new Date(today);
+        fromDate.setDate(today.getDate() - days);
+
+        return {
+            from: fromDate.toISOString().split("T")[0], // YYYY-MM-DD format
+            to: today.toISOString().split("T")[0],
+        };
+    }
+
+    // Fetch metrics data from API
+    getDashboardMetrics(timeRange) {
+        const { from, to } = this.formatDateForAPI(timeRange);
+        return this.request(() =>
+            this.client.get(`/auth/user/metrics?from=${from}&to=${to}`)
+        );
+    }
+
+    // Fetch chart data from API
+    getDashboardChart(timeRange) {
+        const { from, to } = this.formatDateForAPI(timeRange);
+        return this.request(() =>
+            this.client.get(`/auth/user/chart?from=${from}&to=${to}`)
+        );
     }
 }

@@ -1,6 +1,261 @@
+/* src/index.css - Updated with brand colors */
 body {
     margin: 0;
     padding: 0;
-    font-family: "Poppins", sans-serif;
-    background-color: #f4f4f4;
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, sans-serif;
+    background-color: #f0f2f5;
+}
+
+/* Primary brand color variables */
+:root {
+    --primary-color: #04248c;
+    --primary-hover: #0530a8;
+    --primary-active: #021a63;
+    --primary-light: #e6e9f7;
+    --secondary-color: #e31c24;
+    --secondary-hover: #ff3d45;
+    --secondary-active: #b91419;
+    --text-primary: #262626;
+    --text-secondary: #8c8c8c;
+    --border-color: #d9d9d9;
+}
+
+/* Override Ant Design primary color globally */
+.ant-btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.ant-btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.ant-btn-primary:active {
+    background-color: var(--primary-active);
+    border-color: var(--primary-active);
+}
+
+/* Links */
+a {
+    color: var(--primary-color);
+}
+
+a:hover {
+    color: var(--primary-hover);
+}
+
+/* Sidebar specific styles */
+.ant-layout-sider {
+    background: var(--primary-color) !important;
+}
+
+.ant-menu-dark {
+    background: transparent !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-menu-dark .ant-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f0f2f5;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #bfbfbf;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #8c8c8c;
+}
+
+/* Card hover effects */
+.ant-card-hoverable {
+    transition: all 0.3s ease;
+}
+
+.ant-card-hoverable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(4, 36, 140, 0.15) !important;
+}
+
+/* Table header styling */
+.ant-table-thead > tr > th {
+    background: #f5f7fa !important;
+    color: var(--primary-color) !important;
+    font-weight: 600;
+}
+
+/* Tag styling */
+.ant-tag {
+    border-radius: 4px;
+}
+
+/* Input focus styling */
+.ant-input:focus,
+.ant-input-focused,
+.ant-input:hover,
+.ant-select:hover .ant-select-selector,
+.ant-select-focused .ant-select-selector,
+.ant-picker:hover,
+.ant-picker-focused {
+    border-color: var(--primary-color) !important;
+}
+
+.ant-input:focus,
+.ant-input-focused,
+.ant-select-focused .ant-select-selector,
+.ant-picker-focused {
+    box-shadow: 0 0 0 2px rgba(4, 36, 140, 0.1) !important;
+}
+
+/* Checkbox and Radio styling */
+.ant-checkbox-checked .ant-checkbox-inner,
+.ant-radio-checked .ant-radio-inner {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.ant-checkbox-wrapper:hover .ant-checkbox-inner,
+.ant-checkbox:hover .ant-checkbox-inner,
+.ant-radio-wrapper:hover .ant-radio-inner,
+.ant-radio:hover .ant-radio-inner {
+    border-color: var(--primary-color);
+}
+
+/* Switch styling */
+.ant-switch-checked {
+    background-color: var(--primary-color);
+}
+
+/* Pagination styling */
+.ant-pagination-item-active {
+    border-color: var(--primary-color);
+}
+
+.ant-pagination-item-active a {
+    color: var(--primary-color);
+}
+
+/* Tabs styling */
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: var(--primary-color);
+}
+
+.ant-tabs-ink-bar {
+    background: var(--primary-color);
+}
+
+/* Dropdown menu styling */
+.ant-dropdown-menu-item:hover {
+    background-color: var(--primary-light);
+}
+
+/* Progress styling */
+.ant-progress-bg {
+    background-color: var(--primary-color);
+}
+
+/* Steps styling */
+.ant-steps-item-process .ant-steps-item-icon {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Logo container animation */
+.logo-container {
+    transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+    transform: scale(1.05);
+}
+
+/* Dashboard specific styles */
+.dashboard-stat-card {
+    transition: all 0.3s ease;
+}
+
+.dashboard-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(4, 36, 140, 0.12) !important;
+}
+
+/* Notification badge */
+.ant-badge-dot {
+    background-color: var(--secondary-color);
+}
+
+/* Alert styling - using secondary color sparingly */
+.ant-alert-error {
+    background-color: #fef0f0;
+    border-color: #ffccc7;
+}
+
+/* Modal styling */
+.ant-modal-header {
+    background-color: var(--primary-light);
+}
+
+.ant-modal-title {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Form error messages - using secondary color */
+.ant-form-item-explain-error {
+    color: var(--secondary-color);
+}
+
+/* Success messages */
+.ant-message-success .anticon {
+    color: #52c41a;
+}
+
+/* Custom utility classes */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.text-secondary {
+    color: var(--secondary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-primary-light {
+    background-color: var(--primary-light) !important;
+}
+
+.border-primary {
+    border-color: var(--primary-color) !important;
+}
+
+/* Loading spinner */
+.ant-spin-dot-item {
+    background-color: var(--primary-color);
+}
+
+/* Breadcrumb styling */
+.ant-breadcrumb a {
+    color: var(--primary-color);
+}
+
+.ant-breadcrumb a:hover {
+    color: var(--primary-hover);
 }

@@ -1,3 +1,4 @@
+// Updated JobTableColumns.jsx - Fix for the hook error
 import React from "react";
 import { Space, Tag, Button, Dropdown, Avatar } from "antd";
 import {
@@ -7,16 +8,22 @@ import {
     EyeOutlined,
     EnvironmentOutlined,
     HomeOutlined,
+    TeamOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
 import { useUserPermission } from "../../hooks/useUserPermission";
 
-const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
+// Move the navigate function to be passed as a prop instead of using the hook inside render
+const getJobTableColumns = ({
+    handleView,
+    handleEdit,
+    handleDelete,
+    onViewApplications,
+}) => [
     {
         title: "Job Title",
         key: "jobInfo",
         align: "left",
-        // width: 250,
         render: (_, record) => (
             <div style={{ display: "flex", alignItems: "center" }}>
                 <Avatar
@@ -47,8 +54,8 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         align: "center",
         width: 120,
         render: (status) => (
-            <Tag color={status === 1 ? "green" : "red"}>
-                {status === 1 ? "Active" : "Inactive"}
+            <Tag color={status === 0 ? "green" : "red"}>
+                {status === 0 ? "Active" : "Inactive"}
             </Tag>
         ),
     },
@@ -109,7 +116,6 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         dataIndex: "location",
         key: "location",
         align: "left",
-        // width: 150,
         render: (location) => {
             let display = `${location?.city}`;
             if (location?.state) display += `, ${location?.state}`;
@@ -121,6 +127,27 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
             );
         },
     },
+    // Add Applications column
+    {
+        title: "Applications",
+        key: "applications",
+        align: "center",
+        fixed: "right",
+        width: 120,
+        render: (_, record) => (
+            <Button
+                type="link"
+                icon={<TeamOutlined />}
+                onClick={() => {
+                    if (onViewApplications) {
+                        onViewApplications(record.id || record._id);
+                    }
+                }}
+            >
+                View Applications
+            </Button>
+        ),
+    },
     {
         title: "Actions",
         key: "actions",
@@ -131,15 +158,12 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
             const { can } = useUserPermission();
             const items = [];
 
-            // Create menu items array for dropdown
-            // const items = [
             if (can("jobs", "view")) {
                 items.push({
                     key: "view",
                     label: "View",
                     icon: <EyeOutlined />,
                     onClick: () => {
-                        // console.log("View clicked for record:", record);
                         if (handleView) handleView(record);
                     },
                 });
@@ -151,14 +175,11 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
                     label: "Edit",
                     icon: <EditOutlined />,
                     onClick: () => {
-                        // console.log("Edit clicked for record:", record);
                         if (handleEdit) handleEdit(record);
                     },
                 });
             }
-            // ];
 
-            // Only add delete option if handleDelete is provided
             if (handleDelete && can("jobs", "delete")) {
                 items.push({
                     key: "delete",
@@ -166,13 +187,11 @@ const getJobTableColumns = ({ handleView, handleEdit, handleDelete }) => [
                     icon: <DeleteOutlined />,
                     danger: true,
                     onClick: () => {
-                        // console.log("Delete clicked for record:", record);
                         handleDelete(record);
                     },
                 });
             }
 
-            // Don't render the dropdown if there are no permitted actions
             if (items.length === 0) {
                 return null;
             }

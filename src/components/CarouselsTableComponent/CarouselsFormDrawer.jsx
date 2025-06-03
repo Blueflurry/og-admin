@@ -73,7 +73,7 @@ const CarouselsFormDrawer = ({
             formData.append("description", values.description || "");
             formData.append("link", values.link || "");
             formData.append("order", values.order || 0);
-            formData.append("type", 2); // Always set type=2 for carousels
+            formData.append("type", 2); // type=2 for carousels
 
             // Set status based on isActive
             let status = values.isActive ? 1 : -1;
@@ -204,9 +204,9 @@ const CarouselsFormDrawer = ({
                                         src={imageUrl}
                                         alt="carousel"
                                         style={{
-                                            width: 500,
-                                            height: (500 * 9) / 16,
-                                            objectFit: "cover",
+                                            width: 200,
+                                            height: (200 * 9) / 16,
+                                            objectFit: "contain",
                                             cursor: "pointer",
                                         }}
                                     />
@@ -256,7 +256,7 @@ const CarouselsFormDrawer = ({
                 </Row>
 
                 <Row gutter={16}>
-                    <Col span={12}>
+                    <Col span={24}>
                         <Form.Item
                             name="link"
                             label="Link (Optional)"
@@ -270,7 +270,7 @@ const CarouselsFormDrawer = ({
                             <Input placeholder="https://example.com" />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    {/* <Col span={12}>
                         <Form.Item
                             name="order"
                             label="Display Order"
@@ -287,10 +287,10 @@ const CarouselsFormDrawer = ({
                                 placeholder="0"
                             />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
                 </Row>
 
-                <Row gutter={16}>
+                {/* <Row gutter={16}>
                     <Col span={24}>
                         <Form.Item
                             name="isActive"
@@ -304,7 +304,7 @@ const CarouselsFormDrawer = ({
                             />
                         </Form.Item>
                     </Col>
-                </Row>
+                </Row> */}
             </Form>
         </Drawer>
     );

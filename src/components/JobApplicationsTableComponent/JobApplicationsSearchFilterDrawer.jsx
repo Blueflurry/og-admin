@@ -1,3 +1,4 @@
+// src/components/JobApplicationsTableComponent/JobApplicationsSearchFilterDrawer.jsx
 import React, { useEffect, useState } from "react";
 import {
     Drawer,
@@ -5,9 +6,7 @@ import {
     Button,
     Input,
     Select,
-    DatePicker,
     Space,
-    Checkbox,
     InputNumber,
     Radio,
     Divider,
@@ -23,10 +22,9 @@ import {
 import moment from "moment";
 
 const { Title, Text } = Typography;
-const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-const JobSearchFilterDrawer = ({
+const JobApplicationsSearchFilterDrawer = ({
     open,
     onClose,
     filterConfig,
@@ -74,15 +72,6 @@ const JobSearchFilterDrawer = ({
             if (!config) return;
 
             switch (config.type) {
-                case "date-range":
-                    if (value.$gte && value.$lt) {
-                        formattedValues[key] = [
-                            moment(value.$gte),
-                            moment(value.$lt),
-                        ];
-                    }
-                    break;
-
                 case "multi-select":
                     if (value.$in) {
                         formattedValues[key] = value.$in;
@@ -125,20 +114,6 @@ const JobSearchFilterDrawer = ({
             const fieldType = config.type;
 
             switch (fieldType) {
-                case "date-range":
-                    const dateRange = values[key];
-                    if (
-                        dateRange &&
-                        Array.isArray(dateRange) &&
-                        dateRange.length === 2
-                    ) {
-                        filters[key] = {
-                            $gte: dateRange[0].startOf("day").toISOString(),
-                            $lt: dateRange[1].endOf("day").toISOString(),
-                        };
-                    }
-                    break;
-
                 case "multi-select":
                     const selectedValues = values[key];
                     if (
@@ -147,12 +122,6 @@ const JobSearchFilterDrawer = ({
                         selectedValues.length > 0
                     ) {
                         filters[key] = { $in: selectedValues };
-                    }
-                    break;
-
-                case "boolean":
-                    if (values[key] !== undefined) {
-                        filters[key] = values[key];
                     }
                     break;
 
@@ -165,12 +134,6 @@ const JobSearchFilterDrawer = ({
                         if (fromValue !== undefined)
                             filters[key].$gte = fromValue;
                         if (toValue !== undefined) filters[key].$lte = toValue;
-                    }
-                    break;
-
-                case "number":
-                    if (values[key] !== undefined) {
-                        filters[key] = values[key];
                     }
                     break;
 
@@ -222,28 +185,6 @@ const JobSearchFilterDrawer = ({
                     </Form.Item>
                 );
 
-            case "number":
-                return (
-                    <Form.Item key={key} name={key} label={label}>
-                        <InputNumber
-                            style={{ width: "100%" }}
-                            placeholder={`Enter ${label.toLowerCase()}`}
-                        />
-                    </Form.Item>
-                );
-
-            case "boolean":
-                return (
-                    <Form.Item
-                        key={key}
-                        name={key}
-                        label={label}
-                        valuePropName="checked"
-                    >
-                        <Checkbox>Yes</Checkbox>
-                    </Form.Item>
-                );
-
             case "multi-select":
                 return (
                     <Form.Item key={key} name={key} label={label}>
@@ -262,13 +203,6 @@ const JobSearchFilterDrawer = ({
                                     </Option>
                                 ))}
                         </Select>
-                    </Form.Item>
-                );
-
-            case "date-range":
-                return (
-                    <Form.Item key={key} name={key} label={label}>
-                        <RangePicker style={{ width: "100%" }} />
                     </Form.Item>
                 );
 
@@ -315,12 +249,12 @@ const JobSearchFilterDrawer = ({
             {
                 key: "selectFilters",
                 label: "Filter Options",
-                types: ["multi-select", "boolean"],
+                types: ["multi-select"],
             },
             {
                 key: "rangeFilters",
                 label: "Range Filters",
-                types: ["number", "number-range", "date-range"],
+                types: ["number-range"],
             },
         ];
 
@@ -352,14 +286,14 @@ const JobSearchFilterDrawer = ({
         <Drawer
             title={
                 <div style={{ display: "flex", alignItems: "center" }}>
-                    {/* <FilterOutlined style={{ marginRight: 8 }} /> */}
-                    <span>Search & Filter Jobs</span>
+                    <FilterOutlined style={{ marginRight: 8 }} />
+                    <span>Search & Filter Applications</span>
                 </div>
             }
             width={480}
             onClose={onClose}
             open={open}
-            style={{ paddingBottom: 80 }}
+            bodyStyle={{ paddingBottom: 80 }}
             extra={
                 <Space>
                     <Button onClick={handleReset} icon={<ClearOutlined />}>
@@ -424,4 +358,4 @@ const JobSearchFilterDrawer = ({
     );
 };
 
-export default JobSearchFilterDrawer;
+export default JobApplicationsSearchFilterDrawer;

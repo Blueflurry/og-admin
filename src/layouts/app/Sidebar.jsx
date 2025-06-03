@@ -1,7 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Layout, Menu, Grid } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import {
+    HomeOutlined,
+    UserOutlined,
+    TeamOutlined,
+    SolutionOutlined,
+    BookOutlined,
+    VideoCameraOutlined,
+    BellOutlined,
+    ShareAltOutlined,
+    CheckSquareOutlined,
+    BankOutlined,
+    BuildOutlined,
+    DashboardOutlined,
+    PictureOutlined,
+    FileTextOutlined,
+} from "@ant-design/icons";
 import paths from "../../constants/appUrls";
 import { useUserPermission } from "../../hooks/useUserPermission";
 
@@ -10,18 +25,22 @@ const { useBreakpoint } = Grid;
 
 // using 'key' property for storing the url path of this item
 const items = [
-    { key: paths.home, label: "Home", icon: <UserOutlined /> },
-    { key: paths.users, label: "Users", icon: <UserOutlined /> },
-    { key: paths.jobs, label: "Jobs", icon: <UserOutlined /> },
-    { key: paths.courses, label: "Courses", icon: <UserOutlined /> },
-    { key: paths.webinars, label: "Webinars", icon: <UserOutlined /> },
+    { key: paths.home, label: "Dashboard", icon: <DashboardOutlined /> },
+    { key: paths.users, label: "Users", icon: <TeamOutlined /> },
+    { key: paths.jobs, label: "Jobs", icon: <SolutionOutlined /> },
+    { key: paths.courses, label: "Courses", icon: <BookOutlined /> },
+    { key: paths.webinars, label: "Webinars", icon: <VideoCameraOutlined /> },
     {
         key: paths.notifications,
         label: "Notifications",
-        icon: <UserOutlined />,
+        icon: <BellOutlined />,
     },
-    { key: paths.referrals, label: "Referrals", icon: <UserOutlined /> },
-    { key: paths.manageOptins, label: "Manage Optins", icon: <UserOutlined /> },
+    { key: paths.referrals, label: "Referrals", icon: <ShareAltOutlined /> },
+    {
+        key: paths.manageOptins,
+        label: "Manage Optins",
+        icon: <CheckSquareOutlined />,
+    },
     // {
     //     key: paths.manageEmployess,
     //     label: "Manage Employess",
@@ -30,13 +49,19 @@ const items = [
     {
         key: paths.manageCompanies,
         label: "Manage Companies",
-        icon: <UserOutlined />,
+        icon: <BuildOutlined />,
     },
     {
         key: paths.manageInstitutes,
         label: "Manage Institutes",
-        icon: <UserOutlined />,
+        icon: <BankOutlined />,
     },
+    { key: paths.carousels, label: "Carousels", icon: <PictureOutlined /> },
+    // {
+    //     key: paths.jobApplications,
+    //     label: "Job Applications",
+    //     icon: <FileTextOutlined />,
+    // },
 ];
 
 const Sidebar = ({ collapsed }) => {
@@ -85,6 +110,11 @@ const Sidebar = ({ collapsed }) => {
             [paths.manageEmployess]: { module: "employees", action: "view" },
             [paths.manageCompanies]: { module: "companies", action: "view" },
             [paths.manageInstitutes]: { module: "institutes", action: "view" },
+            [paths.carousels]: { module: "carousels", action: "view" },
+            // [paths.jobApplications]: {
+            //     module: "jobApplications",
+            //     action: "view",
+            // },
         };
 
         if (item.key === paths.home) return true;
@@ -116,7 +146,40 @@ const Sidebar = ({ collapsed }) => {
             collapsible
             collapsed={collapsed}
             collapsedWidth={screens.lg ? 80 : 0}
+            style={{
+                background: "#04248c",
+                overflow: "hidden",
+            }}
         >
+            {/* Logo Section */}
+            <div
+                style={{
+                    height: 100,
+                    width: 100,
+                    borderRadius: "50%",
+                    margin: "16px auto",
+                    padding: 16,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.3s",
+                    cursor: "pointer",
+                    background: "#FFFFFF",
+                }}
+                onClick={() => navigate("/")}
+            >
+                <img
+                    src="/jaro-logo.png"
+                    alt="Jaro Logo"
+                    style={{
+                        maxHeight: "100%",
+                        maxWidth: "100%",
+                        objectFit: "contain",
+                        transition: "all 0.3s",
+                    }}
+                />
+            </div>
+
             <Menu
                 theme="dark"
                 mode="inline"
@@ -124,6 +187,11 @@ const Sidebar = ({ collapsed }) => {
                 items={filteredItems}
                 onClick={onMenuItemClick}
                 defaultSelectedKeys={[activeKey]}
+                style={{
+                    background: "transparent",
+                    borderRight: 0,
+                    marginTop: 16,
+                }}
             />
         </Sider>
     );

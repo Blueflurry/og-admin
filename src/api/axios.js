@@ -1,11 +1,30 @@
 import axios from "axios";
 
-// const baseURL = "https://sharing-sponge-forcibly.ngrok-free.app/api";
+// const baseURL =
+//     "https://117c-2401-4900-1f38-3ccc-f86b-cb93-2dd-7e2.ngrok-free.app/api";
 // const baseURL = "http://localhost:4000/api";
 const baseURL = "https://oblik.ddns.net/api";
 
 // const instance = axios.create({ baseURL });
 const instance = axios.create({ baseURL, withCredentials: true });
+
+// Add request interceptor
+instance.interceptors.request.use(
+    (config) => {
+        // Get token from localStorage
+        const token = localStorage.getItem("token");
+
+        // If token exists, set it in the Authorization header
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 // Add response interceptor
 instance.interceptors.response.use(

@@ -1,6 +1,8 @@
+// Updated JobTable.jsx - Add navigation support
 import React, { useState, useEffect } from "react";
 import { Table, message } from "antd";
 import { createStyles } from "antd-style";
+import { useNavigate } from "react-router-dom"; // Add this import
 
 // Import separated components and utilities
 import JobTableToolbar from "./JobTableToolbar";
@@ -14,6 +16,7 @@ import {
     tableStyles,
 } from "./JobTableConfig";
 import { useAPI } from "../../hooks/useAPI";
+import { useUserPermission } from "../../hooks/useUserPermission";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -25,6 +28,9 @@ const JobTable = ({
 }) => {
     const { styles } = useStyle();
     const { api } = useAPI();
+    const navigate = useNavigate(); // Add this hook at the top level
+    const { can } = useUserPermission();
+
     const { selectionType, rowSelection, handleChange, clearFilters } =
         useTableConfig();
 
@@ -75,6 +81,16 @@ const JobTable = ({
     const handleView = (record) => {
         setViewingJob(record);
         setViewDrawerOpen(true);
+    };
+
+    // Add navigation function for job applications
+    const handleViewApplications = (jobId) => {
+        console.log("Navigating to job applications for jobId:", jobId);
+        console.log("Target URL:", `/jobs/${jobId}/applications`);
+        console.log("User can view jobs:", can("jobs", "view"));
+
+        // debugger;
+        navigate(`/jobs/${jobId}/applications`);
     };
 
     const closeFormDrawer = () => {
@@ -155,6 +171,7 @@ const JobTable = ({
         handleView,
         handleEdit,
         handleDelete,
+        onViewApplications: handleViewApplications, // Pass the navigation function
     });
 
     const dataSource = Array.isArray(jobData)

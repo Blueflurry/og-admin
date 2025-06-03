@@ -7,43 +7,72 @@ export const useUserPermission = () => {
     const { hasPermission } = usePermissions();
     const { currentUser } = useAuth();
 
-    // Determine the role from your API response structure
-    // Adjust this based on your actual API response structure
-    const getUserRole = () => {
-        if (!currentUser) return null;
+    // ADD DEBUG LOGGING
+    console.log("🎭 ROLE DEBUG - currentUser:", currentUser);
 
-        // If your API returns a role property directly
+    const getUserRole = () => {
+        if (!currentUser) {
+            console.log("🎭 ROLE DEBUG - No currentUser");
+            return null;
+        }
+
+        // Check direct role property
         if (currentUser.role) {
-            // console.log(currentUser.role);
+            console.log("🎭 ROLE DEBUG - Found role:", currentUser.role);
             return currentUser.role;
         }
 
-        // If your API returns a different property for role, adjust accordingly
-        // For example, if it's in currentUser.data.role
+        // Check nested role property
         if (currentUser.data?.role) {
+            console.log(
+                "🎭 ROLE DEBUG - Found nested role:",
+                currentUser.data.role
+            );
             return currentUser.data.role;
         }
 
-        // Default to 'employee' if no role is found
+        // Check other possible role properties
+        if (currentUser.appUserRole) {
+            console.log(
+                "🎭 ROLE DEBUG - Found appUserRole:",
+                currentUser.appUserRole
+            );
+            // Map numeric roles to string roles if needed
+            const roleMap = {
+                2: "employee",
+                3: "manager",
+                5: "admin",
+            };
+            return roleMap[currentUser.appUserRole] || "employee";
+        }
+
+        console.log("🎭 ROLE DEBUG - No role found, defaulting to employee");
         return "employee";
     };
 
     const role = getUserRole();
+    console.log("🎭 ROLE DEBUG - Final role:", role);
+
+    // Test permission check
+    console.log(
+        "🎭 ROLE DEBUG - Testing jobApplications view permission:",
+        hasPermission(role, "jobApplications", "view")
+    );
 
     return {
-        // Check if current user has permission
         can: (module, action) => {
+            console.log("🎭 PERMISSION CHECK:", { role, module, action });
             if (!role) return false;
-            return hasPermission(role, module, action);
+            const result = hasPermission(role, module, action);
+            console.log("🎭 PERMISSION RESULT:", result);
+            return result;
         },
 
-        // For protected routes
         checkPermission: (module, action) => {
             if (!role) return false;
             return hasPermission(role, module, action);
         },
 
-        // Get current user role
         getRole: () => role,
     };
 };

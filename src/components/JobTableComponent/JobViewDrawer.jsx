@@ -100,8 +100,8 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
                     {jobData.id || jobData._id || "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Status" span={1}>
-                    <Tag color={jobData.status === 1 ? "green" : "red"}>
-                        {jobData.status === 1 ? "Active" : "Inactive"}
+                    <Tag color={jobData.status === 0 ? "green" : "red"}>
+                        {jobData.status === 0 ? "Active" : "Inactive"}
                     </Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label="Job Type" span={1}>

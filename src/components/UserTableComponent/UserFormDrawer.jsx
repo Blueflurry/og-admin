@@ -122,7 +122,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                 message.success("User updated successfully");
             } else {
                 console.log("Creating new user with data:", formData.values());
-                debugger;
+                // debugger;
                 await api.createUser(formData);
                 message.success("User created successfully");
             }

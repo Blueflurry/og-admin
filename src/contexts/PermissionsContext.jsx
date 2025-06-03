@@ -73,6 +73,20 @@ const staticPermissions = {
             delete: true,
             bulkdownload: true,
         },
+        carousels: {
+            view: true,
+            create: true,
+            edit: true,
+            delete: true,
+            bulkdownload: true,
+        },
+        jobApplications: {
+            view: true,
+            create: true,
+            edit: true,
+            delete: true,
+            bulkdownload: true,
+        },
     },
     manager: {
         users: {
@@ -145,6 +159,21 @@ const staticPermissions = {
             delete: false,
             bulkdownload: true,
         },
+
+        carousels: {
+            view: true,
+            create: true,
+            edit: true,
+            delete: false,
+            bulkdownload: true,
+        },
+        jobApplications: {
+            view: true,
+            create: true,
+            edit: true,
+            delete: false,
+            bulkdownload: true,
+        },
     },
     employee: {
         users: {
@@ -212,6 +241,20 @@ const staticPermissions = {
         },
         institutes: {
             view: false,
+            create: false,
+            edit: false,
+            delete: false,
+            bulkdownload: false,
+        },
+        carousels: {
+            view: true,
+            create: false,
+            edit: false,
+            delete: false,
+            bulkdownload: false,
+        },
+        jobApplications: {
+            view: true,
             create: false,
             edit: false,
             delete: false,

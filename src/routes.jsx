@@ -15,7 +15,10 @@ import Institutes from "./pages/app/institutes";
 import ManageOptins from "./pages/app/manageOptins";
 import Notifications from "./pages/app/notifications";
 import Referrals from "./pages/app/referrals";
-import ManageEmployees from "./pages/app/manageEmployees";
+// import ManageEmployees from "./pages/app/manageEmployees";
+import Dashboard from "./pages/app/Dashboard";
+import JobApplications from "./pages/app/jobApplications";
+import Carousels from "./pages/app/carousels";
 
 const appRoutes = [
     {
@@ -38,7 +41,7 @@ const appRoutes = [
         children: [
             {
                 path: "",
-                element: <div>Dashboard</div>,
+                element: <Dashboard />,
             },
             {
                 path: paths.users,
@@ -120,6 +123,22 @@ const appRoutes = [
                 element: (
                     <PrivateRoute module="optins" action="view">
                         <ManageOptins />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: paths.carousels,
+                element: (
+                    <PrivateRoute module="carousels" action="view">
+                        <Carousels />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: paths.jobApplications,
+                element: (
+                    <PrivateRoute module="jobApplications" action="view">
+                        <JobApplications />
                     </PrivateRoute>
                 ),
             },

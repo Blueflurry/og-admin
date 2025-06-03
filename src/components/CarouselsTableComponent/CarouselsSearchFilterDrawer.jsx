@@ -5,13 +5,9 @@ import {
     Button,
     Input,
     Select,
-    DatePicker,
     Space,
-    InputNumber,
     Radio,
     Divider,
-    Row,
-    Col,
     Typography,
 } from "antd";
 import {
@@ -19,12 +15,11 @@ import {
     FilterOutlined,
     ClearOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const WebinarsSearchFilterDrawer = ({
+const CarouselsSearchFilterDrawer = ({
     open,
     onClose,
     filterConfig,
@@ -61,43 +56,16 @@ const WebinarsSearchFilterDrawer = ({
             // Skip the sort key as it's already been processed
             if (key === "sort") return;
 
-            // Skip non-object values or null values
-            if (!value || typeof value !== "object") {
+            // Skip type because it's always 2 for carousels
+            if (key === "type") return;
+
+            // Check if value is a regex object
+            if (value && value.$regex) {
+                formattedValues[key] = value.$regex;
+            } else if (value && value.$in) {
+                formattedValues[key] = value.$in;
+            } else {
                 formattedValues[key] = value;
-                return;
-            }
-
-            // Find the corresponding filter config for this key
-            const config = filterConfig[key];
-            if (!config) return;
-
-            switch (config.type) {
-                case "date":
-                    if (value.$gte) {
-                        formattedValues[key] = moment(value.$gte);
-                    }
-                    break;
-
-                case "multi-select":
-                    if (value.$in) {
-                        formattedValues[key] = value.$in;
-                    }
-                    break;
-
-                case "number":
-                    if (value.$eq !== undefined) {
-                        formattedValues[key] = value.$eq;
-                    }
-                    break;
-
-                default:
-                    // For text searches with regex
-                    if (value.$regex) {
-                        formattedValues[key] = value.$regex;
-                    } else {
-                        // For other direct values
-                        formattedValues[key] = value;
-                    }
             }
         });
 
@@ -113,21 +81,18 @@ const WebinarsSearchFilterDrawer = ({
             filters.sort = values.sort;
         }
 
-        // Always include status=0 for webinars
-        filters.status = 0;
+        // Always include type=2 for carousels
+        filters.type = 2;
 
         // Process each filter field
         Object.entries(filterConfig).forEach(([key, config]) => {
             const fieldType = config.type;
 
             switch (fieldType) {
-                case "date":
-                    const date = values[key];
-                    if (date) {
-                        // Use the current date for filtering
-                        filters[key] = {
-                            $gte: date.startOf("day").toISOString(),
-                        };
+                case "text":
+                    if (values[key]) {
+                        // For text fields, use regex search
+                        filters[key] = { $regex: values[key], $options: "i" };
                     }
                     break;
 
@@ -139,26 +104,6 @@ const WebinarsSearchFilterDrawer = ({
                         selectedValues.length > 0
                     ) {
                         filters[key] = { $in: selectedValues };
-                    }
-                    break;
-
-                case "boolean":
-                    if (values[key] !== undefined) {
-                        filters[key] = values[key];
-                    }
-                    break;
-
-                case "number":
-                    const numValue = values[key];
-                    if (numValue !== undefined && numValue !== null) {
-                        filters[key] = { $eq: numValue };
-                    }
-                    break;
-
-                case "text":
-                    if (values[key]) {
-                        // For text fields, use regex search
-                        filters[key] = { $regex: values[key], $options: "i" };
                     }
                     break;
 
@@ -203,28 +148,6 @@ const WebinarsSearchFilterDrawer = ({
                     </Form.Item>
                 );
 
-            case "number":
-                return (
-                    <Form.Item key={key} name={key} label={label}>
-                        <InputNumber
-                            style={{ width: "100%" }}
-                            placeholder={`Enter ${label.toLowerCase()}`}
-                        />
-                    </Form.Item>
-                );
-
-            case "boolean":
-                return (
-                    <Form.Item
-                        key={key}
-                        name={key}
-                        label={label}
-                        valuePropName="checked"
-                    >
-                        <Checkbox>Yes</Checkbox>
-                    </Form.Item>
-                );
-
             case "multi-select":
                 return (
                     <Form.Item key={key} name={key} label={label}>
@@ -246,76 +169,23 @@ const WebinarsSearchFilterDrawer = ({
                     </Form.Item>
                 );
 
-            case "date":
-                return (
-                    <Form.Item key={key} name={key} label={label}>
-                        <DatePicker style={{ width: "100%" }} />
-                    </Form.Item>
-                );
-
             default:
                 return null;
         }
     };
 
-    // Group filters by type
-    const groupFiltersByType = () => {
-        // Define the order of sections
-        const sections = [
-            { key: "textSearch", label: "Basic Search", types: ["text"] },
-            {
-                key: "selectFilters",
-                label: "Filter Options",
-                types: ["multi-select", "boolean"],
-            },
-            {
-                key: "dateFilters",
-                label: "Date Filters",
-                types: ["date"],
-            },
-            {
-                key: "numberFilters",
-                label: "Number Filters",
-                types: ["number"],
-            },
-        ];
-
-        // Create an object to hold filters by section
-        const groupedFilters = {};
-
-        // Initialize sections
-        sections.forEach((section) => {
-            groupedFilters[section.key] = {
-                label: section.label,
-                filters: {},
-            };
-        });
-
-        // Assign filters to sections
-        Object.entries(filterConfig).forEach(([key, config]) => {
-            const section = sections.find((s) => s.types.includes(config.type));
-            if (section) {
-                groupedFilters[section.key].filters[key] = config;
-            }
-        });
-
-        return groupedFilters;
-    };
-
-    const groupedFilters = groupFiltersByType();
-
     return (
         <Drawer
             title={
                 <div style={{ display: "flex", alignItems: "center" }}>
-                    {/* <FilterOutlined style={{ marginRight: 8 }} /> */}
-                    <span>Search & Filter Webinars</span>
+                    <FilterOutlined style={{ marginRight: 8 }} />
+                    <span>Search & Filter Carousels</span>
                 </div>
             }
             width={480}
             onClose={onClose}
             open={open}
-            style={{ paddingBottom: 80 }}
+            bodyStyle={{ paddingBottom: 80 }}
             extra={
                 <Space>
                     <Button onClick={handleReset} icon={<ClearOutlined />}>
@@ -352,32 +222,17 @@ const WebinarsSearchFilterDrawer = ({
                     </div>
                 )}
 
-                {/* Render each filter section */}
-                {Object.entries(groupedFilters).map(([sectionKey, section]) => {
-                    const filterEntries = Object.entries(section.filters);
-                    if (filterEntries.length === 0) return null;
+                {/* Filter Fields */}
+                <div style={{ marginBottom: 16 }}>
+                    <Text strong>Search Filters</Text>
+                </div>
 
-                    return (
-                        <div key={sectionKey} style={{ marginBottom: 24 }}>
-                            <div style={{ marginBottom: 16 }}>
-                                <Text strong>{section.label}</Text>
-                            </div>
-
-                            {filterEntries.map(([key, config]) => {
-                                return (
-                                    <div key={key}>
-                                        {renderFilterField(key, config)}
-                                    </div>
-                                );
-                            })}
-
-                            <Divider />
-                        </div>
-                    );
-                })}
+                {Object.entries(filterConfig).map(([key, config]) => (
+                    <div key={key}>{renderFilterField(key, config)}</div>
+                ))}
             </Form>
         </Drawer>
     );
 };
 
-export default WebinarsSearchFilterDrawer;
+export default CarouselsSearchFilterDrawer;
