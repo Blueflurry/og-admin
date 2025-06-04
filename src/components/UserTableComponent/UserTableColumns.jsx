@@ -13,8 +13,6 @@ import moment from "moment";
 import { useUserPermission } from "../../hooks/useUserPermission";
 
 const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
-    // console.log("getUserTableColumns received handleDelete:", !!handleDelete); // Debug
-
     return [
         {
             title: "User Information",
@@ -66,7 +64,7 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             dataIndex: "status",
             key: "status",
             align: "center",
-            width: 100,
+            width: 140,
             render: (status) => {
                 let color, text;
 
@@ -99,7 +97,7 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             dataIndex: "email",
             key: "email",
             align: "left",
-            width: 220,
+            width: 250,
             render: (email) =>
                 email ? <a href={`mailto:${email}`}>{email}</a> : "N/A",
         },
@@ -125,7 +123,7 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             dataIndex: "address",
             key: "address",
             align: "left",
-            width: 100,
+            width: 200,
             ellipsis: true,
             render: (address) => {
                 if (!address) return "N/A";

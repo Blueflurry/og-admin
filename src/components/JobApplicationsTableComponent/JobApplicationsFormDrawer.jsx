@@ -47,15 +47,13 @@ const JobApplicationsFormDrawer = ({
             if (initialValues) {
                 console.log("Initial values:", initialValues);
 
-                // Format the data for the form
+                // Format the data for the form using actual API structure
                 const formattedValues = {
                     status:
                         initialValues.status !== undefined
                             ? initialValues.status
                             : 0,
-                    experience: initialValues.experience || 0,
-                    expectedSalary: initialValues.expectedSalary || 0,
-                    notes: initialValues.notes || "",
+                    // notes: initialValues.notes || "",
                 };
                 form.setFieldsValue(formattedValues);
             }
@@ -69,9 +67,7 @@ const JobApplicationsFormDrawer = ({
             // Format the data for API
             const applicationData = {
                 status: values.status,
-                experience: values.experience,
-                expectedSalary: values.expectedSalary,
-                notes: values.notes || "",
+                // notes: values.notes || "",
             };
 
             if (isEditMode) {
@@ -90,10 +86,11 @@ const JobApplicationsFormDrawer = ({
         }
     };
 
-    // Get applicant information for display
-    const applicant = initialValues?.applicant || {};
-    const applicantName = applicant.name
-        ? `${applicant.name.first || ""} ${applicant.name.last || ""}`
+    // Get applicant information for display using actual API structure
+    const user = initialValues?.user || {};
+    const userData = user.data || user;
+    const applicantName = userData.name
+        ? `${userData.name.first || ""} ${userData.name.last || ""}`
         : "Unknown Applicant";
 
     return (
@@ -102,11 +99,6 @@ const JobApplicationsFormDrawer = ({
             width={720}
             onClose={onClose}
             open={open}
-            styles={{
-                body: {
-                    paddingBottom: 80,
-                },
-            }}
             extra={
                 <Space>
                     <Button onClick={onClose}>Cancel</Button>
@@ -135,7 +127,7 @@ const JobApplicationsFormDrawer = ({
                     >
                         <Avatar
                             size={64}
-                            src={applicant.imageUrl || applicant.imgUrl}
+                            src={userData.imgUrl || userData.imageUrl}
                             icon={<UserOutlined />}
                             style={{ marginRight: 16 }}
                         />
@@ -145,36 +137,94 @@ const JobApplicationsFormDrawer = ({
                             >
                                 {applicantName}
                             </div>
-                            {applicant.email && (
+                            {userData.email && (
                                 <div style={{ marginTop: 4 }}>
                                     <MailOutlined style={{ marginRight: 8 }} />
-                                    {applicant.email}
+                                    {userData.email}
                                 </div>
                             )}
-                            {applicant.phone1 && (
+                            {userData.phone1 && (
                                 <div style={{ marginTop: 4 }}>
                                     <PhoneOutlined style={{ marginRight: 8 }} />
-                                    {applicant.phone1}
+                                    {userData.phone1}
                                 </div>
                             )}
                         </div>
                     </div>
 
                     {/* Resume Link */}
-                    {initialValues?.resumeUrl && (
+                    {userData.resume?.resumeUrl && (
                         <div style={{ marginTop: 16 }}>
                             <Button
                                 type="primary"
                                 icon={<FileTextOutlined />}
                                 onClick={() =>
                                     window.open(
-                                        initialValues.resumeUrl,
+                                        userData.resume.resumeUrl,
                                         "_blank"
                                     )
                                 }
                             >
                                 View Resume
                             </Button>
+                        </div>
+                    )}
+
+                    {/* Experience Summary */}
+                    {userData.experience && userData.experience.length > 0 && (
+                        <div style={{ marginTop: 16 }}>
+                            <h4>Experience Summary</h4>
+                            <div style={{ maxHeight: 200, overflowY: "auto" }}>
+                                {userData.experience.map((exp, index) => (
+                                    <div
+                                        key={index}
+                                        style={{ marginBottom: 8 }}
+                                    >
+                                        <div style={{ fontWeight: 500 }}>
+                                            {exp.title}
+                                        </div>
+                                        <div
+                                            style={{
+                                                color: "#666",
+                                                fontSize: "12px",
+                                            }}
+                                        >
+                                            {exp.companyName} •{" "}
+                                            {exp.employmentType}
+                                            {exp.isCurrent && " (Current)"}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Education Summary */}
+                    {userData.education && userData.education.length > 0 && (
+                        <div style={{ marginTop: 16 }}>
+                            <h4>Education Summary</h4>
+                            <div style={{ maxHeight: 200, overflowY: "auto" }}>
+                                {userData.education.map((edu, index) => (
+                                    <div
+                                        key={index}
+                                        style={{ marginBottom: 8 }}
+                                    >
+                                        <div style={{ fontWeight: 500 }}>
+                                            {edu.name}
+                                        </div>
+                                        <div
+                                            style={{
+                                                color: "#666",
+                                                fontSize: "12px",
+                                            }}
+                                        >
+                                            {edu.institution} •{" "}
+                                            {edu.fieldOfStudy}
+                                            {edu.isCurrent && " (Current)"}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </Card>
@@ -184,7 +234,7 @@ const JobApplicationsFormDrawer = ({
 
             <Form layout="vertical" form={form} requiredMark>
                 <Row gutter={16}>
-                    <Col span={12}>
+                    <Col span={24}>
                         <Form.Item
                             name="status"
                             label="Application Status"
@@ -204,45 +254,9 @@ const JobApplicationsFormDrawer = ({
                             </Select>
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
-                        <Form.Item name="experience" label="Experience (Years)">
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                max={50}
-                                placeholder="Years of experience"
-                                prefix={<TrophyOutlined />}
-                            />
-                        </Form.Item>
-                    </Col>
                 </Row>
 
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            name="expectedSalary"
-                            label="Expected Salary (₹)"
-                        >
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Expected salary"
-                                prefix={<DollarOutlined />}
-                                formatter={(value) =>
-                                    `₹ ${value}`.replace(
-                                        /\B(?=(\d{3})+(?!\d))/g,
-                                        ","
-                                    )
-                                }
-                                parser={(value) =>
-                                    value.replace(/₹\s?|(,*)/g, "")
-                                }
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Row gutter={16}>
+                {/* <Row gutter={16}>
                     <Col span={24}>
                         <Form.Item name="notes" label="Internal Notes">
                             <TextArea
@@ -251,7 +265,7 @@ const JobApplicationsFormDrawer = ({
                             />
                         </Form.Item>
                     </Col>
-                </Row>
+                </Row> */}
             </Form>
         </Drawer>
     );

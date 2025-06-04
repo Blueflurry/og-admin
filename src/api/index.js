@@ -42,10 +42,14 @@ export class API {
     getUsers(page = 1, limit = 10, sort = "", filters = {}) {
         // Always use POST with filters in the body
         return this.request(() =>
-            this.client.post(
-                `/auth/search?page=${page}&limit=${limit}&sort=${sort}`,
-                filters || {} // Ensure we always send an object, even if filters is undefined
-            )
+            filters
+                ? this.client.post(
+                      `/auth/search?page=${page}&limit=${limit}&sort=${sort}`,
+                      filters
+                  )
+                : this.client.post(
+                      `/auth/search?page=${page}&limit=${limit}&sort=${sort}`
+                  )
         );
     }
 
@@ -557,84 +561,6 @@ export class API {
         });
     }
 
-    // Alternative: Mock data for development/testing
-    getMockDashboardStats(timeRange = "7days") {
-        // Generate mock data based on time range
-        const days =
-            timeRange === "7days" ? 7 : timeRange === "30days" ? 30 : 90;
-
-        // Generate user growth data
-        const userGrowthData = [];
-        const today = new Date();
-        for (let i = days - 1; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            userGrowthData.push({
-                date: date.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                }),
-                users: Math.floor(Math.random() * 50) + 100,
-                activeUsers: Math.floor(Math.random() * 40) + 80,
-            });
-        }
-
-        // Generate job category data
-        const jobCategoryData = [
-            { category: "Tech", active: 45, inactive: 10 },
-            { category: "Sales", active: 38, inactive: 8 },
-            { category: "Marketing", active: 25, inactive: 5 },
-            { category: "Finance", active: 32, inactive: 7 },
-            { category: "HR", active: 18, inactive: 4 },
-        ];
-
-        // Generate recent activities
-        const recentActivities = [
-            {
-                type: "user",
-                description: "New user registered: John Doe",
-                timestamp: new Date(Date.now() - 1000 * 60 * 5),
-            },
-            {
-                type: "job",
-                description: "New job posted: Senior Developer",
-                timestamp: new Date(Date.now() - 1000 * 60 * 30),
-            },
-            {
-                type: "user",
-                description: "User updated profile: Jane Smith",
-                timestamp: new Date(Date.now() - 1000 * 60 * 60),
-            },
-            {
-                type: "job",
-                description: "Job application received for: UI Designer",
-                timestamp: new Date(Date.now() - 1000 * 60 * 120),
-            },
-            {
-                type: "user",
-                description: "New user registered: Mike Johnson",
-                timestamp: new Date(Date.now() - 1000 * 60 * 180),
-            },
-        ];
-
-        return Promise.resolve({
-            data: {
-                totalUsers: 1234,
-                activeUsers: 987,
-                inactiveUsers: 247,
-                totalJobs: 156,
-                activeJobs: 98,
-                inactiveJobs: 58,
-                jobApplications: 423,
-                monthlyRegistrations: 87,
-                registrationTrend: 12.5,
-                userGrowthData,
-                jobCategoryData,
-                recentActivities,
-            },
-        });
-    }
-
     // Carousels API methods (type=2)
     getCarousels(page = 1, limit = 10, sort = "", filters = {}) {
         // Start with pagination parameters
@@ -716,7 +642,11 @@ export class API {
         return this.request(() => this.client.delete(`/content/${id}`));
     }
 
-    // JOB APPLICATIONS - Add these methods to the API class
+    // Updated sections for index.js - Job Applications API methods
+
+    // Add these methods to the API class in index.js
+
+    // JOB APPLICATIONS - Updated methods to handle actual API structure
     getJobApplications(
         jobId,
         page = 1,
@@ -774,12 +704,7 @@ export class API {
         return this.request(() =>
             this.client.patch(
                 `/jobs/applications/${applicationId}`,
-                applicationData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                }
+                applicationData
             )
         );
     }
@@ -787,52 +712,44 @@ export class API {
     bulkUpdateJobApplications(bulkUpdateData) {
         // bulkUpdateData should be: { ids: [...], update: { ... } }
         return this.request(() =>
-            this.client.patch(`/jobs/applications`, bulkUpdateData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            })
+            this.client.patch(`/jobs/applications/bulk`, bulkUpdateData)
         );
     }
 
     deleteJobApplication(applicationId) {
         return this.request(() =>
-            this.client.delete(`/jobs/applications/${applicationId}`, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            })
+            this.client.delete(`/jobs/applications/${applicationId}`)
         );
-    } // Get job applications statistics
+    }
+
+    // Get job applications statistics
     getJobApplicationsStats() {
-        return this.request(() => this.client.get("/job-applications/stats"));
+        return this.request(() => this.client.get("/jobs/applications/stats"));
     }
 
     // Helper method to get job applications by status
-    getJobApplicationsByStatus(status, page = 1, limit = 10, sort = "") {
-        return this.getJobApplications(page, limit, sort, { status });
+    getJobApplicationsByStatus(jobId, status, page = 1, limit = 10, sort = "") {
+        return this.getJobApplications(jobId, page, limit, sort, { status });
     }
 
-    // Helper method to get job applications by job ID
-    getJobApplicationsByJob(jobId, page = 1, limit = 10, sort = "") {
-        return this.getJobApplications(page, limit, sort, { job: jobId });
+    // DASHBOARD
+    getDashboardMetrics() {
+        return this.request(() => this.client.get(`/auth/dashboard-stats`));
     }
 
-    // Helper method to get job applications by applicant ID
-    getJobApplicationsByApplicant(
-        applicantId,
-        page = 1,
-        limit = 10,
-        sort = ""
-    ) {
-        return this.getJobApplications(page, limit, sort, {
-            applicant: applicantId,
-        });
+    // Fetch chart data from API
+    getDashboardChart(timeRange) {
+        const { from, to } = this.formatDateForAPI(timeRange);
+        return this.request(() =>
+            this.client.get(`/auth/user/chart?from=${from}&to=${to}`)
+        );
     }
 
-    // DASHBOARD - Updated methods for new endpoints
+    getJobCategoryStats() {
+        return this.request(() => this.client.get("/jobs/stats"));
+    }
 
-    // Helper function to format dates for API
+    // Helper function to format dates for API (if not already present)
     formatDateForAPI(timeRange) {
         const today = new Date();
         const days =
@@ -844,21 +761,5 @@ export class API {
             from: fromDate.toISOString().split("T")[0], // YYYY-MM-DD format
             to: today.toISOString().split("T")[0],
         };
-    }
-
-    // Fetch metrics data from API
-    getDashboardMetrics(timeRange) {
-        const { from, to } = this.formatDateForAPI(timeRange);
-        return this.request(() =>
-            this.client.get(`/auth/user/metrics?from=${from}&to=${to}`)
-        );
-    }
-
-    // Fetch chart data from API
-    getDashboardChart(timeRange) {
-        const { from, to } = this.formatDateForAPI(timeRange);
-        return this.request(() =>
-            this.client.get(`/auth/user/chart?from=${from}&to=${to}`)
-        );
     }
 }

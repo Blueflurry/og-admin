@@ -53,12 +53,12 @@ const JobApplicationsTable = ({
     const [bulkUpdateVisible, setBulkUpdateVisible] = useState(false);
     const [bulkUpdateStatus, setBulkUpdateStatus] = useState(undefined);
 
-    // Hardcoded filter configuration
+    // Updated filter configuration to match actual API data structure
     const filterConfig = {
-        "applicant.name.first": { type: "text", label: "First Name" },
-        "applicant.name.last": { type: "text", label: "Last Name" },
-        "applicant.email": { type: "text", label: "Email" },
-        "applicant.phone1": { type: "text", label: "Phone" },
+        "user.data.name.first": { type: "text", label: "First Name" },
+        "user.data.name.last": { type: "text", label: "Last Name" },
+        "user.data.email": { type: "text", label: "Email" },
+        "user.data.phone1": { type: "text", label: "Phone" },
         status: {
             type: "multi-select",
             label: "Status",
@@ -70,18 +70,14 @@ const JobApplicationsTable = ({
                 { value: 4, label: "Hired" },
             ],
         },
-        experience: { type: "number-range", label: "Experience (years)" },
-        expectedSalary: { type: "number-range", label: "Expected Salary" },
     };
 
-    // Hardcoded sort options
+    // Updated sort options
     const sortOptions = [
         { label: "Newest First", value: "-createdAt" },
         { label: "Oldest First", value: "createdAt" },
-        { label: "Experience (High to Low)", value: "-experience" },
-        { label: "Experience (Low to High)", value: "experience" },
-        { label: "Expected Salary (High to Low)", value: "-expectedSalary" },
-        { label: "Expected Salary (Low to High)", value: "expectedSalary" },
+        { label: "By Status", value: "status" },
+        { label: "By Name", value: "user.data.name.first" },
     ];
 
     const openSearchFilterDrawer = () => {

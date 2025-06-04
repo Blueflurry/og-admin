@@ -139,9 +139,9 @@ const getJobTableColumns = ({
                 type="link"
                 icon={<TeamOutlined />}
                 onClick={() => {
-                    if (onViewApplications) {
-                        onViewApplications(record.id || record._id);
-                    }
+                    // if (onViewApplications) {
+                    onViewApplications(record.id || record._id);
+                    // }
                 }}
             >
                 View Applications

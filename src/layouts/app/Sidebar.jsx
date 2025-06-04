@@ -153,23 +153,11 @@ const Sidebar = ({ collapsed }) => {
         >
             {/* Logo Section */}
             <div
-                style={{
-                    height: 100,
-                    width: 100,
-                    borderRadius: "50%",
-                    margin: "16px auto",
-                    padding: 16,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transition: "all 0.3s",
-                    cursor: "pointer",
-                    background: "#FFFFFF",
-                }}
+                // style={{ backgroundColor: "white" }}
                 onClick={() => navigate("/")}
             >
                 <img
-                    src="/jaro-logo.png"
+                    src="/jaro-connect-logo.png"
                     alt="Jaro Logo"
                     style={{
                         maxHeight: "100%",

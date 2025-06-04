@@ -51,11 +51,6 @@ const ManageOptinsViewDrawer = ({ open, onClose, optinData = null }) => {
             width={720}
             onClose={onClose}
             open={open}
-            styles={{
-                body: {
-                    paddingBottom: 80,
-                },
-            }}
             extra={
                 <Space>
                     <Button onClick={onClose}>Close</Button>

@@ -131,7 +131,6 @@ const ManageInstitutesSearchFilterDrawer = ({
             width={480}
             onClose={onClose}
             open={open}
-            style={{ paddingBottom: 80 }}
             extra={
                 <Space>
                     <Button onClick={handleReset} icon={<ClearOutlined />}>

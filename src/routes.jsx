@@ -105,7 +105,7 @@ const appRoutes = [
             {
                 path: paths.manageCompanies,
                 element: (
-                    <PrivateRoute module="companies" permission="view">
+                    <PrivateRoute module="companies" action="view">
                         <ManageCompanies />
                     </PrivateRoute>
                 ),

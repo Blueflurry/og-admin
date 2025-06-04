@@ -401,7 +401,6 @@ const UserSearchFilterDrawer = ({
             width={480}
             onClose={onClose}
             open={visible}
-            style={{ paddingBottom: 80 }}
             extra={
                 <Space>
                     <Button onClick={handleReset} icon={<ClearOutlined />}>

@@ -76,11 +76,6 @@ const CoursesViewDrawer = ({ open, onClose, courseData = null }) => {
             width={720}
             onClose={onClose}
             open={open}
-            styles={{
-                body: {
-                    paddingBottom: 80,
-                },
-            }}
             extra={
                 <Space>
                     <Button onClick={onClose}>Close</Button>

@@ -26,8 +26,6 @@ const UserTable = ({
     const { selectionType, rowSelection, handleChange, clearFilters } =
         useTableConfig();
 
-    // console.log("UserTable received handleDelete:", !!handleDelete); // Debug
-
     const handleTableChange = (pagination, filters, sorter) => {
         const { handleChange: originalHandleChange } = handleChange(
             pagination,

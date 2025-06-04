@@ -293,7 +293,6 @@ const JobApplicationsSearchFilterDrawer = ({
             width={480}
             onClose={onClose}
             open={open}
-            bodyStyle={{ paddingBottom: 80 }}
             extra={
                 <Space>
                     <Button onClick={handleReset} icon={<ClearOutlined />}>

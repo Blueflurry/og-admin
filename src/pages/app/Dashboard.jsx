@@ -43,7 +43,7 @@ import {
 } from "recharts";
 import { useAPI } from "../../hooks/useAPI";
 import moment from "moment";
-import html2canvas from "html2canvas"; // You'll need to install this: npm install html2canvas
+import html2canvas from "html2canvas";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -90,42 +90,130 @@ const Dashboard = () => {
     const jobCategoryChartRef = useRef(null);
     const userStatusChartRef = useRef(null);
 
+    const processJobCategoryData = (jobStatsResponse) => {
+        if (
+            !jobStatsResponse ||
+            !jobStatsResponse.data ||
+            !Array.isArray(jobStatsResponse.data)
+        ) {
+            return [];
+        }
+
+        return jobStatsResponse.data.map((categoryData) => {
+            const category = categoryData.category || "Unknown";
+            let active = 0;
+            let inactive = 0;
+
+            // Process stats array to count active/inactive jobs
+            if (categoryData.stats && Array.isArray(categoryData.stats)) {
+                categoryData.stats.forEach((stat) => {
+                    if (stat.status === 1) {
+                        active = stat.count || 0;
+                    } else if (stat.status === -1 || stat.status === 0) {
+                        inactive += stat.count || 0;
+                    }
+                });
+            }
+
+            return {
+                category,
+                active,
+                inactive,
+                total: categoryData.totalJobs || 0,
+            };
+        });
+    };
+
+    // Process the new metrics data format
+    const processMetricsData = (metricsResponse) => {
+        const defaultMetrics = {
+            totalUsers: 0,
+            activeUsers: 0,
+            inactiveUsers: 0,
+            totalJobs: 0,
+            activeJobs: 0,
+            inactiveJobs: 0,
+            jobApplications: 0,
+            monthlyRegistrations: 0,
+            registrationTrend: 0,
+        };
+
+        // If the response has the expected structure
+        if (metricsResponse && metricsResponse.data) {
+            const data = metricsResponse.data;
+
+            return {
+                ...defaultMetrics,
+                // Users data
+                totalUsers: data.users?.total || 0,
+                activeUsers: data.users?.Active || 0,
+                inactiveUsers: data.users?.Unauthorized || 0,
+
+                // Jobs data
+                totalJobs: data.jobs?.total || 0,
+                activeJobs: data.jobs?.Active || 0,
+                inactiveJobs:
+                    (data.jobs?.total || 0) - (data.jobs?.Active || 0),
+
+                // Applications data
+                jobApplications: data.applicationStats || 0,
+
+                // Use active users as proxy for monthly registrations
+                monthlyRegistrations: data.users?.Active || 0,
+            };
+        }
+
+        // Fallback if data structure is different or missing
+        return defaultMetrics;
+    };
+
+    // Process user status data for pie chart
+    const processUserStatusData = (metricsData) => {
+        if (!metricsData) return [];
+
+        return [
+            { name: "Active", value: metricsData.activeUsers || 0 },
+            { name: "Unauthorized", value: metricsData.inactiveUsers || 0 },
+        ];
+    };
+
     const fetchDashboardData = async () => {
         try {
             setRefreshing(true);
 
-            // Fetch both metrics and chart data from APIs using API class methods
-            const [metricsData, chartData] = await Promise.all([
-                api.getDashboardMetrics(timeRange),
-                api.getDashboardChart(timeRange),
-            ]);
+            // Fetch metrics data from API using the new format
+            const [metricsResponse, chartResponse, jobCategoryResponse] =
+                await Promise.all([
+                    api.getDashboardMetrics(),
+                    api.getDashboardChart(timeRange),
+                    api.getJobCategoryStats(),
+                ]);
+
+            // Process the new metrics format
+            const processedMetrics = processMetricsData(metricsResponse);
+            const processedJobCategories =
+                processJobCategoryData(jobCategoryResponse);
 
             // Combine API responses into dashboard data structure
             const combinedData = {
-                // Metrics data (adjust field names based on your API response)
-                totalUsers: metricsData.totalUsers || 0,
-                activeUsers: metricsData.activeUsers || 0,
-                inactiveUsers: metricsData.inactiveUsers || 0,
-                totalJobs: metricsData.totalJobs || 0,
-                activeJobs: metricsData.activeJobs || 0,
-                inactiveJobs: metricsData.inactiveJobs || 0,
-                jobApplications: metricsData.jobApplications || 0,
-                monthlyRegistrations: metricsData.monthlyRegistrations || 0,
-                registrationTrend: metricsData.registrationTrend || 0,
+                // Processed metrics data
+                ...processedMetrics,
 
-                // Chart data (adjust field names based on your API response)
-                userGrowthData: chartData.data || [],
-                jobCategoryData: chartData.jobCategoryData || [],
-                userStatusData: chartData.userStatusData || [],
-                recentActivities: chartData.recentActivities || [],
+                // Chart data
+                userGrowthData:
+                    chartResponse.data || chartResponse.userGrowthData || [],
+                jobCategoryData: processedJobCategories || [],
+                userStatusData: processUserStatusData(processedMetrics),
+                recentActivities: chartResponse.recentActivities || [],
             };
 
             setDashboardData(combinedData);
-
-            console.log("Dashboard data loaded:", combinedData);
         } catch (error) {
             console.error("Error fetching dashboard data:", error);
             message.error("Failed to load dashboard data");
+
+            // Keep the dashboard state as is, don't reset to empty
+            // The user can retry with the refresh button
         } finally {
             setRefreshing(false);
         }
@@ -134,26 +222,39 @@ const Dashboard = () => {
     // Function to update individual chart data
     const updateChartData = async (chartType, newTimeRange) => {
         try {
-            // Fetch fresh chart data with new time range using API class method
-            const chartData = await api.getDashboardChart(newTimeRange);
+            let updatedData = {};
+
+            if (chartType === "userGrowth") {
+                // Fetch user growth chart data
+                const chartData = await api.getDashboardChart(newTimeRange);
+                updatedData = {
+                    userGrowthData:
+                        chartData.data || chartData.userGrowthData || [],
+                };
+            } else if (chartType === "jobCategory") {
+                // Fetch job category data
+                const jobCategoryResponse = await api.getJobCategoryStats();
+                const processedJobCategories =
+                    processJobCategoryData(jobCategoryResponse);
+                updatedData = {
+                    jobCategoryData: processedJobCategories,
+                };
+            } else if (chartType === "userStatus") {
+                // For user status, we use the current metrics data since it doesn't change by time range
+                // Or you can fetch fresh metrics if needed
+                const metricsResponse = await api.getDashboardMetrics();
+                const processedMetrics = processMetricsData(metricsResponse);
+                updatedData = {
+                    userStatusData: processUserStatusData(processedMetrics),
+                };
+            }
 
             setDashboardData((prevData) => ({
                 ...prevData,
-                ...(chartType === "userGrowth" && {
-                    userGrowthData: chartData.userGrowthData || [],
-                }),
-                ...(chartType === "jobCategory" && {
-                    jobCategoryData: chartData.jobCategoryData || [],
-                }),
-                ...(chartType === "userStatus" && {
-                    userStatusData: chartData.userStatusData || [],
-                }),
+                ...updatedData,
             }));
 
-            console.log(
-                `${chartType} chart data updated for ${newTimeRange}:`,
-                chartData
-            );
+            message.success(`${chartType} chart updated successfully`);
         } catch (error) {
             console.error(`Error updating ${chartType} chart data:`, error);
             message.error(`Failed to update ${chartType} chart`);
@@ -175,7 +276,7 @@ const Dashboard = () => {
             if (chartRef.current) {
                 const canvas = await html2canvas(chartRef.current, {
                     backgroundColor: "#ffffff",
-                    scale: 2, // Higher quality
+                    scale: 2,
                     useCORS: true,
                 });
 
@@ -196,7 +297,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         fetchDashboardData();
-    }, [timeRange]);
+    }, []);
 
     // Custom tooltip for charts
     const CustomTooltip = ({ active, payload, label }) => {
@@ -250,7 +351,7 @@ const Dashboard = () => {
                     value={timeRange}
                     onChange={(value) => onTimeRangeChange(chartType, value)}
                     style={{ width: 120 }}
-                    size="small"
+                    size="middle"
                 >
                     <Option value="7days">7 days</Option>
                     <Option value="30days">30 days</Option>
@@ -259,8 +360,7 @@ const Dashboard = () => {
                 <Button
                     icon={<DownloadOutlined />}
                     onClick={onDownload}
-                    size="small"
-                    type="text"
+                    size="middle"
                     title="Download chart"
                 />
             </Space>
@@ -319,15 +419,6 @@ const Dashboard = () => {
                 </Col>
                 <Col>
                     <Space>
-                        <Select
-                            value={timeRange}
-                            onChange={setTimeRange}
-                            style={{ width: 140 }}
-                        >
-                            <Option value="7days">Last 7 days</Option>
-                            <Option value="30days">Last 30 days</Option>
-                            <Option value="90days">Last 90 days</Option>
-                        </Select>
                         <Button
                             icon={<ReloadOutlined />}
                             onClick={fetchDashboardData}

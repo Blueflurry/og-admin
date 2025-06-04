@@ -122,7 +122,6 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                 message.success("User updated successfully");
             } else {
                 console.log("Creating new user with data:", formData.values());
-                // debugger;
                 await api.createUser(formData);
                 message.success("User created successfully");
             }
@@ -173,11 +172,6 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             width={720}
             onClose={onClose}
             open={open}
-            styles={{
-                body: {
-                    paddingBottom: 80,
-                },
-            }}
             extra={
                 <Space>
                     <Button onClick={onClose}>Cancel</Button>

@@ -249,11 +249,6 @@ const NotificationsFormDrawer = ({
             width={720}
             onClose={onClose}
             open={open}
-            styles={{
-                body: {
-                    paddingBottom: 80,
-                },
-            }}
             extra={
                 <Space>
                     <Button onClick={onClose}>Cancel</Button>

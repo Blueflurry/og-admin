@@ -39,9 +39,11 @@ const JobApplicationsViewDrawer = ({
         return null;
     }
 
-    const applicant = applicationData.applicant || {};
-    const applicantName = applicant.name
-        ? `${applicant.name.first || ""} ${applicant.name.last || ""}`
+    // Use actual API structure
+    const user = applicationData.user || {};
+    const userData = user.data || user;
+    const applicantName = userData.name
+        ? `${userData.name.first || ""} ${userData.name.last || ""}`
         : "Unknown Applicant";
 
     // Helper function to get status tag
@@ -68,11 +70,6 @@ const JobApplicationsViewDrawer = ({
             width={720}
             onClose={onClose}
             open={open}
-            styles={{
-                body: {
-                    paddingBottom: 80,
-                },
-            }}
             extra={
                 <Space>
                     <Button onClick={onClose}>Close</Button>
@@ -82,7 +79,7 @@ const JobApplicationsViewDrawer = ({
             {/* Applicant Header */}
             <div style={{ marginBottom: 32, textAlign: "center" }}>
                 <Avatar
-                    src={applicant.imageUrl || applicant.imgUrl}
+                    src={userData.imgUrl || userData.imageUrl}
                     size={100}
                     style={{ marginBottom: 16 }}
                     icon={<UserOutlined />}
@@ -111,24 +108,6 @@ const JobApplicationsViewDrawer = ({
                             : "N/A"}
                     </Space>
                 </Descriptions.Item>
-                <Descriptions.Item label="Experience" span={1}>
-                    <Space>
-                        <TrophyOutlined />
-                        {applicationData.experience !== undefined
-                            ? `${applicationData.experience} year${
-                                  applicationData.experience !== 1 ? "s" : ""
-                              }`
-                            : "N/A"}
-                    </Space>
-                </Descriptions.Item>
-                <Descriptions.Item label="Expected Salary" span={1}>
-                    <Space>
-                        <DollarOutlined />
-                        {applicationData.expectedSalary
-                            ? `₹${applicationData.expectedSalary.toLocaleString()}`
-                            : "N/A"}
-                    </Space>
-                </Descriptions.Item>
                 <Descriptions.Item label="Last Updated" span={2}>
                     <Space>
                         <ClockCircleOutlined />
@@ -142,7 +121,7 @@ const JobApplicationsViewDrawer = ({
             </Descriptions>
 
             {/* Resume Section */}
-            {applicationData.resumeUrl && (
+            {userData.resume?.resumeUrl && (
                 <div style={{ marginTop: 24 }}>
                     <Title level={5}>Resume</Title>
                     <Card>
@@ -152,7 +131,8 @@ const JobApplicationsViewDrawer = ({
                             />
                             <div>
                                 <div style={{ fontWeight: "bold" }}>
-                                    Resume Document
+                                    {userData.resume.resumeFileName ||
+                                        "Resume Document"}
                                 </div>
                                 <div
                                     style={{ color: "#666", fontSize: "12px" }}
@@ -165,7 +145,7 @@ const JobApplicationsViewDrawer = ({
                                 icon={<FileTextOutlined />}
                                 onClick={() =>
                                     window.open(
-                                        applicationData.resumeUrl,
+                                        userData.resume.resumeUrl,
                                         "_blank"
                                     )
                                 }
@@ -191,6 +171,7 @@ const JobApplicationsViewDrawer = ({
                         >
                             <Avatar
                                 size={48}
+                                src={jobDetails.company?.data?.imageUrl}
                                 icon={<BankOutlined />}
                                 style={{
                                     marginRight: 16,
@@ -251,11 +232,11 @@ const JobApplicationsViewDrawer = ({
                     {applicantName}
                 </Descriptions.Item>
                 <Descriptions.Item label="Email" span={1}>
-                    {applicant.email ? (
-                        <a href={`mailto:${applicant.email}`}>
+                    {userData.email ? (
+                        <a href={`mailto:${userData.email}`}>
                             <Space>
                                 <MailOutlined />
-                                {applicant.email}
+                                {userData.email}
                             </Space>
                         </a>
                     ) : (
@@ -263,35 +244,27 @@ const JobApplicationsViewDrawer = ({
                     )}
                 </Descriptions.Item>
                 <Descriptions.Item label="Phone" span={1}>
-                    {applicant.phone1 ? (
+                    {userData.phone1 ? (
                         <Space>
                             <PhoneOutlined />
-                            {applicant.phone1}
+                            {userData.phone1}
                         </Space>
                     ) : (
                         "N/A"
                     )}
                 </Descriptions.Item>
-                {applicant.phone2 && (
-                    <Descriptions.Item label="Secondary Phone" span={1}>
-                        <Space>
-                            <PhoneOutlined />
-                            {applicant.phone2}
-                        </Space>
-                    </Descriptions.Item>
-                )}
-                {applicant.dob && (
+                {userData.dob && (
                     <Descriptions.Item label="Date of Birth" span={1}>
                         <Space>
                             <CalendarOutlined />
-                            {moment(applicant.dob).format("DD MMM, YYYY")}
+                            {moment(userData.dob).format("DD MMM, YYYY")}
                         </Space>
                     </Descriptions.Item>
                 )}
             </Descriptions>
 
             {/* Address Information */}
-            {applicant.address && (
+            {userData.address && (
                 <Descriptions
                     title="Address Information"
                     bordered
@@ -301,22 +274,98 @@ const JobApplicationsViewDrawer = ({
                     <Descriptions.Item label="Street Address" span={2}>
                         <Space>
                             <HomeOutlined />
-                            {applicant.address.street || "N/A"}
+                            {userData.address.street || "N/A"}
                         </Space>
                     </Descriptions.Item>
                     <Descriptions.Item label="City" span={1}>
-                        {applicant.address.city || "N/A"}
+                        {userData.address.city || "N/A"}
                     </Descriptions.Item>
                     <Descriptions.Item label="State" span={1}>
-                        {applicant.address.state || "N/A"}
+                        {userData.address.state || "N/A"}
                     </Descriptions.Item>
                     <Descriptions.Item label="Pincode" span={1}>
-                        {applicant.address.pincode || "N/A"}
+                        {userData.address.pincode || "N/A"}
                     </Descriptions.Item>
                     <Descriptions.Item label="Country" span={1}>
-                        {applicant.address.country || "N/A"}
+                        {userData.address.country || "N/A"}
                     </Descriptions.Item>
                 </Descriptions>
+            )}
+
+            {/* Experience Information */}
+            {userData.experience && userData.experience.length > 0 && (
+                <div style={{ marginTop: 24 }}>
+                    <Title level={5}>Work Experience</Title>
+                    <Card>
+                        {userData.experience.map((exp, index) => (
+                            <div key={index} style={{ marginBottom: 16 }}>
+                                <div
+                                    style={{
+                                        fontWeight: "bold",
+                                        fontSize: "14px",
+                                    }}
+                                >
+                                    {exp.title}
+                                </div>
+                                <div style={{ color: "#666", marginBottom: 4 }}>
+                                    {exp.companyName} • {exp.employmentType}
+                                </div>
+                                <div
+                                    style={{ fontSize: "12px", color: "#999" }}
+                                >
+                                    {exp.startYear} -{" "}
+                                    {exp.isCurrent ? "Present" : exp.endYear}
+                                    {exp.isCurrent && (
+                                        <Tag color="green" size="small">
+                                            Current
+                                        </Tag>
+                                    )}
+                                </div>
+                                {index < userData.experience.length - 1 && (
+                                    <Divider />
+                                )}
+                            </div>
+                        ))}
+                    </Card>
+                </div>
+            )}
+
+            {/* Education Information */}
+            {userData.education && userData.education.length > 0 && (
+                <div style={{ marginTop: 24 }}>
+                    <Title level={5}>Education</Title>
+                    <Card>
+                        {userData.education.map((edu, index) => (
+                            <div key={index} style={{ marginBottom: 16 }}>
+                                <div
+                                    style={{
+                                        fontWeight: "bold",
+                                        fontSize: "14px",
+                                    }}
+                                >
+                                    {edu.name}
+                                </div>
+                                <div style={{ color: "#666", marginBottom: 4 }}>
+                                    {edu.institution} • {edu.fieldOfStudy}
+                                </div>
+                                <div
+                                    style={{ fontSize: "12px", color: "#999" }}
+                                >
+                                    {edu.startYear} -{" "}
+                                    {edu.isCurrent ? "Present" : edu.endYear}
+                                    {edu.isCurrent && (
+                                        <Tag color="green" size="small">
+                                            Current
+                                        </Tag>
+                                    )}
+                                </div>
+                                {index < userData.education.length - 1 && (
+                                    <Divider />
+                                )}
+                            </div>
+                        ))}
+                    </Card>
+                </div>
             )}
 
             {/* Internal Notes */}

@@ -56,7 +56,6 @@ const JobTable = ({
     const fetchFilterConfig = async () => {
         try {
             const config = await api.getJobsConfig();
-            // console.log("Filter config:", config);
 
             if (config && config.data) {
                 setFilterConfig(config.data.filters || {});
@@ -85,11 +84,6 @@ const JobTable = ({
 
     // Add navigation function for job applications
     const handleViewApplications = (jobId) => {
-        console.log("Navigating to job applications for jobId:", jobId);
-        console.log("Target URL:", `/jobs/${jobId}/applications`);
-        console.log("User can view jobs:", can("jobs", "view"));
-
-        // debugger;
         navigate(`/jobs/${jobId}/applications`);
     };
 
@@ -112,8 +106,6 @@ const JobTable = ({
     };
 
     const handleApplyFilters = (filters) => {
-        // console.log("Applying filters:", filters);
-
         // Extract sort value if present
         const sortValue = filters.sort || "";
         delete filters.sort;

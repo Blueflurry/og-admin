@@ -29,18 +29,18 @@ const getJobApplicationsTableColumns = ({
             align: "left",
             width: 250,
             render: (_, record) => {
-                const applicant = record.applicant || {};
-                const name = applicant.name
-                    ? `${applicant.name.first || ""} ${
-                          applicant.name.last || ""
-                      }`
+                // Use 'user' instead of 'applicant' from actual API
+                const user = record.user || {};
+                const userData = user.data || user;
+                const name = userData.name
+                    ? `${userData.name.first || ""} ${userData.name.last || ""}`
                     : "Unknown Applicant";
 
                 return (
                     <div style={{ display: "flex", alignItems: "center" }}>
                         <Avatar
                             size={50}
-                            src={applicant.imageUrl || applicant.imgUrl}
+                            src={userData.imgUrl || userData.imageUrl}
                             style={{
                                 objectFit: "contain",
                                 borderRadius: "50%",
@@ -63,29 +63,30 @@ const getJobApplicationsTableColumns = ({
             align: "left",
             width: 200,
             render: (_, record) => {
-                const applicant = record.applicant || {};
+                const user = record.user || {};
+                const userData = user.data || user;
                 return (
                     <div>
-                        {applicant.email && (
+                        {userData.email && (
                             <div style={{ marginBottom: 4 }}>
                                 <MailOutlined
                                     style={{ marginRight: 4, color: "#1890ff" }}
                                 />
                                 <a
-                                    href={`mailto:${applicant.email}`}
+                                    href={`mailto:${userData.email}`}
                                     style={{ fontSize: "12px" }}
                                 >
-                                    {applicant.email}
+                                    {userData.email}
                                 </a>
                             </div>
                         )}
-                        {applicant.phone1 && (
+                        {userData.phone1 && (
                             <div>
                                 <PhoneOutlined
                                     style={{ marginRight: 4, color: "#52c41a" }}
                                 />
                                 <span style={{ fontSize: "12px" }}>
-                                    {applicant.phone1}
+                                    {userData.phone1}
                                 </span>
                             </div>
                         )}
@@ -95,31 +96,56 @@ const getJobApplicationsTableColumns = ({
         },
         {
             title: "Experience",
-            dataIndex: "experience",
             key: "experience",
             align: "center",
             width: 120,
-            render: (experience) => (
-                <Space>
-                    <TrophyOutlined style={{ color: "#faad14" }} />
-                    {experience !== undefined
-                        ? `${experience} yr${experience !== 1 ? "s" : ""}`
-                        : "N/A"}
-                </Space>
-            ),
+            render: (_, record) => {
+                const user = record.user || {};
+                const userData = user.data || user;
+                const experience = userData.experience || [];
+                const experienceYears = experience.length;
+
+                return (
+                    <Space>
+                        <TrophyOutlined style={{ color: "#faad14" }} />
+                        {experienceYears > 0
+                            ? `${experienceYears} exp${
+                                  experienceYears !== 1 ? "s" : ""
+                              }`
+                            : "N/A"}
+                    </Space>
+                );
+            },
         },
         {
-            title: "Expected Salary",
-            dataIndex: "expectedSalary",
-            key: "expectedSalary",
+            title: "Education",
+            key: "education",
             align: "center",
             width: 140,
-            render: (salary) => (
-                <Space>
-                    <DollarOutlined style={{ color: "#52c41a" }} />
-                    {salary ? `₹${salary.toLocaleString()}` : "N/A"}
-                </Space>
-            ),
+            render: (_, record) => {
+                const user = record.user || {};
+                const userData = user.data || user;
+                const education = userData.education || [];
+                const latestEducation =
+                    education.find((edu) => edu.isCurrent) || education[0];
+
+                return (
+                    <div>
+                        {latestEducation ? (
+                            <div style={{ fontSize: "12px" }}>
+                                <div style={{ fontWeight: 500 }}>
+                                    {latestEducation.name}
+                                </div>
+                                <div style={{ color: "#8c8c8c" }}>
+                                    {latestEducation.institution}
+                                </div>
+                            </div>
+                        ) : (
+                            "N/A"
+                        )}
+                    </div>
+                );
+            },
         },
         {
             title: "Status",
@@ -150,13 +176,15 @@ const getJobApplicationsTableColumns = ({
             align: "center",
             width: 100,
             render: (_, record) => {
-                if (record.resumeUrl) {
+                const user = record.user || {};
+                const userData = user.data || user;
+                const resumeUrl = userData.resume?.resumeUrl;
+
+                if (resumeUrl) {
                     return (
                         <Button
                             type="link"
-                            onClick={() =>
-                                window.open(record.resumeUrl, "_blank")
-                            }
+                            onClick={() => window.open(resumeUrl, "_blank")}
                         >
                             View Resume
                         </Button>
@@ -174,7 +202,6 @@ const getJobApplicationsTableColumns = ({
             render: (_, record) => {
                 const items = [];
 
-                // Changed from "jobs" to "jobApplications"
                 if (can("jobApplications", "view")) {
                     items.push({
                         key: "view",
@@ -186,7 +213,6 @@ const getJobApplicationsTableColumns = ({
                     });
                 }
 
-                // Changed from "jobs" to "jobApplications"
                 if (can("jobApplications", "edit")) {
                     items.push({
                         key: "edit",
@@ -198,7 +224,6 @@ const getJobApplicationsTableColumns = ({
                     });
                 }
 
-                // Changed from "jobs" to "jobApplications"
                 if (can("jobApplications", "delete") && handleDelete) {
                     items.push({
                         key: "delete",
