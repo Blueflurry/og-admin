@@ -1,15 +1,15 @@
-// Complete fixed Users.jsx component
+// Complete Users.jsx component with enhanced bulk download
 import { useEffect, useState } from "react";
 import { useAPI } from "../../hooks/useAPI";
-import { Card, message, Modal } from "antd";
-// import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { Card, message } from "antd";
 import UserTable from "../../components/UserTableComponent/UserTable";
 import UserSearchFilterDrawer from "../../components/UserTableComponent/UserSearchFilterDrawer";
 import UserFormDrawer from "../../components/UserTableComponent/UserFormDrawer";
 import UserViewDrawer from "../../components/UserTableComponent/UserViewDrawer";
 import UserTableToolbar from "../../components/UserTableComponent/UserTableToolbar";
-
-// const { confirm } = Modal;
+import BulkDownloadModal from "../../components/common/BulkDownloadModal";
+import { useBulkDownload } from "../../hooks/useBulkDownload";
+import moment from "moment";
 
 const Users = () => {
     const { api, isLoading, error, resetError } = useAPI();
@@ -26,11 +26,19 @@ const Users = () => {
         filters: {},
     });
 
-    // State for drawers
+    // State for drawers and modals
     const [formDrawerOpen, setFormDrawerOpen] = useState(false);
     const [viewDrawerOpen, setViewDrawerOpen] = useState(false);
     const [searchDrawerOpen, setSearchDrawerOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
+    const [bulkDownloadModalOpen, setBulkDownloadModalOpen] = useState(false);
+
+    // Bulk download hook
+    const { downloadCSV, downloading } = useBulkDownload();
+
+    // ========================================
+    // DATA FETCHING
+    // ========================================
 
     useEffect(() => {
         fetchUsers();
@@ -75,7 +83,10 @@ const Users = () => {
         }));
     };
 
-    // Handlers for CRUD operations
+    // ========================================
+    // CRUD OPERATIONS
+    // ========================================
+
     const handleCreate = () => {
         setSelectedUser(null);
         setFormDrawerOpen(true);
@@ -99,9 +110,8 @@ const Users = () => {
         try {
             const userId = user.id || user._id;
             console.log("Deleting user with ID:", userId);
-            // Call the API with explicit await
-            const deleteUser = await api.deleteUser(userId);
-            console.log("Deleted user:", deleteUser);
+            await api.deleteUser(userId);
+            console.log("Deleted user successfully");
 
             message.success("User deleted successfully");
             fetchUsers(); // Reload the user list after deletion
@@ -109,46 +119,16 @@ const Users = () => {
             console.error("Error deleting user:", error);
             message.error("Failed to delete user");
         }
-
-        // confirm({
-        //     title: "Are you sure you want to delete this user?",
-        //     icon: <ExclamationCircleOutlined />,
-        //     content: "This action cannot be undone.",
-        //     okText: "Yes",
-        //     okType: "danger",
-        //     cancelText: "No",
-        //     onOk: async () => {
-        //         try {
-        //             // Use the user's ID, falling back to _id if id is not available
-        //             const userId = user.id || user._id;
-        //             console.log("Deleting user with ID:", userId);
-
-        //             // Check if the deleteUser function exists before calling it
-        //             if (typeof api.deleteUser !== "function") {
-        //                 console.error("api.deleteUser is not a function", api);
-        //                 message.error(
-        //                     "Delete functionality is not implemented"
-        //                 );
-        //                 return;
-        //             }
-
-        //             // Call the API with explicit await
-        //             await api.deleteUser(userId);
-
-        //             message.success("User deleted successfully");
-        //             fetchUsers(); // Reload the user list after deletion
-        //         } catch (error) {
-        //             console.error("Error deleting user:", error);
-        //             message.error("Failed to delete user");
-        //         }
-        //     },
-        // });
     };
 
     const handleFormSuccess = () => {
         console.log("Form submitted successfully");
         fetchUsers();
     };
+
+    // ========================================
+    // SEARCH & FILTER
+    // ========================================
 
     const handleSearch = (filters) => {
         console.log("Received search filters:", filters);
@@ -168,16 +148,141 @@ const Users = () => {
         });
     };
 
-    // if (isLoading && users.length === 0) return <div>Loading...</div>;
-    // if (error) return <div>Error: {error.message}</div>;
+    // ========================================
+    // BULK DOWNLOAD FUNCTIONALITY
+    // ========================================
+
+    const handleBulkDownload = () => {
+        console.log("🔄 Opening bulk download modal");
+        setBulkDownloadModalOpen(true);
+    };
+
+    const handleDownloadConfirm = async (limit, filename) => {
+        console.log(
+            "🔄 Download confirmed with limit:",
+            limit,
+            "filename:",
+            filename
+        );
+
+        try {
+            // Format user data for CSV export
+            const formatUserData = (users) => {
+                console.log("🔄 Formatting", users.length, "users for CSV");
+
+                return users.map((user, index) => {
+                    try {
+                        const formattedUser = {
+                            "User ID": user.id || user._id || "",
+                            "First Name": user.name?.first || "",
+                            "Middle Name": user.name?.middle || "",
+                            "Last Name": user.name?.last || "",
+                            "Full Name": `${user.name?.first || ""} ${
+                                user.name?.middle || ""
+                            } ${user.name?.last || ""}`.trim(),
+                            Email: user.email || "",
+                            "Primary Phone": user.phone1 || "",
+                            "Secondary Phone": user.phone2 || "",
+                            "Date of Birth": user.dob
+                                ? moment(user.dob).format("DD/MM/YYYY")
+                                : "",
+                            "Street Address": user.address?.street || "",
+                            City: user.address?.city || "",
+                            State: user.address?.state || "",
+                            Pincode: user.address?.pincode || "",
+                            Country: user.address?.country || "",
+                            Status:
+                                user.status === 1
+                                    ? "Active"
+                                    : user.status === 0
+                                    ? "Unauthorized"
+                                    : "Disabled",
+                            "Created At": user.createdAt
+                                ? moment(user.createdAt).format(
+                                      "DD/MM/YYYY HH:mm"
+                                  )
+                                : "",
+                            "Updated At": user.updatedAt
+                                ? moment(user.updatedAt).format(
+                                      "DD/MM/YYYY HH:mm"
+                                  )
+                                : "",
+                        };
+
+                        if (index === 0) {
+                            console.log(
+                                "📄 Sample formatted user:",
+                                formattedUser
+                            );
+                        }
+
+                        return formattedUser;
+                    } catch (formatError) {
+                        console.error(
+                            "❌ Error formatting user at index",
+                            index,
+                            ":",
+                            formatError
+                        );
+                        console.error("❌ Problematic user data:", user);
+                        // Return a basic format to prevent the whole process from failing
+                        return {
+                            "User ID": user.id || user._id || "Unknown",
+                            Email: user.email || "Unknown",
+                            Status: "Error formatting",
+                        };
+                    }
+                });
+            };
+
+            // Create fetch function for download
+            const fetchUsersForDownload = async () => {
+                console.log("📡 Fetching users for download...");
+                const downloadLimit = limit === "all" ? 999999 : limit;
+
+                const response = await api.getUsers(
+                    1, // Always start from page 1 for downloads
+                    downloadLimit,
+                    updateRecords.sort,
+                    updateRecords.filters
+                );
+
+                console.log("📡 Fetch response for download:", response);
+                return response;
+            };
+
+            console.log("🔄 Starting CSV download with filename:", filename);
+
+            await downloadCSV(
+                fetchUsersForDownload,
+                filename,
+                formatUserData,
+                updateRecords.filters,
+                updateRecords.sort
+            );
+
+            console.log("✅ Download process completed");
+        } catch (downloadError) {
+            console.error("❌ Error in handleDownloadConfirm:", downloadError);
+            message.error(`Download failed: ${downloadError.message}`);
+        } finally {
+            // Always close the modal, even if there was an error
+            console.log("🔄 Closing download modal");
+            setBulkDownloadModalOpen(false);
+        }
+    };
+
+    // ========================================
+    // RENDER COMPONENT
+    // ========================================
 
     return (
         <Card title="Manage Users" loading={isLoading && users.length === 0}>
-            {/* title="User Management" */}
             {/* Toolbar with actions */}
             <UserTableToolbar
                 onCreateNew={handleCreate}
                 onSearch={() => setSearchDrawerOpen(true)}
+                onBulkDownload={handleBulkDownload}
                 filterActive={Object.keys(updateRecords.filters).length > 0}
             />
 
@@ -215,6 +320,18 @@ const Users = () => {
                     ...updateRecords.filters,
                     sort: updateRecords.sort,
                 }}
+            />
+
+            {/* Enhanced Bulk download modal */}
+            <BulkDownloadModal
+                open={bulkDownloadModalOpen}
+                onClose={() => {
+                    console.log("🔄 Manual close of download modal");
+                    setBulkDownloadModalOpen(false);
+                }}
+                onDownload={handleDownloadConfirm}
+                loading={downloading}
+                entityName="Users"
             />
         </Card>
     );

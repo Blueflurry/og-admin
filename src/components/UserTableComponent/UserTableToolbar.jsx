@@ -1,7 +1,11 @@
-// Updated UserTableToolbar.jsx with filter badge
+// Updated UserTableToolbar.jsx with filter badge and bulk download
 import React from "react";
 import { Button, Badge } from "antd";
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+    PlusOutlined,
+    SearchOutlined,
+    DownloadOutlined,
+} from "@ant-design/icons";
 import { createStyles } from "antd-style";
 import PermissionGate from "../../components/PermissionGate";
 
@@ -22,7 +26,12 @@ const useStyle = createStyles(({ css }) => ({
     `,
 }));
 
-const UserTableToolbar = ({ onSearch, onCreateNew, filterActive = false }) => {
+const UserTableToolbar = ({
+    onSearch,
+    onCreateNew,
+    onBulkDownload,
+    filterActive = false,
+}) => {
     const { styles } = useStyle();
 
     return (
@@ -37,6 +46,12 @@ const UserTableToolbar = ({ onSearch, onCreateNew, filterActive = false }) => {
                         Search and Filter
                     </Button>
                 </Badge>
+                <PermissionGate module="users" action="bulkdownload">
+                    <Button onClick={onBulkDownload}>
+                        <DownloadOutlined />
+                        Bulk Download
+                    </Button>
+                </PermissionGate>
                 <PermissionGate module="users" action="create">
                     <Button type="primary" onClick={onCreateNew}>
                         <PlusOutlined />

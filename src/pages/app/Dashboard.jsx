@@ -61,6 +61,7 @@ const COLORS = [
 const Dashboard = () => {
     const { api, isLoading } = useAPI();
     const [dashboardData, setDashboardData] = useState({
+        // Current overall statistics (from /dashboard/metrics - no time range)
         totalUsers: 0,
         activeUsers: 0,
         inactiveUsers: 0,
@@ -69,16 +70,23 @@ const Dashboard = () => {
         inactiveJobs: 0,
         jobApplications: 0,
         monthlyRegistrations: 0,
+        registrationTrend: 0,
+
+        // Chart data (time-based from individual chart APIs)
         userGrowthData: [],
         jobCategoryData: [],
         userStatusData: [],
-        recentActivities: [],
-        registrationTrend: 0,
     });
-    const [timeRange, setTimeRange] = useState("7days");
     const [refreshing, setRefreshing] = useState(false);
 
-    // Individual chart date ranges
+    // Individual chart loading states
+    const [chartLoading, setChartLoading] = useState({
+        userGrowth: false,
+        jobCategory: false,
+        userStatus: false,
+    });
+
+    // Individual chart date ranges - each chart can have its own time range
     const [chartTimeRanges, setChartTimeRanges] = useState({
         userGrowth: "7days",
         jobCategory: "7days",
@@ -167,32 +175,47 @@ const Dashboard = () => {
         return defaultMetrics;
     };
 
-    // Process user status data for pie chart
-    const processUserStatusData = (metricsData) => {
-        if (!metricsData) return [];
+    // Process user status data for pie chart from the new API format
+    const processUserStatusData = (userStatsResponse) => {
+        if (
+            !userStatsResponse ||
+            !userStatsResponse.data ||
+            !Array.isArray(userStatsResponse.data)
+        ) {
+            return [];
+        }
 
-        return [
-            { name: "Active", value: metricsData.activeUsers || 0 },
-            { name: "Unauthorized", value: metricsData.inactiveUsers || 0 },
-        ];
+        return userStatsResponse.data.map((statusData) => ({
+            name: statusData.label || "Unknown",
+            value: statusData.count || 0,
+        }));
     };
 
     const fetchDashboardData = async () => {
         try {
             setRefreshing(true);
 
-            // Fetch metrics data from API using the new format
-            const [metricsResponse, chartResponse, jobCategoryResponse] =
-                await Promise.all([
-                    api.getDashboardMetrics(),
-                    api.getDashboardChart(timeRange),
-                    api.getJobCategoryStats(),
-                ]);
+            // Fetch all data in parallel with respective time ranges
+            // Note: getDashboardMetrics doesn't use time range (current overall stats)
+            // Each chart uses its own time range from chartTimeRanges
+            const [
+                metricsResponse,
+                chartResponse,
+                jobCategoryResponse,
+                userStatusResponse,
+            ] = await Promise.all([
+                api.getDashboardMetrics(), // No time range - gets current overall statistics
+                api.getDashboardChart(chartTimeRanges.userGrowth),
+                api.getJobCategoryStats(chartTimeRanges.jobCategory),
+                api.getUserStatusStats(chartTimeRanges.userStatus),
+            ]);
 
-            // Process the new metrics format
+            // Process all the responses
             const processedMetrics = processMetricsData(metricsResponse);
             const processedJobCategories =
                 processJobCategoryData(jobCategoryResponse);
+            const processedUserStatusData =
+                processUserStatusData(userStatusResponse);
 
             // Combine API responses into dashboard data structure
             const combinedData = {
@@ -203,49 +226,56 @@ const Dashboard = () => {
                 userGrowthData:
                     chartResponse.data || chartResponse.userGrowthData || [],
                 jobCategoryData: processedJobCategories || [],
-                userStatusData: processUserStatusData(processedMetrics),
-                recentActivities: chartResponse.recentActivities || [],
+                userStatusData: processedUserStatusData || [],
             };
 
             setDashboardData(combinedData);
         } catch (error) {
             console.error("Error fetching dashboard data:", error);
             message.error("Failed to load dashboard data");
-
-            // Keep the dashboard state as is, don't reset to empty
-            // The user can retry with the refresh button
         } finally {
             setRefreshing(false);
         }
     };
 
-    // Function to update individual chart data
     const updateChartData = async (chartType, newTimeRange) => {
         try {
+            console.log(
+                `Updating ${chartType} chart data for time range: ${newTimeRange}`
+            );
+            // Set loading state for ONLY the specific chart
+            setChartLoading((prev) => ({
+                userGrowth: chartType === "userGrowth" ? true : prev.userGrowth,
+                jobCategory:
+                    chartType === "jobCategory" ? true : prev.jobCategory,
+                userStatus: chartType === "userStatus" ? true : prev.userStatus,
+            }));
+
             let updatedData = {};
 
             if (chartType === "userGrowth") {
-                // Fetch user growth chart data
                 const chartData = await api.getDashboardChart(newTimeRange);
                 updatedData = {
                     userGrowthData:
                         chartData.data || chartData.userGrowthData || [],
                 };
             } else if (chartType === "jobCategory") {
-                // Fetch job category data
-                const jobCategoryResponse = await api.getJobCategoryStats();
+                const jobCategoryResponse = await api.getJobCategoryStats(
+                    newTimeRange
+                );
                 const processedJobCategories =
                     processJobCategoryData(jobCategoryResponse);
                 updatedData = {
                     jobCategoryData: processedJobCategories,
                 };
             } else if (chartType === "userStatus") {
-                // For user status, we use the current metrics data since it doesn't change by time range
-                // Or you can fetch fresh metrics if needed
-                const metricsResponse = await api.getDashboardMetrics();
-                const processedMetrics = processMetricsData(metricsResponse);
+                const userStatusResponse = await api.getUserStatusStats(
+                    newTimeRange
+                );
+                const processedUserStatusData =
+                    processUserStatusData(userStatusResponse);
                 updatedData = {
-                    userStatusData: processUserStatusData(processedMetrics),
+                    userStatusData: processedUserStatusData,
                 };
             }
 
@@ -258,6 +288,16 @@ const Dashboard = () => {
         } catch (error) {
             console.error(`Error updating ${chartType} chart data:`, error);
             message.error(`Failed to update ${chartType} chart`);
+        } finally {
+            // Clear loading state for ONLY the specific chart
+            setChartLoading((prev) => ({
+                userGrowth:
+                    chartType === "userGrowth" ? false : prev.userGrowth,
+                jobCategory:
+                    chartType === "jobCategory" ? false : prev.jobCategory,
+                userStatus:
+                    chartType === "userStatus" ? false : prev.userStatus,
+            }));
         }
     };
 
@@ -334,6 +374,7 @@ const Dashboard = () => {
         onTimeRangeChange,
         onDownload,
         timeRange,
+        loading = false,
     }) => (
         <div
             style={{
@@ -345,6 +386,7 @@ const Dashboard = () => {
         >
             <Title level={5} style={{ margin: 0 }}>
                 {title}
+                {loading && <Spin size="small" style={{ marginLeft: 8 }} />}
             </Title>
             <Space>
                 <Select
@@ -352,6 +394,8 @@ const Dashboard = () => {
                     onChange={(value) => onTimeRangeChange(chartType, value)}
                     style={{ width: 120 }}
                     size="middle"
+                    loading={loading}
+                    disabled={loading}
                 >
                     <Option value="7days">7 days</Option>
                     <Option value="30days">30 days</Option>
@@ -362,8 +406,34 @@ const Dashboard = () => {
                     onClick={onDownload}
                     size="middle"
                     title="Download chart"
+                    disabled={loading}
                 />
             </Space>
+        </div>
+    );
+
+    // Chart wrapper with loading overlay
+    const ChartWrapper = ({ children, loading, height = 300 }) => (
+        <div style={{ position: "relative", height }}>
+            {loading && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 10,
+                    }}
+                >
+                    <Spin size="large" tip="Updating chart..." />
+                </div>
+            )}
+            {children}
         </div>
     );
 
@@ -380,7 +450,7 @@ const Dashboard = () => {
             value: dashboardData.activeUsers,
             icon: <TeamOutlined />,
             color: "#52c41a",
-            suffix: `active / ${dashboardData.inactiveUsers} inactive`,
+            suffix: `active / ${dashboardData.inactiveUsers} unauthorized`,
             prefix: null,
         },
         {
@@ -425,7 +495,7 @@ const Dashboard = () => {
                             loading={refreshing}
                             type="primary"
                         >
-                            Refresh
+                            Refresh All
                         </Button>
                     </Space>
                 </Col>
@@ -515,47 +585,53 @@ const Dashboard = () => {
                                 )
                             }
                             timeRange={chartTimeRanges.userGrowth}
+                            loading={chartLoading.userGrowth}
                         />
-                        <div ref={userGrowthChartRef}>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <LineChart
-                                    data={dashboardData.userGrowthData}
-                                    margin={{
-                                        top: 5,
-                                        right: 30,
-                                        left: 20,
-                                        bottom: 5,
-                                    }}
-                                >
-                                    <CartesianGrid
-                                        strokeDasharray="3 3"
-                                        stroke="#f0f0f0"
-                                    />
-                                    <XAxis dataKey="date" stroke="#8c8c8c" />
-                                    <YAxis stroke="#8c8c8c" />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Legend />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="users"
-                                        stroke="#04248c"
-                                        strokeWidth={2}
-                                        dot={{ fill: "#04248c", r: 4 }}
-                                        activeDot={{ r: 6 }}
-                                        name="Total Users"
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="activeUsers"
-                                        stroke="#52c41a"
-                                        strokeWidth={2}
-                                        dot={{ fill: "#52c41a", r: 4 }}
-                                        activeDot={{ r: 6 }}
-                                        name="Active Users"
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </div>
+                        <ChartWrapper loading={chartLoading.userGrowth}>
+                            <div ref={userGrowthChartRef}>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart
+                                        data={dashboardData.userGrowthData}
+                                        margin={{
+                                            top: 5,
+                                            right: 30,
+                                            left: 20,
+                                            bottom: 5,
+                                        }}
+                                    >
+                                        <CartesianGrid
+                                            strokeDasharray="3 3"
+                                            stroke="#f0f0f0"
+                                        />
+                                        <XAxis
+                                            dataKey="date"
+                                            stroke="#8c8c8c"
+                                        />
+                                        <YAxis stroke="#8c8c8c" />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="users"
+                                            stroke="#04248c"
+                                            strokeWidth={2}
+                                            dot={{ fill: "#04248c", r: 4 }}
+                                            activeDot={{ r: 6 }}
+                                            name="Total Users"
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="activeUsers"
+                                            stroke="#52c41a"
+                                            strokeWidth={2}
+                                            dot={{ fill: "#52c41a", r: 4 }}
+                                            activeDot={{ r: 6 }}
+                                            name="Active Users"
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </ChartWrapper>
                     </Card>
                 </Col>
 
@@ -573,44 +649,47 @@ const Dashboard = () => {
                                 )
                             }
                             timeRange={chartTimeRanges.jobCategory}
+                            loading={chartLoading.jobCategory}
                         />
-                        <div ref={jobCategoryChartRef}>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <BarChart
-                                    data={dashboardData.jobCategoryData}
-                                    margin={{
-                                        top: 5,
-                                        right: 30,
-                                        left: 20,
-                                        bottom: 5,
-                                    }}
-                                >
-                                    <CartesianGrid
-                                        strokeDasharray="3 3"
-                                        stroke="#f0f0f0"
-                                    />
-                                    <XAxis
-                                        dataKey="category"
-                                        stroke="#8c8c8c"
-                                    />
-                                    <YAxis stroke="#8c8c8c" />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Legend />
-                                    <Bar
-                                        dataKey="active"
-                                        fill="#04248c"
-                                        name="Active Jobs"
-                                        radius={[8, 8, 0, 0]}
-                                    />
-                                    <Bar
-                                        dataKey="inactive"
-                                        fill="#fa8c16"
-                                        name="Inactive Jobs"
-                                        radius={[8, 8, 0, 0]}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
+                        <ChartWrapper loading={chartLoading.jobCategory}>
+                            <div ref={jobCategoryChartRef}>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <BarChart
+                                        data={dashboardData.jobCategoryData}
+                                        margin={{
+                                            top: 5,
+                                            right: 30,
+                                            left: 20,
+                                            bottom: 5,
+                                        }}
+                                    >
+                                        <CartesianGrid
+                                            strokeDasharray="3 3"
+                                            stroke="#f0f0f0"
+                                        />
+                                        <XAxis
+                                            dataKey="category"
+                                            stroke="#8c8c8c"
+                                        />
+                                        <YAxis stroke="#8c8c8c" />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend />
+                                        <Bar
+                                            dataKey="active"
+                                            fill="#04248c"
+                                            name="Active Jobs"
+                                            radius={[8, 8, 0, 0]}
+                                        />
+                                        <Bar
+                                            dataKey="inactive"
+                                            fill="#fa8c16"
+                                            name="Inactive Jobs"
+                                            radius={[8, 8, 0, 0]}
+                                        />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </ChartWrapper>
                     </Card>
                 </Col>
 
@@ -628,86 +707,95 @@ const Dashboard = () => {
                                 )
                             }
                             timeRange={chartTimeRanges.userStatus}
+                            loading={chartLoading.userStatus}
                         />
-                        <div ref={userStatusChartRef}>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <PieChart>
-                                    <Pie
-                                        data={dashboardData.userStatusData}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        label={({
-                                            cx,
-                                            cy,
-                                            midAngle,
-                                            innerRadius,
-                                            outerRadius,
-                                            percent,
-                                        }) => {
-                                            const radius =
-                                                innerRadius +
-                                                (outerRadius - innerRadius) *
-                                                    0.5;
-                                            const x =
-                                                cx +
-                                                radius *
-                                                    Math.cos(
-                                                        -midAngle *
-                                                            (Math.PI / 180)
-                                                    );
-                                            const y =
-                                                cy +
-                                                radius *
-                                                    Math.sin(
-                                                        -midAngle *
-                                                            (Math.PI / 180)
-                                                    );
+                        <ChartWrapper loading={chartLoading.userStatus}>
+                            <div ref={userStatusChartRef}>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <PieChart>
+                                        <Pie
+                                            data={dashboardData.userStatusData}
+                                            cx="50%"
+                                            cy="50%"
+                                            labelLine={false}
+                                            label={({
+                                                cx,
+                                                cy,
+                                                midAngle,
+                                                innerRadius,
+                                                outerRadius,
+                                                percent,
+                                            }) => {
+                                                const radius =
+                                                    innerRadius +
+                                                    (outerRadius -
+                                                        innerRadius) *
+                                                        0.5;
+                                                const x =
+                                                    cx +
+                                                    radius *
+                                                        Math.cos(
+                                                            -midAngle *
+                                                                (Math.PI / 180)
+                                                        );
+                                                const y =
+                                                    cy +
+                                                    radius *
+                                                        Math.sin(
+                                                            -midAngle *
+                                                                (Math.PI / 180)
+                                                        );
 
-                                            return (
-                                                <text
-                                                    x={x}
-                                                    y={y}
-                                                    fill="white"
-                                                    textAnchor={
-                                                        x > cx ? "start" : "end"
-                                                    }
-                                                    dominantBaseline="central"
-                                                    style={{ fontWeight: 600 }}
-                                                >
-                                                    {`${(percent * 100).toFixed(
-                                                        0
-                                                    )}%`}
-                                                </text>
-                                            );
-                                        }}
-                                        outerRadius={100}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                    >
-                                        {dashboardData.userStatusData.map(
-                                            (entry, index) => (
-                                                <Cell
-                                                    key={`cell-${index}`}
-                                                    fill={
-                                                        index === 0
-                                                            ? "#52c41a"
-                                                            : "#ff4d4f"
-                                                    }
-                                                />
-                                            )
-                                        )}
-                                    </Pie>
-                                    <Tooltip />
-                                    <Legend />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
+                                                return (
+                                                    <text
+                                                        x={x}
+                                                        y={y}
+                                                        fill="white"
+                                                        textAnchor={
+                                                            x > cx
+                                                                ? "start"
+                                                                : "end"
+                                                        }
+                                                        dominantBaseline="central"
+                                                        style={{
+                                                            fontWeight: 600,
+                                                        }}
+                                                    >
+                                                        {`${(
+                                                            percent * 100
+                                                        ).toFixed(0)}%`}
+                                                    </text>
+                                                );
+                                            }}
+                                            outerRadius={100}
+                                            fill="#8884d8"
+                                            dataKey="value"
+                                        >
+                                            {dashboardData.userStatusData.map(
+                                                (entry, index) => (
+                                                    <Cell
+                                                        key={`cell-${index}`}
+                                                        fill={
+                                                            entry.name ===
+                                                            "Active"
+                                                                ? "#52c41a"
+                                                                : "#ff4d4f"
+                                                        }
+                                                    />
+                                                )
+                                            )}
+                                        </Pie>
+                                        <Tooltip />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </ChartWrapper>
                     </Card>
                 </Col>
             </Row>
 
-            {/* Loading Overlay */}
+            {/* Global Loading Overlay */}
             {refreshing && (
                 <div
                     style={{

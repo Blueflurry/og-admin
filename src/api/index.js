@@ -733,20 +733,33 @@ export class API {
     }
 
     // DASHBOARD
+
+    // Get dashboard metrics (no time range needed - current overall stats)
     getDashboardMetrics() {
         return this.request(() => this.client.get(`/auth/dashboard-stats`));
     }
 
-    // Fetch chart data from API
-    getDashboardChart(timeRange) {
+    // Get user status statistics (for pie chart)
+    getUserStatusStats(timeRange = "7days") {
+        const { from, to } = this.formatDateForAPI(timeRange);
+        return this.request(() =>
+            this.client.get(`/auth/user/metrics?from=${from}&to=${to}`)
+        );
+    }
+
+    // Get job category statistics with time range
+    getJobCategoryStats(timeRange = "7days") {
+        const { from, to } = this.formatDateForAPI(timeRange);
+        return this.request(() =>
+            this.client.get(`/jobs/stats?from=${from}&to=${to}`)
+        );
+    }
+
+    getDashboardChart(timeRange = "7days") {
         const { from, to } = this.formatDateForAPI(timeRange);
         return this.request(() =>
             this.client.get(`/auth/user/chart?from=${from}&to=${to}`)
         );
-    }
-
-    getJobCategoryStats() {
-        return this.request(() => this.client.get("/jobs/stats"));
     }
 
     // Helper function to format dates for API (if not already present)
