@@ -16,6 +16,9 @@ import {
     tableStyles,
 } from "./JobApplicationsTableConfig";
 import { useAPI } from "../../hooks/useAPI";
+import BulkDownloadModal from "../../components/common/BulkDownloadModal";
+import { useBulkDownload } from "../../hooks/useBulkDownload";
+import moment from "moment";
 
 const { confirm } = Modal;
 const { Option } = Select;
@@ -52,6 +55,10 @@ const JobApplicationsTable = ({
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [bulkUpdateVisible, setBulkUpdateVisible] = useState(false);
     const [bulkUpdateStatus, setBulkUpdateStatus] = useState(undefined);
+    const [bulkDownloadModalOpen, setBulkDownloadModalOpen] = useState(false);
+
+    // Bulk download hook
+    const { downloadCSV, downloading } = useBulkDownload();
 
     // Updated filter configuration to match actual API data structure
     const filterConfig = {
@@ -207,6 +214,186 @@ const JobApplicationsTable = ({
         });
     };
 
+    // ========================================
+    // BULK DOWNLOAD FUNCTIONALITY
+    // ========================================
+
+    const handleBulkDownload = () => {
+        console.log("🔄 Opening bulk download modal");
+        setBulkDownloadModalOpen(true);
+    };
+
+    const handleDownloadConfirm = async (limit, filename) => {
+        console.log(
+            "🔄 Download confirmed with limit:",
+            limit,
+            "filename:",
+            filename
+        );
+
+        try {
+            // Format job application data for CSV export
+            const formatJobApplicationData = (applications) => {
+                console.log(
+                    "🔄 Formatting",
+                    applications.length,
+                    "job applications for CSV"
+                );
+
+                return applications.map((app, index) => {
+                    try {
+                        // Handle different possible data structures
+                        const applicant =
+                            app.applicant || app.user?.data || app.user || {};
+                        const applicantName = applicant.name || {};
+
+                        const formattedApplication = {
+                            "Application ID": app.id || app._id || "",
+                            "Job ID":
+                                app.jobId || app.job?.id || app.job?._id || "",
+                            "Job Title":
+                                app.job?.title || jobDetails?.title || "",
+                            Company:
+                                app.job?.company?.name ||
+                                jobDetails?.company?.data?.name ||
+                                "",
+                            "Applicant First Name":
+                                applicantName.first ||
+                                applicant.firstName ||
+                                "",
+                            "Applicant Last Name":
+                                applicantName.last || applicant.lastName || "",
+                            "Applicant Full Name":
+                                `${applicantName.first || ""} ${
+                                    applicantName.last || ""
+                                }`.trim() ||
+                                `${applicant.firstName || ""} ${
+                                    applicant.lastName || ""
+                                }`.trim(),
+                            Email: applicant.email || "",
+                            Phone: applicant.phone1 || applicant.phone || "",
+                            "Secondary Phone": applicant.phone2 || "",
+                            Status:
+                                app.status === 0
+                                    ? "Applied"
+                                    : app.status === 1
+                                    ? "Under Review"
+                                    : app.status === 2
+                                    ? "Shortlisted"
+                                    : app.status === 3
+                                    ? "Rejected"
+                                    : app.status === 4
+                                    ? "Hired"
+                                    : "Unknown",
+                            "Experience Years": app.experience || "",
+                            "Expected Salary": app.expectedSalary || "",
+                            "Notice Period": app.noticePeriod || "",
+                            "Current Company": app.currentCompany || "",
+                            "Resume URL": app.resumeUrl || app.resume || "",
+                            "Cover Letter": app.coverLetter || "",
+                            Notes: app.notes || "",
+                            "Applied Date":
+                                app.createdAt || app.appliedDate
+                                    ? moment(
+                                          app.createdAt || app.appliedDate
+                                      ).format("DD/MM/YYYY HH:mm")
+                                    : "",
+                            "Last Updated": app.updatedAt
+                                ? moment(app.updatedAt).format(
+                                      "DD/MM/YYYY HH:mm"
+                                  )
+                                : "",
+                            "Street Address": applicant.address?.street || "",
+                            City: applicant.address?.city || "",
+                            State: applicant.address?.state || "",
+                            Pincode: applicant.address?.pincode || "",
+                            Country: applicant.address?.country || "",
+                        };
+
+                        if (index === 0) {
+                            console.log(
+                                "📄 Sample formatted application:",
+                                formattedApplication
+                            );
+                        }
+
+                        return formattedApplication;
+                    } catch (formatError) {
+                        console.error(
+                            "❌ Error formatting application at index",
+                            index,
+                            ":",
+                            formatError
+                        );
+                        console.error("❌ Problematic application data:", app);
+                        // Return a basic format to prevent the whole process from failing
+                        return {
+                            "Application ID": app.id || app._id || "Unknown",
+                            Status:
+                                app.status !== undefined
+                                    ? app.status === 0
+                                        ? "Applied"
+                                        : app.status === 1
+                                        ? "Under Review"
+                                        : app.status === 2
+                                        ? "Shortlisted"
+                                        : app.status === 3
+                                        ? "Rejected"
+                                        : app.status === 4
+                                        ? "Hired"
+                                        : "Unknown"
+                                    : "Error formatting",
+                        };
+                    }
+                });
+            };
+
+            // Create fetch function for download - Note: This will need the jobId
+            const fetchApplicationsForDownload = async () => {
+                console.log("📡 Fetching job applications for download...");
+                const downloadLimit = limit === "all" ? 999999 : limit;
+
+                // Get jobId from jobDetails or from the current context
+                const jobId = jobDetails?.id || jobDetails?._id;
+                if (!jobId) {
+                    throw new Error(
+                        "Job ID not found for downloading applications"
+                    );
+                }
+
+                const response = await api.getJobApplications(
+                    jobId,
+                    1, // Always start from page 1 for downloads
+                    downloadLimit,
+                    pagination.sort || "",
+                    activeFilters
+                );
+
+                console.log("📡 Fetch response for download:", response);
+                return response;
+            };
+
+            console.log("🔄 Starting CSV download with filename:", filename);
+
+            await downloadCSV(
+                fetchApplicationsForDownload,
+                filename,
+                formatJobApplicationData,
+                activeFilters,
+                pagination.sort || ""
+            );
+
+            console.log("✅ Download process completed");
+        } catch (downloadError) {
+            console.error("❌ Error in handleDownloadConfirm:", downloadError);
+            message.error(`Download failed: ${downloadError.message}`);
+        } finally {
+            // Always close the modal, even if there was an error
+            console.log("🔄 Closing download modal");
+            setBulkDownloadModalOpen(false);
+        }
+    };
+
     const columns = getJobApplicationsTableColumns({
         handleView: localHandleView,
         handleEdit: localHandleEdit,
@@ -223,6 +410,7 @@ const JobApplicationsTable = ({
     return (
         <>
             <JobApplicationsTableToolbar
+                onBulkDownload={handleBulkDownload}
                 onSearch={openSearchFilterDrawer}
                 filterActive={Object.keys(activeFilters).length > 0}
                 selectedCount={selectedRowKeys.length}
@@ -306,6 +494,18 @@ const JobApplicationsTable = ({
                 sortOptions={sortOptions}
                 onApplyFilters={handleApplyFilters}
                 initialValues={{ ...activeFilters, sort: pagination.sort }}
+            />
+
+            {/* Enhanced Bulk download modal */}
+            <BulkDownloadModal
+                open={bulkDownloadModalOpen}
+                onClose={() => {
+                    console.log("🔄 Manual close of download modal");
+                    setBulkDownloadModalOpen(false);
+                }}
+                onDownload={handleDownloadConfirm}
+                loading={downloading}
+                entityName="Job Applications"
             />
         </>
     );

@@ -35,14 +35,16 @@ const BulkDownloadModal = ({
         { label: "20 Records", value: 20 },
         { label: "50 Records", value: 50 },
         { label: "100 Records", value: 100 },
-        { label: "All Records", value: "all" },
+        { label: "All Records", value: -1 },
     ];
 
     // Generate default filename when modal opens
     useEffect(() => {
         if (open) {
             const timestamp = moment().format("YYYY-MM-DD_HH-mm-ss");
-            const defaultFilename = `${entityName.toLowerCase()}_export_${timestamp}`;
+            const defaultFilename = `${entityName
+                .replaceAll(" ", "-")
+                .toLowerCase()}_export_${timestamp}`;
             setFilename(defaultFilename);
             form.setFieldsValue({ filename: defaultFilename });
         }

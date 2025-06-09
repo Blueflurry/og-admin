@@ -1,6 +1,10 @@
 import React from "react";
 import { Button, Badge } from "antd";
-import { PlusOutlined, FilterOutlined } from "@ant-design/icons";
+import {
+    PlusOutlined,
+    FilterOutlined,
+    DownloadOutlined,
+} from "@ant-design/icons";
 import { createStyles } from "antd-style";
 import { useUserPermission } from "../../hooks/useUserPermission";
 import PermissionGate from "../../components/PermissionGate";
@@ -25,6 +29,7 @@ const useStyle = createStyles(({ css }) => ({
 const ManageInstitutesTableToolbar = ({
     onSearch,
     onCreateNew,
+    onBulkDownload,
     filterActive = false,
 }) => {
     const { styles } = useStyle();
@@ -40,7 +45,12 @@ const ManageInstitutesTableToolbar = ({
                         Search and Filter
                     </Button>
                 </Badge>
-
+                <PermissionGate module="institutes" action="bulkdownload">
+                    <Button onClick={onBulkDownload}>
+                        <DownloadOutlined />
+                        Bulk Download
+                    </Button>
+                </PermissionGate>
                 <PermissionGate module="institutes" action="create">
                     <Button
                         type="primary"

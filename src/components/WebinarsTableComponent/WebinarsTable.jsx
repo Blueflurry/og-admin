@@ -14,6 +14,9 @@ import {
     tableStyles,
 } from "./WebinarsTableConfig";
 import { useAPI } from "../../hooks/useAPI";
+import BulkDownloadModal from "../../components/common/BulkDownloadModal";
+import { useBulkDownload } from "../../hooks/useBulkDownload";
+import moment from "moment";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -43,6 +46,10 @@ const WebinarsTable = ({
     // State for search and filter drawer
     const [searchFilterDrawerOpen, setSearchFilterDrawerOpen] = useState(false);
     const [activeFilters, setActiveFilters] = useState({});
+    const [bulkDownloadModalOpen, setBulkDownloadModalOpen] = useState(false);
+
+    // Bulk download hook
+    const { downloadCSV, downloading } = useBulkDownload();
 
     // Hardcoded filter configuration since there's no config API
     const filterConfig = {
@@ -79,8 +86,6 @@ const WebinarsTable = ({
     };
 
     const handleApplyFilters = (filters) => {
-        // console.log("Applying filters:", filters);
-
         // Extract sort value if present
         const sortValue = filters.sort || "";
         delete filters.sort;
@@ -151,6 +156,175 @@ const WebinarsTable = ({
         }
     };
 
+    // ========================================
+    // BULK DOWNLOAD FUNCTIONALITY
+    // ========================================
+
+    const handleBulkDownload = () => {
+        console.log("🔄 Opening bulk download modal");
+        setBulkDownloadModalOpen(true);
+    };
+
+    const handleDownloadConfirm = async (limit, filename) => {
+        console.log(
+            "🔄 Download confirmed with limit:",
+            limit,
+            "filename:",
+            filename
+        );
+
+        try {
+            // Format webinar data for CSV export
+            const formatWebinarData = (webinars) => {
+                console.log(
+                    "🔄 Formatting",
+                    webinars.length,
+                    "webinars for CSV"
+                );
+
+                return webinars.map((webinar, index) => {
+                    try {
+                        const formattedWebinar = {
+                            "Webinar ID": webinar.id || webinar._id || "",
+                            Title: webinar.title || "",
+                            Description: webinar.description || "",
+                            Status:
+                                webinar.status === 1 ? "Active" : "Inactive",
+                            "Duration (minutes)": webinar.duration || "",
+                            "Start Date": webinar.startDate
+                                ? moment(webinar.startDate).format("DD/MM/YYYY")
+                                : "",
+                            "End Date": webinar.endDate
+                                ? moment(webinar.endDate).format("DD/MM/YYYY")
+                                : "",
+                            "Start Time": webinar.startTime || "",
+                            "End Time": webinar.endTime || "",
+                            "Host/Presenter":
+                                webinar.instructor ||
+                                webinar.host ||
+                                webinar.presenter ||
+                                "",
+                            "Topic/Category":
+                                webinar.category || webinar.topic || "",
+                            Level: webinar.level || "",
+                            Prerequisites: webinar.prerequisites || "",
+                            "Max Attendees":
+                                webinar.maxStudents ||
+                                webinar.maxAttendees ||
+                                "",
+                            "Registered Attendees":
+                                webinar.enrolled ||
+                                webinar.registeredCount ||
+                                "",
+                            "Registration Fee":
+                                webinar.price || webinar.fee || "",
+                            Currency: webinar.currency || "",
+                            Language: webinar.language || "",
+                            "Certificate Provided": webinar.certificateProvided
+                                ? "Yes"
+                                : "No",
+                            "Recording Available": webinar.recordingAvailable
+                                ? "Yes"
+                                : "No",
+                            "Meeting Platform":
+                                webinar.platform ||
+                                webinar.meetingPlatform ||
+                                "",
+                            "Meeting URL":
+                                webinar.meetingUrl || webinar.joinUrl || "",
+                            "Meeting ID": webinar.meetingId || "",
+                            Password: webinar.password || "",
+                            "Webinar Type":
+                                webinar.webinarType || webinar.type || "",
+                            "Is Live": webinar.isLive ? "Yes" : "No",
+                            Timezone: webinar.timezone || "",
+                            "Materials URL": webinar.materialsUrl || "",
+                            "Slides URL": webinar.slidesUrl || "",
+                            "Recording URL": webinar.recordingUrl || "",
+                            "Image URL": webinar.imageUrl || "",
+                            "Registration URL": webinar.registrationUrl || "",
+                            Tags: Array.isArray(webinar.tags)
+                                ? webinar.tags.join(", ")
+                                : webinar.tags || "",
+                            "Created At": webinar.createdAt
+                                ? moment(webinar.createdAt).format(
+                                      "DD/MM/YYYY HH:mm"
+                                  )
+                                : "",
+                            "Updated At": webinar.updatedAt
+                                ? moment(webinar.updatedAt).format(
+                                      "DD/MM/YYYY HH:mm"
+                                  )
+                                : "",
+                        };
+
+                        if (index === 0) {
+                            console.log(
+                                "📄 Sample formatted webinar:",
+                                formattedWebinar
+                            );
+                        }
+
+                        return formattedWebinar;
+                    } catch (formatError) {
+                        console.error(
+                            "❌ Error formatting webinar at index",
+                            index,
+                            ":",
+                            formatError
+                        );
+                        console.error("❌ Problematic webinar data:", webinar);
+                        // Return a basic format to prevent the whole process from failing
+                        return {
+                            "Webinar ID":
+                                webinar.id || webinar._id || "Unknown",
+                            Title: webinar.title || "Unknown",
+                            Status: "Error formatting",
+                        };
+                    }
+                });
+            };
+
+            // Create fetch function for download
+            const fetchWebinarsForDownload = async () => {
+                console.log("📡 Fetching webinars for download...");
+                const downloadLimit = limit === "all" ? 999999 : limit;
+
+                // Ensure status=0 for webinars (not courses)
+                const webinarFilters = { ...activeFilters, status: 0 };
+
+                const response = await api.getWebinars(
+                    1, // Always start from page 1 for downloads
+                    downloadLimit,
+                    pagination.sort || "",
+                    webinarFilters
+                );
+
+                console.log("📡 Fetch response for download:", response);
+                return response;
+            };
+
+            console.log("🔄 Starting CSV download with filename:", filename);
+
+            await downloadCSV(
+                fetchWebinarsForDownload,
+                filename,
+                formatWebinarData,
+                activeFilters,
+                pagination.sort || ""
+            );
+
+            console.log("✅ Download process completed");
+        } catch (downloadError) {
+            console.error("❌ Error in handleDownloadConfirm:", downloadError);
+            message.error(`Download failed: ${downloadError.message}`);
+        } finally {
+            // Always close the modal, even if there was an error
+            console.log("🔄 Closing download modal");
+            setBulkDownloadModalOpen(false);
+        }
+    };
+
     const columns = getWebinarsTableColumns({
         handleView: localHandleView,
         handleEdit: localHandleEdit,
@@ -167,6 +341,7 @@ const WebinarsTable = ({
     return (
         <>
             <WebinarsTableToolbar
+                onBulkDownload={handleBulkDownload}
                 onCreateNew={openDrawerForCreate} // Use the one passed from parent
                 onSearch={openSearchFilterDrawer}
                 filterActive={Object.keys(activeFilters).length > 0}
@@ -216,6 +391,18 @@ const WebinarsTable = ({
                 sortOptions={sortOptions}
                 onApplyFilters={handleApplyFilters}
                 initialValues={{ ...activeFilters, sort: pagination.sort }}
+            />
+
+            {/* Enhanced Bulk download modal */}
+            <BulkDownloadModal
+                open={bulkDownloadModalOpen}
+                onClose={() => {
+                    console.log("🔄 Manual close of download modal");
+                    setBulkDownloadModalOpen(false);
+                }}
+                onDownload={handleDownloadConfirm}
+                loading={downloading}
+                entityName="Webinars"
             />
         </>
     );

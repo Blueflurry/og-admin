@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { message, notification } from "antd";
+
 import { CheckCircleOutlined, DownloadOutlined } from "@ant-design/icons";
 import Papa from "papaparse";
 
@@ -48,11 +49,11 @@ export const useBulkDownload = () => {
                 throw new Error("Invalid data format received");
             }
 
-            if (dataArray.length === 0) {
-                console.warn("⚠️ No data found to download");
-                message.warning("No data found to download");
-                return;
-            }
+            // if (dataArray.length === 0) {
+            //     console.warn("⚠️ No data found to download");
+            //     message.warning("No data found to download");
+            //     return;
+            // }
 
             // Format the data using the provided formatter
             console.log("🔄 Formatting data...");

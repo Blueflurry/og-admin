@@ -279,6 +279,7 @@ const Dashboard = () => {
                 };
             }
 
+            console.log(updatedData);
             setDashboardData((prevData) => ({
                 ...prevData,
                 ...updatedData,

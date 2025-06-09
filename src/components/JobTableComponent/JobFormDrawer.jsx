@@ -160,7 +160,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                 company: values.company,
                 category: values.category,
                 description: values.description,
-                isRemote: values.isRemote,
+                isRemote: values.isRemote || false,
                 minSalary: values.minSalary,
                 maxSalary: values.maxSalary,
                 minExperience: values.minExperience,
@@ -331,16 +331,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
 
                 <Row gutter={16}>
                     <Col span={24}>
-                        <Form.Item
-                            name="description"
-                            label="Description"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter job description",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="description" label="Description">
                             <TextArea
                                 rows={6}
                                 placeholder="Job description (Markdown supported)"
@@ -485,16 +476,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
 
                 <Row gutter={16}>
                     <Col span={24}>
-                        <Form.Item
-                            name="street"
-                            label="Street Address"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter street address",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="street" label="Street Address">
                             <Input placeholder="Street address" />
                         </Form.Item>
                     </Col>
@@ -516,16 +498,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            name="state"
-                            label="State"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter state",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="state" label="State">
                             <Input placeholder="State" />
                         </Form.Item>
                     </Col>
@@ -533,31 +506,12 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            name="pincode"
-                            label="Pincode"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter pincode",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="pincode" label="Pincode">
                             <Input placeholder="Pincode" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            name="country"
-                            label="Country"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter country",
-                                },
-                            ]}
-                            initialValue="India"
-                        >
+                        <Form.Item name="country" label="Country">
                             <Input placeholder="Country" />
                         </Form.Item>
                     </Col>

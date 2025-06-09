@@ -1,6 +1,10 @@
 import React from "react";
 import { Button, Badge } from "antd";
-import { PlusOutlined, FilterOutlined } from "@ant-design/icons";
+import {
+    PlusOutlined,
+    FilterOutlined,
+    DownloadOutlined,
+} from "@ant-design/icons";
 import { createStyles } from "antd-style";
 import PermissionGate from "../PermissionGate";
 
@@ -24,6 +28,7 @@ const useStyle = createStyles(({ css }) => ({
 const CarouselsTableToolbar = ({
     onSearch,
     onCreateNew,
+    onBulkDownload,
     filterActive = false,
 }) => {
     const { styles } = useStyle();
@@ -39,6 +44,12 @@ const CarouselsTableToolbar = ({
                         Search and Filter
                     </Button>
                 </Badge>
+                <PermissionGate module="carousels" action="bulkdownload">
+                    <Button onClick={onBulkDownload}>
+                        <DownloadOutlined />
+                        Bulk Download
+                    </Button>
+                </PermissionGate>
                 <PermissionGate module="carousels" action="create">
                     <Button
                         type="primary"

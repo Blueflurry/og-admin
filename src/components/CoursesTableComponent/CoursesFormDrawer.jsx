@@ -111,7 +111,6 @@ const CoursesFormDrawer = ({
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-
             // Format the data for API - create FormData for image upload
             const formData = new FormData();
 
@@ -122,8 +121,16 @@ const CoursesFormDrawer = ({
                 formData.append("courseUrl", values.courseUrl || "");
             if (values.inviteUrl && values.inviteUrl != "")
                 formData.append("inviteUrl", values.inviteUrl || "");
-            formData.append("startDate", values.startDate.format("YYYY-MM-DD"));
-            formData.append("endDate", values.endDate.format("YYYY-MM-DD"));
+            if (values.startDate)
+                formData.append(
+                    "startDate",
+                    values.startDate?.format("YYYY-MM-DD")
+                );
+            if (values.endDate)
+                formData.append(
+                    "endDate",
+                    values.endDate?.format("YYYY-MM-DD")
+                );
             formData.append("duration", values.duration);
             formData.append("category", values.category);
 
@@ -340,30 +347,12 @@ const CoursesFormDrawer = ({
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            name="startDate"
-                            label="Start Date"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please select start date",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="startDate" label="Start Date">
                             <DatePicker style={{ width: "100%" }} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            name="endDate"
-                            label="End Date"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please select end date",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="endDate" label="End Date">
                             <DatePicker style={{ width: "100%" }} />
                         </Form.Item>
                     </Col>
@@ -377,7 +366,7 @@ const CoursesFormDrawer = ({
                             rules={[
                                 {
                                     required: true,
-                                    message: "Please enter duration",
+                                    message: "Please enter duration in minutes",
                                 },
                             ]}
                         >

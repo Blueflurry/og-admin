@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Table, message } from "antd";
 import { createStyles } from "antd-style";
 
@@ -15,8 +15,28 @@ import {
 } from "./ManageCompaniesTableConfig";
 import { useAPI } from "../../hooks/useAPI";
 import { useUserPermission } from "../../hooks/useUserPermission";
+import BulkDownloadModal from "../../components/common/BulkDownloadModal";
+import { useBulkDownload } from "../../hooks/useBulkDownload";
+import moment from "moment";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
+
+// Define static configs outside component
+const DEFAULT_FILTER_CONFIG = {
+    "data.name": { type: "text", label: "Company Name" },
+    "data.email": { type: "text", label: "Company Email" },
+    "data.phone": { type: "text", label: "Company Phone" },
+    "data.address.city": { type: "text", label: "City" },
+    "data.address.state": { type: "text", label: "State" },
+    "data.address.country": { type: "text", label: "Country" },
+};
+
+const DEFAULT_SORT_OPTIONS = [
+    { label: "Newest First", value: "-createdAt" },
+    { label: "Oldest First", value: "createdAt" },
+    { label: "Company Name A-Z", value: "data.name" },
+    { label: "Company Name Z-A", value: "-data.name" },
+];
 
 const ManageCompaniesTable = ({
     companyData = [],
@@ -27,11 +47,12 @@ const ManageCompaniesTable = ({
     handleDelete,
     ...props
 }) => {
+    // All hooks at the top
     const { styles } = useStyle();
     const { api } = useAPI();
     const { can } = useUserPermission();
-    const { selectionType, rowSelection, handleChange, clearFilters } =
-        useTableConfig();
+    const { selectionType, handleChange, clearFilters } = useTableConfig();
+    const { downloadCSV, downloading } = useBulkDownload();
 
     // State for the form drawer
     const [formDrawerOpen, setFormDrawerOpen] = useState(false);
@@ -44,6 +65,28 @@ const ManageCompaniesTable = ({
     // State for search and filter drawer
     const [searchFilterDrawerOpen, setSearchFilterDrawerOpen] = useState(false);
     const [activeFilters, setActiveFilters] = useState({});
+
+    // State for bulk download
+    const [bulkDownloadModalOpen, setBulkDownloadModalOpen] = useState(false);
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+    // Use static configs
+    const filterConfig = DEFAULT_FILTER_CONFIG;
+    const sortOptions = DEFAULT_SORT_OPTIONS;
+
+    // Updated row selection to track selected keys
+    const rowSelection = {
+        type: selectionType,
+        selectedRowKeys,
+        onChange: (newSelectedRowKeys, selectedRows) => {
+            console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+            setSelectedRowKeys(newSelectedRowKeys);
+        },
+        getCheckboxProps: (record) => ({
+            disabled: record.name === "Disabled Company",
+            name: record.name,
+        }),
+    };
 
     const openDrawerForCreate = () => {
         setEditingCompany(null);
@@ -144,47 +187,202 @@ const ManageCompaniesTable = ({
         }
     };
 
-    const columns = getManageCompaniesTableColumns({
-        handleView: can("companies", "view") ? localHandleView : null,
-        handleEdit: can("companies", "edit") ? localHandleEdit : null,
-        handleDelete: can("companies", "delete") ? localHandleDelete : null,
-    });
+    // ========================================
+    // BULK DOWNLOAD FUNCTIONALITY
+    // ========================================
 
-    const dataSource = Array.isArray(companyData)
-        ? companyData.map((company) => ({
-              ...company,
-              key: company.id || company._id,
-          }))
-        : [];
+    const handleBulkDownload = () => {
+        console.log("🔄 Opening bulk download modal");
+        setBulkDownloadModalOpen(true);
+    };
+
+    const handleDownloadConfirm = async (limit, filename) => {
+        console.log(
+            "🔄 Download confirmed with limit:",
+            limit,
+            "filename:",
+            filename
+        );
+
+        try {
+            // Format company data for CSV export
+            const formatCompanyData = (companies) => {
+                console.log(
+                    "🔄 Formatting",
+                    companies.length,
+                    "companies for CSV"
+                );
+
+                return companies.map((company, index) => {
+                    try {
+                        const companyData = company.data || {};
+                        const address = companyData.address || {};
+
+                        const formattedCompany = {
+                            "Company ID": company.id || company._id || "",
+                            "Company Name": companyData.name || "",
+                            Description: companyData.description || "",
+                            Email: companyData.email || "",
+                            Phone: companyData.phone || "",
+                            Website: companyData.website || "",
+                            "Industry Type": companyData.industryType || "",
+                            "Company Size": companyData.companySize || "",
+                            "Founded Year": companyData.foundedYear || "",
+                            "Logo URL": companyData.imageUrl || "",
+
+                            // Address Information
+                            "Address Street": address.street || "",
+                            "Address City": address.city || "",
+                            "Address State": address.state || "",
+                            "Address Pincode": address.pincode || "",
+                            "Address Country": address.country || "",
+                            "Full Address": company.fullAddress || "",
+
+                            // Social Media
+                            "LinkedIn URL": companyData.linkedinUrl || "",
+                            "Twitter URL": companyData.twitterUrl || "",
+                            "Facebook URL": companyData.facebookUrl || "",
+                            "Instagram URL": companyData.instagramUrl || "",
+
+                            // Additional Information
+                            "Employee Count": companyData.employeeCount || "",
+                            "Annual Revenue": companyData.annualRevenue || "",
+                            "Stock Symbol": companyData.stockSymbol || "",
+                            "Is Public": companyData.isPublic ? "Yes" : "No",
+                            "Is Verified": companyData.isVerified
+                                ? "Yes"
+                                : "No",
+
+                            // Timestamps
+                            "Created At": company.createdAt
+                                ? moment(company.createdAt).format(
+                                      "DD/MM/YYYY HH:mm"
+                                  )
+                                : "",
+                            "Updated At": company.updatedAt
+                                ? moment(company.updatedAt).format(
+                                      "DD/MM/YYYY HH:mm"
+                                  )
+                                : "",
+                        };
+
+                        if (index === 0) {
+                            console.log(
+                                "📄 Sample formatted company:",
+                                formattedCompany
+                            );
+                        }
+
+                        return formattedCompany;
+                    } catch (formatError) {
+                        console.error(
+                            "❌ Error formatting company at index",
+                            index,
+                            ":",
+                            formatError
+                        );
+                        return {
+                            "Company ID":
+                                company.id || company._id || "Unknown",
+                            "Company Name": company.data?.name || "Unknown",
+                            Status: "Error formatting",
+                        };
+                    }
+                });
+            };
+
+            // Create fetch function for download
+            const fetchCompaniesForDownload = async () => {
+                console.log("📡 Fetching companies for download...");
+                const downloadLimit = limit === "all" ? 999999 : limit;
+
+                const response = await api.getManageCompanies({
+                    page: 1, // Always start from page 1 for downloads
+                    limit: downloadLimit,
+                    sort: pagination.sort || "",
+                    filters: activeFilters,
+                });
+
+                console.log("📡 Fetch response for download:", response);
+                return response;
+            };
+
+            console.log("🔄 Starting CSV download with filename:", filename);
+
+            await downloadCSV(
+                fetchCompaniesForDownload,
+                filename,
+                formatCompanyData,
+                activeFilters,
+                pagination.sort || ""
+            );
+
+            console.log("✅ Download process completed");
+        } catch (downloadError) {
+            console.error("❌ Error in handleDownloadConfirm:", downloadError);
+            message.error(`Download failed: ${downloadError.message}`);
+        } finally {
+            // Always close the modal, even if there was an error
+            console.log("🔄 Closing download modal");
+            setBulkDownloadModalOpen(false);
+        }
+    };
+
+    // Memoize columns with dependencies
+    const columns = useMemo(() => {
+        return getManageCompaniesTableColumns({
+            handleView: can("companies", "view") ? localHandleView : null,
+            handleEdit: can("companies", "edit") ? localHandleEdit : null,
+            handleDelete: can("companies", "delete") ? localHandleDelete : null,
+        });
+    }, [can, localHandleView, localHandleEdit, localHandleDelete]);
+
+    // Prepare data source with useMemo
+    const dataSource = useMemo(() => {
+        if (!Array.isArray(companyData)) return [];
+
+        return companyData.map((company) => ({
+            ...company,
+            key: company.id || company._id,
+        }));
+    }, [companyData]);
+
+    // Create a stable table props object
+    const tableProps = useMemo(() => {
+        return {
+            className: styles.customTable,
+            size: "middle",
+            scroll: { x: "max-content" },
+            rowSelection: rowSelection,
+            columns,
+            dataSource,
+            onChange: handleChange,
+            pagination: getPaginationConfig({
+                pagination,
+                onChangePagination,
+            }),
+        };
+    }, [
+        styles.customTable,
+        rowSelection,
+        columns,
+        dataSource,
+        handleChange,
+        pagination,
+        onChangePagination,
+    ]);
 
     return (
         <>
             <ManageCompaniesTableToolbar
+                onBulkDownload={handleBulkDownload}
+                selectedCount={selectedRowKeys.length}
                 onCreateNew={openDrawerForCreate}
                 onSearch={openSearchFilterDrawer}
                 filterActive={Object.keys(activeFilters).length > 0}
             />
 
-            <Table
-                className={styles.customTable}
-                size="middle"
-                scroll={{ x: "max-content" }}
-                rowSelection={
-                    rowSelection
-                        ? {
-                              type: selectionType,
-                              ...rowSelection,
-                          }
-                        : null
-                }
-                columns={columns}
-                dataSource={dataSource}
-                onChange={handleChange}
-                pagination={getPaginationConfig({
-                    pagination,
-                    onChangePagination,
-                })}
-            />
+            <Table {...tableProps} />
 
             {/* Form drawer for create/edit */}
             <ManageCompaniesFormDrawer
@@ -205,8 +403,22 @@ const ManageCompaniesTable = ({
             <ManageCompaniesSearchFilterDrawer
                 open={searchFilterDrawerOpen}
                 onClose={closeSearchFilterDrawer}
+                filterConfig={filterConfig}
+                sortOptions={sortOptions}
                 onApplyFilters={handleApplyFilters}
                 initialValues={{ ...activeFilters, sort: pagination.sort }}
+            />
+
+            {/* Enhanced Bulk download modal */}
+            <BulkDownloadModal
+                open={bulkDownloadModalOpen}
+                onClose={() => {
+                    console.log("🔄 Manual close of download modal");
+                    setBulkDownloadModalOpen(false);
+                }}
+                onDownload={handleDownloadConfirm}
+                loading={downloading}
+                entityName="Companies"
             />
         </>
     );

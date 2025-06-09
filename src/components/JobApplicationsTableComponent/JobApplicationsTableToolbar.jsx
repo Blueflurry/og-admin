@@ -5,6 +5,7 @@ import {
     FilterOutlined,
     EditOutlined,
     UsergroupAddOutlined,
+    DownloadOutlined,
 } from "@ant-design/icons";
 import { createStyles } from "antd-style";
 import PermissionGate from "../PermissionGate";
@@ -37,6 +38,7 @@ const useStyle = createStyles(({ css }) => ({
 
 const JobApplicationsTableToolbar = ({
     onSearch,
+    onBulkDownload,
     filterActive = false,
     selectedCount = 0,
     onBulkUpdate,
@@ -72,6 +74,12 @@ const JobApplicationsTableToolbar = ({
                         Search and Filter
                     </Button>
                 </Badge>
+                <PermissionGate module="jobApplications" action="bulkdownload">
+                    <Button onClick={onBulkDownload}>
+                        <DownloadOutlined />
+                        Bulk Download
+                    </Button>
+                </PermissionGate>
                 {/* Note: Job applications typically don't have a "Create New" button 
                     as they are created by applicants, not admins */}
             </div>

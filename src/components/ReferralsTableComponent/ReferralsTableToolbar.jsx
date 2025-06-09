@@ -1,7 +1,11 @@
 // src/components/ReferralsTableComponent/ReferralsTableToolbar.jsx
 import React from "react";
 import { Button, Badge } from "antd";
-import { PlusOutlined, FilterOutlined } from "@ant-design/icons";
+import {
+    PlusOutlined,
+    FilterOutlined,
+    DownloadOutlined,
+} from "@ant-design/icons";
 import { createStyles } from "antd-style";
 import PermissionGate from "../../components/PermissionGate";
 
@@ -25,6 +29,7 @@ const useStyle = createStyles(({ css }) => ({
 const ReferralsTableToolbar = ({
     onSearch,
     onCreateNew,
+    onBulkDownload,
     filterActive = false,
 }) => {
     const { styles } = useStyle();
@@ -40,6 +45,12 @@ const ReferralsTableToolbar = ({
                         Search and Filter
                     </Button>
                 </Badge>
+                <PermissionGate module="referrals" action="bulkdownload">
+                    <Button onClick={onBulkDownload}>
+                        <DownloadOutlined />
+                        Bulk Download
+                    </Button>
+                </PermissionGate>
                 {/* <PermissionGate module="referrals" action="create">
                     <Button
                         type="primary"

@@ -13,6 +13,10 @@ import {
     tableStyles,
 } from "./NotificationsTableConfig";
 import { useUserPermission } from "../../hooks/useUserPermission";
+import BulkDownloadModal from "../../components/common/BulkDownloadModal";
+import { useBulkDownload } from "../../hooks/useBulkDownload";
+import { useAPI } from "../../hooks/useAPI";
+import moment from "moment";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -48,6 +52,7 @@ const NotificationsTable = ({
     // All hooks at the top
     const { styles } = useStyle();
     const { can } = useUserPermission();
+    const { api } = useAPI();
     const { selectionType, rowSelection, handleChange, clearFilters } =
         useTableConfig();
 
@@ -56,6 +61,10 @@ const NotificationsTable = ({
     const [viewingNotification, setViewingNotification] = useState(null);
     const [searchFilterDrawerOpen, setSearchFilterDrawerOpen] = useState(false);
     const [activeFilters, setActiveFilters] = useState({});
+    const [bulkDownloadModalOpen, setBulkDownloadModalOpen] = useState(false);
+
+    // Bulk download hook
+    const { downloadCSV, downloading } = useBulkDownload();
 
     // Use static configs defined outside component
     const filterConfig = DEFAULT_FILTER_CONFIG;
@@ -110,6 +119,147 @@ const NotificationsTable = ({
     const closeViewDrawer = () => {
         setViewDrawerOpen(false);
         setViewingNotification(null);
+    };
+
+    // ========================================
+    // BULK DOWNLOAD FUNCTIONALITY
+    // ========================================
+
+    const handleBulkDownload = () => {
+        console.log("🔄 Opening bulk download modal");
+        setBulkDownloadModalOpen(true);
+    };
+
+    const handleDownloadConfirm = async (limit, filename) => {
+        console.log(
+            "🔄 Download confirmed with limit:",
+            limit,
+            "filename:",
+            filename
+        );
+
+        try {
+            // Format notification data for CSV export
+            const formatNotificationData = (notifications) => {
+                console.log(
+                    "🔄 Formatting",
+                    notifications.length,
+                    "notifications for CSV"
+                );
+
+                return notifications.map((notification, index) => {
+                    try {
+                        const formattedNotification = {
+                            "Notification ID":
+                                notification.id || notification._id || "",
+                            Title: notification.title || "",
+                            "Text/Message":
+                                notification.text || notification.message || "",
+                            Date: notification.date
+                                ? moment(notification.date).format(
+                                      "DD/MM/YYYY HH:mm"
+                                  )
+                                : "",
+                            Repeat: notification.repeat ? "Yes" : "No",
+                            Type: notification.type || "",
+                            Recipients: notification.recipients || "",
+                            Status: notification.status || "",
+                            Priority: notification.priority || "",
+                            Category: notification.category || "",
+                            "Delivery Method":
+                                notification.deliveryMethod || "",
+                            "Sent Count": notification.sentCount || "",
+                            "Delivered Count":
+                                notification.deliveredCount || "",
+                            "Failed Count": notification.failedCount || "",
+                            "Click Count": notification.clickCount || "",
+                            "Is Scheduled": notification.isScheduled
+                                ? "Yes"
+                                : "No",
+                            "Scheduled Date": notification.scheduledDate
+                                ? moment(notification.scheduledDate).format(
+                                      "DD/MM/YYYY HH:mm"
+                                  )
+                                : "",
+                            "Created At": notification.createdAt
+                                ? moment(notification.createdAt).format(
+                                      "DD/MM/YYYY HH:mm"
+                                  )
+                                : "",
+                            "Updated At": notification.updatedAt
+                                ? moment(notification.updatedAt).format(
+                                      "DD/MM/YYYY HH:mm"
+                                  )
+                                : "",
+                        };
+
+                        if (index === 0) {
+                            console.log(
+                                "📄 Sample formatted notification:",
+                                formattedNotification
+                            );
+                        }
+
+                        return formattedNotification;
+                    } catch (formatError) {
+                        console.error(
+                            "❌ Error formatting notification at index",
+                            index,
+                            ":",
+                            formatError
+                        );
+                        console.error(
+                            "❌ Problematic notification data:",
+                            notification
+                        );
+                        // Return a basic format to prevent the whole process from failing
+                        return {
+                            "Notification ID":
+                                notification.id ||
+                                notification._id ||
+                                "Unknown",
+                            Title: notification.title || "Unknown",
+                            Status: "Error formatting",
+                        };
+                    }
+                });
+            };
+
+            // Create fetch function for download
+            const fetchNotificationsForDownload = async () => {
+                console.log("📡 Fetching notifications for download...");
+                const downloadLimit = limit === "all" ? 999999 : limit;
+
+                const response = await api.getNotifications(
+                    1, // Always start from page 1 for downloads
+                    downloadLimit,
+                    pagination.sort || "",
+                    activeFilters
+                );
+
+                console.log("📡 Fetch response for download:", response);
+                return response;
+            };
+
+            console.log("🔄 Starting CSV download with filename:", filename);
+
+            await downloadCSV(
+                fetchNotificationsForDownload,
+                filename,
+                formatNotificationData,
+                activeFilters,
+                pagination.sort || ""
+            );
+
+            console.log("✅ Download process completed");
+        } catch (downloadError) {
+            console.error("❌ Error in handleDownloadConfirm:", downloadError);
+            message.error(`Download failed: ${downloadError.message}`);
+        } finally {
+            // Always close the modal, even if there was an error
+            console.log("🔄 Closing download modal");
+            setBulkDownloadModalOpen(false);
+        }
     };
 
     // Memoize columns with dependencies
@@ -167,6 +317,7 @@ const NotificationsTable = ({
     return (
         <>
             <NotificationsTableToolbar
+                onBulkDownload={handleBulkDownload}
                 onCreateNew={onCreateNew}
                 onSearch={openSearchFilterDrawer}
                 filterActive={Object.keys(activeFilters).length > 0}
@@ -188,6 +339,18 @@ const NotificationsTable = ({
                 sortOptions={sortOptions}
                 onApplyFilters={handleApplyFilters}
                 initialValues={{ ...activeFilters, sort: pagination.sort }}
+            />
+
+            {/* Enhanced Bulk download modal */}
+            <BulkDownloadModal
+                open={bulkDownloadModalOpen}
+                onClose={() => {
+                    console.log("🔄 Manual close of download modal");
+                    setBulkDownloadModalOpen(false);
+                }}
+                onDownload={handleDownloadConfirm}
+                loading={downloading}
+                entityName="Notifications"
             />
         </>
     );
