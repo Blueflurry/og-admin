@@ -1,9 +1,9 @@
 import axios from "axios";
 
 // const baseURL =
-//     "https://34ff-2401-4900-1f38-3ccc-f47f-2bd9-7e83-2fc6.ngrok-free.app/api";
+// "https://962f-2401-4900-1f39-1887-850a-509f-f11d-c5fa.ngrok-free.app/api";
 // const baseURL = "http://localhost:4000/api";
-const baseURL = "https://oblik.ddns.net/api";
+const baseURL = "https://jaroconnectapi.jaro.in/api";
 
 // const instance = axios.create({ baseURL });
 const instance = axios.create({ baseURL, withCredentials: true });

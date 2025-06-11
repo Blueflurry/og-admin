@@ -414,7 +414,8 @@ export class API {
     // REFERRALS
     getReferrals(page = 1, limit = 10, sort = "", filters = {}) {
         // Start with pagination parameters
-        let queryParams = `page=${page}&limit=${limit}&populate=user`;
+        let queryParams = `page=${page}&limit=${limit}`;
+        // &populate=user
 
         // Add sort if provided
         if (sort) {
