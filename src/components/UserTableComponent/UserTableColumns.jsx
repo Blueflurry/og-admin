@@ -49,16 +49,7 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
                 </div>
             ),
         },
-        {
-            title: "Created At",
-            dataIndex: "createdAt",
-            key: "createdAt",
-            align: "center",
-            width: 150,
-            // sorter: true,
-            render: (createdAt) =>
-                createdAt ? moment(createdAt).format("DD MMM, YYYY") : "N/A",
-        },
+
         {
             title: "Status",
             dataIndex: "status",
@@ -102,12 +93,31 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
                 email ? <a href={`mailto:${email}`}>{email}</a> : "N/A",
         },
         {
+            title: "User Role",
+            dataIndex: "role",
+            key: "role",
+            align: "center",
+            width: 100,
+            // sorter: true,
+        },
+        {
             title: "Primary Phone",
             dataIndex: "phone1",
             key: "phone",
             align: "center",
             width: 150,
             render: (phone) => (phone ? `+91-${phone}` : "N/A"),
+        },
+
+        {
+            title: "Created At",
+            dataIndex: "createdAt",
+            key: "createdAt",
+            align: "center",
+            width: 150,
+            // sorter: true,
+            render: (createdAt) =>
+                createdAt ? moment(createdAt).format("DD MMM, YYYY") : "N/A",
         },
 
         {

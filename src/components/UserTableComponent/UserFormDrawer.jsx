@@ -1,4 +1,4 @@
-// UserFormDrawer.jsx with FormData for multipart/form-data submissions
+// UserFormDrawer.jsx with Alumni Role functionality
 import React, { useEffect, useState } from "react";
 import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 import {
@@ -13,6 +13,9 @@ import {
     Space,
     Upload,
     message,
+    Alert,
+    Switch,
+    Card,
 } from "antd";
 import moment from "moment";
 import { useAPI } from "../../hooks/useAPI";
@@ -24,7 +27,12 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
     const [imageFile, setImageFile] = useState(null);
     const [imageUrl, setImageUrl] = useState("");
     const [uploading, setUploading] = useState(false);
+    const [makeAlumni, setMakeAlumni] = useState(false);
     const { api, isLoading, error, resetError } = useAPI();
+
+    // Check if user is already alumni
+    const isAlumni =
+        initialValues?.userAppRole === 4 || initialValues?.userAppRole === "4";
 
     // Reset form and initialize values when drawer opens or initialValues changes
     useEffect(() => {
@@ -34,6 +42,8 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             setImageFile(null);
             setImageUrl("");
             setUploading(false);
+            setMakeAlumni(false);
+
             if (initialValues) {
                 console.log("Initial values for edit:", initialValues);
                 // Format the data for the form
@@ -53,6 +63,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                     status: initialValues.status || 1,
                 };
                 form.setFieldsValue(formattedValues);
+
                 // Set image URL if available - Handle different image URL properties
                 if (initialValues.imageUrl) {
                     console.log("Setting image URL:", initialValues.imageUrl);
@@ -102,6 +113,22 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
 
             formData.append("status", values.status);
 
+            // Handle userAppRole based on alumni status
+            if (isEditMode) {
+                // If user is already alumni, keep them as alumni
+                if (isAlumni) {
+                    formData.append("userAppRole", "4");
+                } else if (makeAlumni) {
+                    // If making user alumni
+                    formData.append("userAppRole", "4");
+                }
+            } else {
+                // For new users, set alumni status if requested
+                if (makeAlumni) {
+                    formData.append("userAppRole", "4");
+                }
+            }
+
             // Add image file to FormData if it exists
             if (imageFile) {
                 formData.append("image", imageFile);
@@ -113,12 +140,11 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             }
 
             if (isEditMode) {
+                console.log("Updating user with data:", formData.values());
                 await api.updateUser(
                     initialValues.id || initialValues._id,
                     formData
                 );
-                console.log("Updating user with data:", formData.values());
-
                 message.success("User updated successfully");
             } else {
                 console.log("Creating new user with data:", formData.values());
@@ -235,6 +261,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
+
                 <Row gutter={16}>
                     <Col span={8}>
                         <Form.Item
@@ -261,6 +288,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
+
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
@@ -296,6 +324,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
+
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
@@ -324,6 +353,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
+
                 <Row gutter={16}>
                     <Col span={24}>
                         <Form.Item
@@ -343,6 +373,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
+
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
@@ -373,6 +404,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
+
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
@@ -403,6 +435,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
+
                 {/* Status field */}
                 <Row gutter={16}>
                     <Col span={24}>
@@ -418,11 +451,65 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                             initialValue={1}
                         >
                             <Select placeholder="Select user status">
-                                <Option value={1 || "1"}>Active</Option>
-                                <Option value={0 || "0"}>Unauthorized</Option>
-                                <Option value={-1 || "-1"}>Disabled</Option>
+                                <Option value={1}>Active</Option>
+                                <Option value={0}>Unauthorized</Option>
+                                <Option value={-1}>Disabled</Option>
                             </Select>
                         </Form.Item>
+                    </Col>
+                </Row>
+
+                {/* Alumni Role Section */}
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Card
+                            title="User Role"
+                            size="small"
+                            style={{ marginBottom: 16 }}
+                        >
+                            {isAlumni ? (
+                                <Alert
+                                    message="Alumni User"
+                                    description="This user is already an alumni"
+                                    type="success"
+                                    showIcon
+                                />
+                            ) : (
+                                <div>
+                                    <div style={{ marginBottom: 12 }}>
+                                        <strong>Current Role:</strong> New User
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 12,
+                                        }}
+                                    >
+                                        <Switch
+                                            checked={makeAlumni}
+                                            onChange={setMakeAlumni}
+                                            checkedChildren="Alumni"
+                                            unCheckedChildren="New User"
+                                        />
+                                        <span>
+                                            {makeAlumni
+                                                ? "Make this user an Alumni"
+                                                : "Keep as New User"}
+                                        </span>
+                                    </div>
+                                    {/* {makeAlumni && (
+                                        <Alert
+                                            message="Important"
+                                            description="Once a user becomes alumni, they cannot be reverted back to new user status."
+                                            type="warning"
+                                            showIcon
+                                            style={{ marginTop: 12 }}
+                                        />
+                                    )} */}
+                                </div>
+                            )}
+                        </Card>
                     </Col>
                 </Row>
             </Form>

@@ -67,10 +67,13 @@ const UserViewDrawer = ({ open, onClose, userData = null }) => {
                 <Descriptions.Item label="Secondary Phone" span={1}>
                     {userData.phone2 ? `+91-${userData.phone2}` : "N/A"}
                 </Descriptions.Item>
-                <Descriptions.Item label="Date of Birth" span={2}>
+                <Descriptions.Item label="Date of Birth" span={1}>
                     {userData.dob
                         ? moment(userData.dob).format("DD MMM, YYYY")
                         : "N/A"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Role" span={1}>
+                    {userData.role ? `${userData.role.toUpperCase()}` : "N/A"}
                 </Descriptions.Item>
             </Descriptions>
 
@@ -106,12 +109,11 @@ const UserViewDrawer = ({ open, onClose, userData = null }) => {
                 <Descriptions.Item label="Status">
                     <span
                         style={{
-                            color:
-                                userData.status === 1 ? "#52c41a" : "#ff4d4f",
+                            color: userData.status == 1 ? "#52c41a" : "#ff4d4f",
                             fontWeight: "bold",
                         }}
                     >
-                        {userData.status === 1 ? "Active" : "Inactive"}
+                        {userData.status == 1 ? "Active" : "Inactive"}
                     </span>
                 </Descriptions.Item>
                 <Descriptions.Item label="User ID">
