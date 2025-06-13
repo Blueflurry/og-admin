@@ -10,6 +10,13 @@ const staticPermissions = {
             delete: true,
             bulkdownload: true,
         },
+        categories: {
+            view: true,
+            create: true,
+            edit: true,
+            delete: true,
+            bulkdownload: true,
+        },
         jobs: {
             view: true,
             create: true,
@@ -96,6 +103,13 @@ const staticPermissions = {
             delete: false,
             bulkdownload: true,
         },
+        categories: {
+            view: true,
+            create: true,
+            edit: true,
+            delete: false,
+            bulkdownload: true,
+        },
         jobs: {
             view: true,
             create: true,
@@ -177,6 +191,13 @@ const staticPermissions = {
     },
     employee: {
         users: {
+            view: true,
+            create: false,
+            edit: false,
+            delete: false,
+            bulkdownload: false,
+        },
+        categories: {
             view: true,
             create: false,
             edit: false,

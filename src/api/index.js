@@ -732,9 +732,62 @@ export class API {
     getJobApplicationsByStatus(jobId, status, page = 1, limit = 10, sort = "") {
         return this.getJobApplications(jobId, page, limit, sort, { status });
     }
+    // Add these methods to your API class in src/api/index.js
+    // Add these methods to your API class in src/api/index.js
+    // Note: Update the existing getCategories method or rename it to getCategoriesDropdown
+
+    // Categories API methods (type=3) - Full CRUD operations
+    getManageCategories(params = {}) {
+        if (params.sort == "") {
+            params.sort = "-createdAt";
+        }
+
+        const {
+            page = 1,
+            limit = 10,
+            sort = "-createdAt",
+            filters = {},
+        } = params;
+
+        // Make sure type=3 is included in the filters
+        const categoryFilters = { ...filters, type: 3 };
+
+        return this.request(() =>
+            this.client.post("/content/search", categoryFilters, {
+                params: { page, limit, sort },
+            })
+        );
+    }
+
+    getManageCategory(id) {
+        return this.request(() => this.client.get(`/content/${id}`));
+    }
+
+    createCategory(data) {
+        return this.request(() =>
+            this.client.post("/content", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    updateCategory(id, data) {
+        return this.request(() =>
+            this.client.patch(`/content/${id}`, data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    deleteCategory(id) {
+        return this.request(() => this.client.delete(`/content/${id}`));
+    }
 
     // DASHBOARD
-
     // Get dashboard metrics (no time range needed - current overall stats)
     getDashboardMetrics() {
         return this.request(() => this.client.get(`/auth/dashboard-stats`));

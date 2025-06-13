@@ -89,20 +89,6 @@ const ManageOptinsTable = ({
     const filterConfig = DEFAULT_FILTER_CONFIG;
     const sortOptions = DEFAULT_SORT_OPTIONS;
 
-    // Updated row selection to track selected keys
-    const rowSelection = {
-        type: selectionType,
-        selectedRowKeys,
-        onChange: (newSelectedRowKeys, selectedRows) => {
-            console.log("selectedRowKeys changed: ", newSelectedRowKeys);
-            setSelectedRowKeys(newSelectedRowKeys);
-        },
-        getCheckboxProps: (record) => ({
-            disabled: record.name === "Disabled Optin",
-            name: record.name,
-        }),
-    };
-
     const openDrawerForCreate = () => {
         setEditingOptin(null);
         setFormDrawerOpen(true);
@@ -435,8 +421,6 @@ const ManageOptinsTable = ({
             className: styles.customTable,
             size: "middle",
             scroll: { x: "max-content" },
-            rowSelection: rowSelection,
-            columns,
             dataSource,
             onChange: handleChange,
             pagination: getPaginationConfig({
@@ -446,7 +430,7 @@ const ManageOptinsTable = ({
         };
     }, [
         styles.customTable,
-        rowSelection,
+
         columns,
         dataSource,
         handleChange,

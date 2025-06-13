@@ -552,7 +552,6 @@ const JobApplications = () => {
                     borderRadius: 12,
                     boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                 }}
-                bodyStyle={{ padding: "16px" }}
                 loading={isLoading}
             >
                 <JobApplicationsTable

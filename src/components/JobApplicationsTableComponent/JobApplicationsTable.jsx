@@ -163,20 +163,6 @@ const JobApplicationsTable = ({
         }
     };
 
-    // Bulk operations
-    const rowSelection = {
-        type: selectionType,
-        selectedRowKeys,
-        onChange: (newSelectedRowKeys, selectedRows) => {
-            console.log("selectedRowKeys changed: ", newSelectedRowKeys);
-            setSelectedRowKeys(newSelectedRowKeys);
-        },
-        getCheckboxProps: (record) => ({
-            disabled: record.name === "Disabled Application",
-            name: record.name,
-        }),
-    };
-
     const handleBulkStatusUpdate = () => {
         setBulkUpdateVisible(true);
     };
@@ -460,7 +446,6 @@ const JobApplicationsTable = ({
                 className={styles.customTable}
                 size="middle"
                 scroll={{ x: "max-content" }}
-                rowSelection={rowSelection}
                 columns={columns}
                 dataSource={dataSource}
                 onChange={handleChange}

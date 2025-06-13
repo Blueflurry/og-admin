@@ -53,8 +53,7 @@ const NotificationsTable = ({
     const { styles } = useStyle();
     const { can } = useUserPermission();
     const { api } = useAPI();
-    const { selectionType, rowSelection, handleChange, clearFilters } =
-        useTableConfig();
+    const { selectionType, handleChange, clearFilters } = useTableConfig();
 
     // State hooks
     const [viewDrawerOpen, setViewDrawerOpen] = useState(false);
@@ -289,12 +288,7 @@ const NotificationsTable = ({
             className: styles.customTable,
             size: "middle",
             scroll: { x: "max-content" },
-            rowSelection: rowSelection
-                ? {
-                      type: selectionType,
-                      ...rowSelection,
-                  }
-                : null,
+
             columns,
             dataSource,
             onChange: handleChange,
@@ -306,7 +300,7 @@ const NotificationsTable = ({
     }, [
         styles.customTable,
         selectionType,
-        rowSelection,
+
         columns,
         dataSource,
         handleChange,

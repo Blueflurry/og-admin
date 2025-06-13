@@ -7,6 +7,7 @@ const paths = {
     courses: "courses",
     webinars: "webinars",
     notifications: "notifications",
+    categories: "categories",
     referrals: "referrals",
     manageOptins: "manage/optins",
     manageEmployess: "manage/employees",

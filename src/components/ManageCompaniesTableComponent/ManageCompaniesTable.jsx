@@ -74,20 +74,6 @@ const ManageCompaniesTable = ({
     const filterConfig = DEFAULT_FILTER_CONFIG;
     const sortOptions = DEFAULT_SORT_OPTIONS;
 
-    // Updated row selection to track selected keys
-    const rowSelection = {
-        type: selectionType,
-        selectedRowKeys,
-        onChange: (newSelectedRowKeys, selectedRows) => {
-            console.log("selectedRowKeys changed: ", newSelectedRowKeys);
-            setSelectedRowKeys(newSelectedRowKeys);
-        },
-        getCheckboxProps: (record) => ({
-            disabled: record.name === "Disabled Company",
-            name: record.name,
-        }),
-    };
-
     const openDrawerForCreate = () => {
         setEditingCompany(null);
         setFormDrawerOpen(true);
@@ -228,7 +214,7 @@ const ManageCompaniesTable = ({
                             "Industry Type": companyData.industryType || "",
                             "Company Size": companyData.companySize || "",
                             "Founded Year": companyData.foundedYear || "",
-                            "Logo URL": companyData.imageUrl || "",
+                            "Logo URL": companyData.imageUrl,
 
                             // Address Information
                             "Address Street": address.street || "",
@@ -353,8 +339,6 @@ const ManageCompaniesTable = ({
             className: styles.customTable,
             size: "middle",
             scroll: { x: "max-content" },
-            rowSelection: rowSelection,
-            columns,
             dataSource,
             onChange: handleChange,
             pagination: getPaginationConfig({
@@ -364,7 +348,7 @@ const ManageCompaniesTable = ({
         };
     }, [
         styles.customTable,
-        rowSelection,
+
         columns,
         dataSource,
         handleChange,

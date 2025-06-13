@@ -34,8 +34,7 @@ const JobTable = ({
     const navigate = useNavigate(); // Add this hook at the top level
     const { can } = useUserPermission();
 
-    const { selectionType, rowSelection, handleChange, clearFilters } =
-        useTableConfig();
+    const { selectionType, handleChange, clearFilters } = useTableConfig();
 
     // State for the form drawer
     const [formDrawerOpen, setFormDrawerOpen] = useState(false);
@@ -325,14 +324,6 @@ const JobTable = ({
                 className={styles.customTable}
                 size="middle"
                 scroll={{ x: "max-content" }}
-                rowSelection={
-                    rowSelection
-                        ? {
-                              type: selectionType,
-                              ...rowSelection,
-                          }
-                        : null
-                }
                 columns={columns}
                 dataSource={dataSource}
                 onChange={handleChange}

@@ -32,8 +32,7 @@ const WebinarsTable = ({
 }) => {
     const { styles } = useStyle();
     const { api } = useAPI();
-    const { selectionType, rowSelection, handleChange, clearFilters } =
-        useTableConfig();
+    const { selectionType, handleChange, clearFilters } = useTableConfig();
 
     // State for the form drawer
     const [formDrawerOpen, setFormDrawerOpen] = useState(false);
@@ -241,7 +240,7 @@ const WebinarsTable = ({
                             "Materials URL": webinar.materialsUrl || "",
                             "Slides URL": webinar.slidesUrl || "",
                             "Recording URL": webinar.recordingUrl || "",
-                            "Image URL": webinar.imageUrl || "",
+                            "Image URL": webinar.imageUrl,
                             "Registration URL": webinar.registrationUrl || "",
                             Tags: Array.isArray(webinar.tags)
                                 ? webinar.tags.join(", ")
@@ -351,14 +350,6 @@ const WebinarsTable = ({
                 className={styles.customTable}
                 size="middle"
                 scroll={{ x: "max-content" }}
-                rowSelection={
-                    rowSelection
-                        ? {
-                              type: selectionType,
-                              ...rowSelection,
-                          }
-                        : null
-                }
                 columns={columns}
                 dataSource={dataSource}
                 onChange={handleChange}

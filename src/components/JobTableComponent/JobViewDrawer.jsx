@@ -72,7 +72,7 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
         >
             <div style={{ marginBottom: 32, textAlign: "center" }}>
                 <Avatar
-                    src={jobData.company?.data?.imageUrl || ""}
+                    src={jobData.company?.data?.imageUrl}
                     size={100}
                     style={{
                         marginBottom: 16,

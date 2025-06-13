@@ -23,8 +23,7 @@ const UserTable = ({
     ...props
 }) => {
     const { styles } = useStyle();
-    const { selectionType, rowSelection, handleChange, clearFilters } =
-        useTableConfig();
+    const { selectionType, handleChange, clearFilters } = useTableConfig();
 
     const handleTableChange = (pagination, filters, sorter) => {
         const { handleChange: originalHandleChange } = handleChange(
@@ -87,7 +86,6 @@ const UserTable = ({
             className={styles.customTable}
             size="middle"
             scroll={{ x: "max-content" }}
-            rowSelection={Object.assign({ type: selectionType }, rowSelection)}
             columns={columns}
             dataSource={dataSource}
             onChange={handleTableChange}

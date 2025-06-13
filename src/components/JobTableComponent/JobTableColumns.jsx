@@ -28,7 +28,7 @@ const getJobTableColumns = ({
             <div style={{ display: "flex", alignItems: "center" }}>
                 <Avatar
                     size={50}
-                    src={record.company?.data?.imageUrl || ""}
+                    src={record.company?.data?.imageUrl}
                     style={{
                         objectFit: "contain",
                         borderRadius: "50%",

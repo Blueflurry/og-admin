@@ -1,4 +1,4 @@
-// src/components/NotificationsTableComponent/NotificationsTableConfig.jsx
+// src/components/CategoriesTableComponent/CategoriesTableConfig.jsx
 import { useState } from "react";
 
 export const useTableConfig = () => {
@@ -21,7 +21,6 @@ export const useTableConfig = () => {
         filteredInfo,
         sortedInfo,
         selectionType,
-
         handleChange,
         clearFilters,
     };

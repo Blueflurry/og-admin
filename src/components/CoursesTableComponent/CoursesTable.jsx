@@ -31,8 +31,7 @@ const CoursesTable = ({
 }) => {
     const { styles } = useStyle();
     const { api } = useAPI();
-    const { selectionType, rowSelection, handleChange, clearFilters } =
-        useTableConfig();
+    const { selectionType, handleChange, clearFilters } = useTableConfig();
 
     // State for the form drawer
     const [formDrawerOpen, setFormDrawerOpen] = useState(false);
@@ -203,7 +202,7 @@ const CoursesTable = ({
                                 : "No",
                             "Online/Offline": course.mode || "",
                             Location: course.location || "",
-                            "Image URL": course.imageUrl || "",
+                            "Image URL": course.imageUrl,
                             "Video URL": course.videoUrl || "",
                             "Course URL": course.courseUrl || "",
                             Tags: Array.isArray(course.tags)
@@ -313,14 +312,6 @@ const CoursesTable = ({
                 className={styles.customTable}
                 size="middle"
                 scroll={{ x: "max-content" }}
-                rowSelection={
-                    rowSelection
-                        ? {
-                              type: selectionType,
-                              ...rowSelection,
-                          }
-                        : null
-                }
                 columns={columns}
                 dataSource={dataSource}
                 onChange={handleChange}

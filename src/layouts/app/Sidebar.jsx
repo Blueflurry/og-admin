@@ -16,6 +16,7 @@ import {
     DashboardOutlined,
     PictureOutlined,
     FileTextOutlined,
+    TagsOutlined,
 } from "@ant-design/icons";
 import paths from "../../constants/appUrls";
 import { useUserPermission } from "../../hooks/useUserPermission";
@@ -27,6 +28,7 @@ const { useBreakpoint } = Grid;
 const items = [
     { key: paths.home, label: "Dashboard", icon: <DashboardOutlined /> },
     { key: paths.users, label: "Users", icon: <TeamOutlined /> },
+    { key: paths.categories, label: "Categories", icon: <TagsOutlined /> },
     { key: paths.jobs, label: "Jobs", icon: <SolutionOutlined /> },
     { key: paths.courses, label: "Courses", icon: <BookOutlined /> },
     { key: paths.webinars, label: "Webinars", icon: <VideoCameraOutlined /> },
@@ -101,6 +103,7 @@ const Sidebar = ({ collapsed }) => {
     const filteredItems = items.filter((item) => {
         const moduleMap = {
             [paths.users]: { module: "users", action: "view" },
+            [paths.categories]: { module: "categories", action: "view" },
             [paths.jobs]: { module: "jobs", action: "view" },
             [paths.courses]: { module: "courses", action: "view" },
             [paths.webinars]: { module: "webinars", action: "view" },

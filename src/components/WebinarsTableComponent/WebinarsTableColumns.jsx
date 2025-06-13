@@ -24,7 +24,7 @@ const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
             <div style={{ display: "flex", alignItems: "center" }}>
                 <Avatar
                     size={50}
-                    src={record.imageUrl || ""}
+                    src={record.imageUrl}
                     style={{
                         objectFit: "contain",
                         borderRadius: "6px",

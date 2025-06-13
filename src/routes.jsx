@@ -19,6 +19,7 @@ import Referrals from "./pages/app/referrals";
 import Dashboard from "./pages/app/Dashboard";
 import JobApplications from "./pages/app/jobApplications";
 import Carousels from "./pages/app/carousels";
+import Categories from "./pages/app/categories";
 
 const appRoutes = [
     {
@@ -48,6 +49,14 @@ const appRoutes = [
                 element: (
                     <PrivateRoute module="users" action="view">
                         <Users />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: paths.categories,
+                element: (
+                    <PrivateRoute module="categories" action="view">
+                        <Categories />
                     </PrivateRoute>
                 ),
             },

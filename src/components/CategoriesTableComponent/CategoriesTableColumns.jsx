@@ -1,20 +1,26 @@
+// src/components/CategoriesTableComponent/CategoriesTableColumns.jsx
 import React from "react";
-import { Space, Button, Dropdown, Avatar } from "antd";
+import { Space, Button, Dropdown, Avatar, Tag } from "antd";
 import {
     DeleteOutlined,
     DownOutlined,
     EditOutlined,
     EyeOutlined,
     PictureOutlined,
+    TagOutlined,
     LinkOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
 import { useUserPermission } from "../../hooks/useUserPermission";
 
-const getCarouselsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
+const getCategoriesTableColumns = ({
+    handleView,
+    handleEdit,
+    handleDelete,
+}) => [
     {
-        title: "Carousel Information",
-        key: "carouselInfo",
+        title: "Category Information",
+        key: "categoryInfo",
         align: "left",
         width: 340,
         render: (_, record) => (
@@ -26,13 +32,13 @@ const getCarouselsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
                         objectFit: "contain",
                         borderRadius: "6px",
                     }}
-                    icon={<PictureOutlined />}
+                    icon={<TagOutlined />}
                 >
                     {record.title?.charAt(0) || "C"}
                 </Avatar>
                 <div style={{ marginLeft: 12 }}>
                     <div style={{ fontWeight: 500 }}>
-                        {record.title || "Untitled Carousel"}
+                        {record.title || "Untitled Category"}
                     </div>
                     <div style={{ fontSize: "12px", color: "#8c8c8c" }}>
                         ID: {record.id || record._id}
@@ -105,7 +111,7 @@ const getCarouselsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
             const items = [];
 
             // Only add "View" option if user has view permission
-            if (can("carousels", "view")) {
+            if (can("categories", "view")) {
                 items.push({
                     key: "view",
                     label: "View",
@@ -117,7 +123,7 @@ const getCarouselsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
             }
 
             // Only add "Edit" option if user has edit permission
-            if (can("carousels", "edit")) {
+            if (can("categories", "edit")) {
                 items.push({
                     key: "edit",
                     label: "Edit",
@@ -129,7 +135,7 @@ const getCarouselsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
             }
 
             // Only add "Delete" option if user has delete permission and handleDelete exists
-            if (can("carousels", "delete") && handleDelete) {
+            if (can("categories", "delete") && handleDelete) {
                 items.push({
                     key: "delete",
                     label: "Delete",
@@ -159,4 +165,4 @@ const getCarouselsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
     },
 ];
 
-export default getCarouselsTableColumns;
+export default getCategoriesTableColumns;

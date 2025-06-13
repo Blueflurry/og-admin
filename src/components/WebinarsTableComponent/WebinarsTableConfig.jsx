@@ -5,20 +5,6 @@ export const useTableConfig = () => {
     const [sortedInfo, setSortedInfo] = useState({});
     const [selectionType, setSelectionType] = useState("checkbox");
 
-    const rowSelection = {
-        onChange: (selectedRowKeys, selectedRows) => {
-            console.log(
-                `selectedRowKeys: ${selectedRowKeys}`,
-                "selectedRows: ",
-                selectedRows
-            );
-        },
-        getCheckboxProps: (record) => ({
-            disabled: record.name === "Disabled Webinar",
-            name: record.name,
-        }),
-    };
-
     const handleChange = (pagination, filters, sorter) => {
         setFilteredInfo(filters);
         setSortedInfo(sorter);
@@ -34,7 +20,7 @@ export const useTableConfig = () => {
         filteredInfo,
         sortedInfo,
         selectionType,
-        rowSelection,
+
         handleChange,
         clearFilters,
     };
