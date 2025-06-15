@@ -54,7 +54,6 @@ const JobApplicationsTableToolbar = ({
                             <UsergroupAddOutlined style={{ marginRight: 4 }} />
                             {selectedCount} selected
                         </div>
-                        {/* Changed from module="jobs" to module="jobApplications" */}
                         <PermissionGate module="jobApplications" action="edit">
                             <Button
                                 type="primary"

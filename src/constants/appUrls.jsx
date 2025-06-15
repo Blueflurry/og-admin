@@ -14,6 +14,7 @@ const paths = {
     manageCompanies: "manage/companies",
     manageInstitutes: "manage/institutes",
     carousels: "carousels",
+    allJobApplications: "jobs/applications",
     jobApplications: "jobs/:jobId/applications",
     unauthorized: "unauthorized",
 };

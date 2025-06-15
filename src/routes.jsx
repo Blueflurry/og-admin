@@ -20,6 +20,7 @@ import Dashboard from "./pages/app/Dashboard";
 import JobApplications from "./pages/app/jobApplications";
 import Carousels from "./pages/app/carousels";
 import Categories from "./pages/app/categories";
+import AllJobApplications from "./pages/app/allJobApplications";
 
 const appRoutes = [
     {
@@ -68,6 +69,15 @@ const appRoutes = [
                     </PrivateRoute>
                 ),
             },
+            {
+                path: paths.allJobApplications,
+                element: (
+                    <PrivateRoute module="jobApplications" action="view">
+                        <AllJobApplications />
+                    </PrivateRoute>
+                ),
+            },
+
             {
                 path: paths.courses,
                 element: (

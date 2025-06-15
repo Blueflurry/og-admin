@@ -643,11 +643,23 @@ export class API {
         return this.request(() => this.client.delete(`/content/${id}`));
     }
 
-    // Updated sections for index.js - Job Applications API methods
+    getAllJobApplications(page = 1, limit = 10, sort = "-createdAt") {
+        // Start with pagination parameters
+        let queryParams = `page=${page}&limit=${limit}`;
 
-    // Add these methods to the API class in index.js
+        // Add sort if provided
+        if (sort) {
+            queryParams += `&sort=${sort}`;
+        }
 
-    // JOB APPLICATIONS - Updated methods to handle actual API structure
+        console.log("Job Applications Params:", `${queryParams}`);
+
+        // Make the request with all query parameters
+        return this.request(() =>
+            this.client.get(`/jobs/applications?${queryParams}`)
+        );
+    }
+
     getJobApplications(
         jobId,
         page = 1,
@@ -732,9 +744,6 @@ export class API {
     getJobApplicationsByStatus(jobId, status, page = 1, limit = 10, sort = "") {
         return this.getJobApplications(jobId, page, limit, sort, { status });
     }
-    // Add these methods to your API class in src/api/index.js
-    // Add these methods to your API class in src/api/index.js
-    // Note: Update the existing getCategories method or rename it to getCategoriesDropdown
 
     // Categories API methods (type=3) - Full CRUD operations
     getManageCategories(params = {}) {

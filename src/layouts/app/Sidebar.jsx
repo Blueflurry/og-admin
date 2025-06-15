@@ -30,6 +30,11 @@ const items = [
     { key: paths.users, label: "Users", icon: <TeamOutlined /> },
     { key: paths.categories, label: "Categories", icon: <TagsOutlined /> },
     { key: paths.jobs, label: "Jobs", icon: <SolutionOutlined /> },
+    {
+        key: paths.allJobApplications,
+        label: "JobApplications",
+        icon: <SolutionOutlined />,
+    },
     { key: paths.courses, label: "Courses", icon: <BookOutlined /> },
     { key: paths.webinars, label: "Webinars", icon: <VideoCameraOutlined /> },
     {
@@ -105,6 +110,10 @@ const Sidebar = ({ collapsed }) => {
             [paths.users]: { module: "users", action: "view" },
             [paths.categories]: { module: "categories", action: "view" },
             [paths.jobs]: { module: "jobs", action: "view" },
+            [paths.jobApplications]: {
+                module: "jobApplications",
+                action: "view",
+            },
             [paths.courses]: { module: "courses", action: "view" },
             [paths.webinars]: { module: "webinars", action: "view" },
             [paths.notifications]: { module: "notifications", action: "view" },

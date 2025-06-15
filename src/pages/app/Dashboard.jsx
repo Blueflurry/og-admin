@@ -9,22 +9,22 @@ import {
     Spin,
     message,
     Space,
-    Select,
     Divider,
     Button,
+    DatePicker,
+    Dropdown,
 } from "antd";
 import {
     UserOutlined,
     TeamOutlined,
-    CheckCircleOutlined,
-    CloseCircleOutlined,
     InboxOutlined,
     FileTextOutlined,
-    CalendarOutlined,
     RiseOutlined,
     FallOutlined,
     ReloadOutlined,
     DownloadOutlined,
+    CalendarOutlined,
+    DownOutlined,
 } from "@ant-design/icons";
 import {
     BarChart,
@@ -43,10 +43,10 @@ import {
 } from "recharts";
 import { useAPI } from "../../hooks/useAPI";
 import moment from "moment";
-import html2canvas from "html2canvas";
+import Papa from "papaparse";
 
 const { Title, Text } = Typography;
-const { Option } = Select;
+const { RangePicker } = DatePicker;
 
 // Color palette for charts - Updated with brand colors
 const COLORS = [
@@ -57,6 +57,22 @@ const COLORS = [
     "#722ed1",
     "#13c2c2",
 ];
+
+// Date range presets
+const getDatePresets = () => {
+    const today = moment().startOf("day"); // Ensure we start from beginning of today
+    return {
+        "Last 7 Days": [
+            moment().subtract(6, "days").startOf("day"),
+            today.clone(),
+        ],
+        "This Month": [moment().startOf("month"), today.clone()],
+        "Last Month": [
+            moment().subtract(1, "month").startOf("month"),
+            moment().subtract(1, "month").endOf("month"),
+        ],
+    };
+};
 
 const Dashboard = () => {
     const { api, isLoading } = useAPI();
@@ -86,11 +102,18 @@ const Dashboard = () => {
         userStatus: false,
     });
 
-    // Individual chart date ranges - each chart can have its own time range
-    const [chartTimeRanges, setChartTimeRanges] = useState({
-        userGrowth: "7days",
-        jobCategory: "7days",
-        userStatus: "7days",
+    // Individual chart date ranges - each chart can have its own date range
+    const [chartDateRanges, setChartDateRanges] = useState(() => {
+        const today = moment().startOf("day");
+        const defaultRange = [
+            moment().subtract(6, "days").startOf("day"),
+            today.clone(),
+        ];
+        return {
+            userGrowth: defaultRange,
+            jobCategory: [...defaultRange], // Create new array reference
+            userStatus: [...defaultRange], // Create new array reference
+        };
     });
 
     // Chart refs for downloading
@@ -191,13 +214,37 @@ const Dashboard = () => {
         }));
     };
 
+    // Convert date range to API format
+    const formatDateRangeForAPI = (dateRange) => {
+        if (!dateRange || !Array.isArray(dateRange) || dateRange.length !== 2) {
+            // Fallback to last 7 days
+            const today = moment();
+            const weekAgo = moment().subtract(6, "days");
+            return {
+                from: weekAgo.format("DD/MM/YYYY"),
+                to: today.format("DD/MM/YYYY"),
+            };
+        }
+
+        const [startDate, endDate] = dateRange;
+
+        // Ensure we have valid moment objects
+        const start = moment.isMoment(startDate)
+            ? startDate
+            : moment(startDate);
+        const end = moment.isMoment(endDate) ? endDate : moment(endDate);
+
+        return {
+            from: start.format("DD/MM/YYYY"),
+            to: end.format("DD/MM/YYYY"),
+        };
+    };
+
     const fetchDashboardData = async () => {
         try {
             setRefreshing(true);
 
-            // Fetch all data in parallel with respective time ranges
-            // Note: getDashboardMetrics doesn't use time range (current overall stats)
-            // Each chart uses its own time range from chartTimeRanges
+            // Fetch all data in parallel with respective date ranges
             const [
                 metricsResponse,
                 chartResponse,
@@ -205,9 +252,27 @@ const Dashboard = () => {
                 userStatusResponse,
             ] = await Promise.all([
                 api.getDashboardMetrics(), // No time range - gets current overall statistics
-                api.getDashboardChart(chartTimeRanges.userGrowth),
-                api.getJobCategoryStats(chartTimeRanges.jobCategory),
-                api.getUserStatusStats(chartTimeRanges.userStatus),
+                api.getDashboardChart(
+                    formatDateRangeForAPI(chartDateRanges.userGrowth)
+                ),
+                api.getJobCategoryStats
+                    ? api.getJobCategoryStats(
+                          formatDateRangeForAPI(chartDateRanges.jobCategory)
+                      )
+                    : api.getMockJobCategoryStats
+                    ? api.getMockJobCategoryStats(
+                          formatDateRangeForAPI(chartDateRanges.jobCategory)
+                      )
+                    : Promise.resolve({ data: [] }),
+                api.getUserStatusStats
+                    ? api.getUserStatusStats(
+                          formatDateRangeForAPI(chartDateRanges.userStatus)
+                      )
+                    : api.getMockUserStatusStats
+                    ? api.getMockUserStatusStats(
+                          formatDateRangeForAPI(chartDateRanges.userStatus)
+                      )
+                    : Promise.resolve({ data: [] }),
             ]);
 
             // Process all the responses
@@ -238,11 +303,26 @@ const Dashboard = () => {
         }
     };
 
-    const updateChartData = async (chartType, newTimeRange) => {
+    const updateChartData = async (chartType, newDateRange) => {
         try {
+            if (
+                !newDateRange ||
+                !Array.isArray(newDateRange) ||
+                newDateRange.length !== 2
+            ) {
+                console.error("Invalid date range provided to updateChartData");
+                return;
+            }
+
             console.log(
-                `Updating ${chartType} chart data for time range: ${newTimeRange}`
+                `Updating ${chartType} chart data for date range:`,
+                newDateRange.map((d) =>
+                    moment.isMoment(d)
+                        ? d.format("DD/MM/YYYY")
+                        : moment(d).format("DD/MM/YYYY")
+                )
             );
+
             // Set loading state for ONLY the specific chart
             setChartLoading((prev) => ({
                 userGrowth: chartType === "userGrowth" ? true : prev.userGrowth,
@@ -252,26 +332,47 @@ const Dashboard = () => {
             }));
 
             let updatedData = {};
+            const dateRangeForAPI = formatDateRangeForAPI(newDateRange);
 
             if (chartType === "userGrowth") {
-                const chartData = await api.getDashboardChart(newTimeRange);
+                const chartData = await api.getDashboardChart(dateRangeForAPI);
                 updatedData = {
                     userGrowthData:
                         chartData.data || chartData.userGrowthData || [],
                 };
             } else if (chartType === "jobCategory") {
-                const jobCategoryResponse = await api.getJobCategoryStats(
-                    newTimeRange
-                );
+                let jobCategoryResponse;
+                if (api.getJobCategoryStats) {
+                    jobCategoryResponse = await api.getJobCategoryStats(
+                        dateRangeForAPI
+                    );
+                } else if (api.getMockJobCategoryStats) {
+                    jobCategoryResponse = await api.getMockJobCategoryStats(
+                        dateRangeForAPI
+                    );
+                } else {
+                    jobCategoryResponse = { data: [] };
+                }
+
                 const processedJobCategories =
                     processJobCategoryData(jobCategoryResponse);
                 updatedData = {
                     jobCategoryData: processedJobCategories,
                 };
             } else if (chartType === "userStatus") {
-                const userStatusResponse = await api.getUserStatusStats(
-                    newTimeRange
-                );
+                let userStatusResponse;
+                if (api.getUserStatusStats) {
+                    userStatusResponse = await api.getUserStatusStats(
+                        dateRangeForAPI
+                    );
+                } else if (api.getMockUserStatusStats) {
+                    userStatusResponse = await api.getMockUserStatusStats(
+                        dateRangeForAPI
+                    );
+                } else {
+                    userStatusResponse = { data: [] };
+                }
+
                 const processedUserStatusData =
                     processUserStatusData(userStatusResponse);
                 updatedData = {
@@ -279,7 +380,7 @@ const Dashboard = () => {
                 };
             }
 
-            console.log(updatedData);
+            console.log(`${chartType} updated data:`, updatedData);
             setDashboardData((prevData) => ({
                 ...prevData,
                 ...updatedData,
@@ -302,38 +403,67 @@ const Dashboard = () => {
         }
     };
 
-    // Handle chart time range change
-    const handleChartTimeRangeChange = (chartType, newTimeRange) => {
-        setChartTimeRanges((prev) => ({
+    // Handle chart date range change
+    const handleChartDateRangeChange = (chartType, newDateRange) => {
+        setChartDateRanges((prev) => ({
             ...prev,
-            [chartType]: newTimeRange,
+            [chartType]: newDateRange,
         }));
-        updateChartData(chartType, newTimeRange);
+        updateChartData(chartType, newDateRange);
     };
 
-    // Download chart as image
-    const downloadChart = async (chartRef, chartName) => {
+    // CSV Download functions
+    const downloadCSV = (data, filename) => {
         try {
-            if (chartRef.current) {
-                const canvas = await html2canvas(chartRef.current, {
-                    backgroundColor: "#ffffff",
-                    scale: 2,
-                    useCORS: true,
-                });
+            const csv = Papa.unparse(data);
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
 
-                const link = document.createElement("a");
-                link.download = `${chartName}_${
-                    new Date().toISOString().split("T")[0]
-                }.png`;
-                link.href = canvas.toDataURL();
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute(
+                    "download",
+                    `${filename}_${moment().format("DD/MM/YYYY")}.csv`
+                );
+                link.style.visibility = "hidden";
+                document.body.appendChild(link);
                 link.click();
-
-                message.success(`${chartName} chart downloaded successfully!`);
+                document.body.removeChild(link);
             }
+
+            message.success(`${filename} CSV downloaded successfully!`);
         } catch (error) {
-            console.error("Error downloading chart:", error);
-            message.error("Failed to download chart");
+            console.error("Error downloading CSV:", error);
+            message.error("Failed to download CSV");
         }
+    };
+
+    const downloadUserGrowthCSV = () => {
+        const csvData = dashboardData.userGrowthData.map((item) => ({
+            Date: item.date || "",
+            "Total Users": item.users || 0,
+            "Active Users": item.activeUsers || 0,
+        }));
+        downloadCSV(csvData, "User_Growth_Trend");
+    };
+
+    const downloadJobCategoryCSV = () => {
+        const csvData = dashboardData.jobCategoryData.map((item) => ({
+            Category: item.category || "",
+            "Active Jobs": item.active || 0,
+            "Inactive Jobs": item.inactive || 0,
+            "Total Jobs": item.total || 0,
+        }));
+        downloadCSV(csvData, "Jobs_by_Category");
+    };
+
+    const downloadUserStatusCSV = () => {
+        const csvData = dashboardData.userStatusData.map((item) => ({
+            Status: item.name || "",
+            Count: item.value || 0,
+        }));
+        downloadCSV(csvData, "User_Status_Distribution");
     };
 
     useEffect(() => {
@@ -368,13 +498,217 @@ const Dashboard = () => {
         return null;
     };
 
+    // Custom DateRangePicker with presets
+    const DateRangePickerWithPresets = ({
+        value,
+        onChange,
+        loading,
+        chartType,
+    }) => {
+        const [dropdownVisible, setDropdownVisible] = useState(false);
+        const presets = getDatePresets();
+
+        const handlePresetClick = (presetRange) => {
+            if (Array.isArray(presetRange) && presetRange.length === 2) {
+                // Clone the moments to avoid mutation
+                const clonedRange = [
+                    presetRange[0].clone(),
+                    presetRange[1].clone(),
+                ];
+                onChange(chartType, clonedRange);
+                setDropdownVisible(false);
+            }
+        };
+
+        const handleCustomRangeChange = (dates) => {
+            if (dates && Array.isArray(dates) && dates.length === 2) {
+                onChange(chartType, dates);
+                setDropdownVisible(false);
+            }
+        };
+
+        const formatDisplayText = () => {
+            if (value && Array.isArray(value) && value.length === 2) {
+                const [start, end] = value;
+                const startMoment = moment.isMoment(start)
+                    ? start
+                    : moment(start);
+                const endMoment = moment.isMoment(end) ? end : moment(end);
+
+                // Check if it matches any preset (use current presets, not stale ones)
+                const currentPresets = getDatePresets();
+                const matchingPreset = Object.entries(currentPresets).find(
+                    ([_, range]) => {
+                        return (
+                            startMoment.isSame(range[0], "day") &&
+                            endMoment.isSame(range[1], "day")
+                        );
+                    }
+                );
+
+                if (matchingPreset) {
+                    return matchingPreset[0];
+                }
+
+                return `${startMoment.format("MMM DD")} - ${endMoment.format(
+                    "MMM DD"
+                )}`;
+            }
+            return "Last 7 Days";
+        };
+
+        const dropdownContent = (
+            <div
+                style={{
+                    padding: "12px",
+                    minWidth: "320px",
+                    backgroundColor: "white",
+                }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Preset buttons */}
+                <div style={{ marginBottom: "16px" }}>
+                    <div
+                        style={{
+                            fontWeight: 600,
+                            marginBottom: "8px",
+                            color: "#262626",
+                            fontSize: "14px",
+                        }}
+                    >
+                        Quick Select
+                    </div>
+                    <div
+                        style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "4px",
+                        }}
+                    >
+                        {Object.entries(getDatePresets()).map(
+                            ([label, range]) => {
+                                const isSelected =
+                                    value &&
+                                    Array.isArray(value) &&
+                                    value.length === 2 &&
+                                    moment(value[0]).isSame(range[0], "day") &&
+                                    moment(value[1]).isSame(range[1], "day");
+
+                                return (
+                                    <Button
+                                        key={label}
+                                        type={isSelected ? "primary" : "text"}
+                                        block
+                                        size="small"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePresetClick(range);
+                                        }}
+                                        style={{
+                                            textAlign: "left",
+                                            height: "32px",
+                                            justifyContent: "flex-start",
+                                        }}
+                                    >
+                                        {label}
+                                    </Button>
+                                );
+                            }
+                        )}
+                    </div>
+                </div>
+
+                {/* Divider */}
+                <div
+                    style={{
+                        borderTop: "1px solid #f0f0f0",
+                        margin: "16px 0 12px 0",
+                        paddingTop: "12px",
+                    }}
+                >
+                    <div
+                        style={{
+                            fontWeight: 600,
+                            marginBottom: "8px",
+                            color: "#262626",
+                            fontSize: "14px",
+                        }}
+                    >
+                        Custom Range
+                    </div>
+                    <RangePicker
+                        value={value}
+                        onChange={(dates, dateStrings) => {
+                            if (
+                                dates &&
+                                Array.isArray(dates) &&
+                                dates.length === 2
+                            ) {
+                                // Ensure end date is not in the future
+                                const endDate = dates[1];
+                                const today = moment().startOf("day");
+                                if (endDate.isAfter(today)) {
+                                    message.warning(
+                                        "End date cannot be in the future"
+                                    );
+                                    return;
+                                }
+                                handleCustomRangeChange(dates);
+                            }
+                        }}
+                        format="DD/MM/YYYY"
+                        disabled={loading}
+                        style={{ width: "100%" }}
+                        placeholder={["Start Date", "End Date"]}
+                        allowClear={false}
+                        size="middle"
+                        disabledDate={(current) => {
+                            // Disable future dates more strictly
+                            return current && current < moment().endOf("day");
+                        }}
+                        showTime={false}
+                        // defaultPickerValue={[
+                        //     moment().subtract(7, "days"),
+                        //     moment(),
+                        // ]}
+                    />
+                </div>
+            </div>
+        );
+
+        return (
+            <Dropdown
+                dropdownRender={() => dropdownContent}
+                trigger={["click"]}
+                open={dropdownVisible}
+                onOpenChange={(visible) => {
+                    if (!loading) {
+                        setDropdownVisible(visible);
+                    }
+                }}
+                disabled={loading}
+                placement="bottomLeft"
+                overlayStyle={{ zIndex: 1050 }}
+            >
+                <Button
+                    icon={<CalendarOutlined />}
+                    disabled={loading}
+                    style={{ minWidth: "180px" }}
+                >
+                    {formatDisplayText()}
+                    <DownOutlined />
+                </Button>
+            </Dropdown>
+        );
+    };
+
     // Chart header component with controls
     const ChartHeader = ({
         title,
         chartType,
-        onTimeRangeChange,
-        onDownload,
-        timeRange,
+        onDateRangeChange,
+        onDownloadCSV,
+        dateRange,
         loading = false,
     }) => (
         <div
@@ -390,25 +724,21 @@ const Dashboard = () => {
                 {loading && <Spin size="small" style={{ marginLeft: 8 }} />}
             </Title>
             <Space>
-                <Select
-                    value={timeRange}
-                    onChange={(value) => onTimeRangeChange(chartType, value)}
-                    style={{ width: 120 }}
-                    size="middle"
+                <DateRangePickerWithPresets
+                    value={dateRange}
+                    onChange={onDateRangeChange}
                     loading={loading}
-                    disabled={loading}
-                >
-                    <Option value="7days">7 days</Option>
-                    <Option value="30days">30 days</Option>
-                    <Option value="90days">90 days</Option>
-                </Select>
+                    chartType={chartType}
+                />
                 <Button
                     icon={<DownloadOutlined />}
-                    onClick={onDownload}
+                    onClick={onDownloadCSV}
                     size="middle"
-                    title="Download chart"
+                    title="Download CSV"
                     disabled={loading}
-                />
+                >
+                    CSV
+                </Button>
             </Space>
         </div>
     );
@@ -578,14 +908,9 @@ const Dashboard = () => {
                         <ChartHeader
                             title="User Growth Trend"
                             chartType="userGrowth"
-                            onTimeRangeChange={handleChartTimeRangeChange}
-                            onDownload={() =>
-                                downloadChart(
-                                    userGrowthChartRef,
-                                    "User_Growth_Trend"
-                                )
-                            }
-                            timeRange={chartTimeRanges.userGrowth}
+                            onDateRangeChange={handleChartDateRangeChange}
+                            onDownloadCSV={downloadUserGrowthCSV}
+                            dateRange={chartDateRanges.userGrowth}
                             loading={chartLoading.userGrowth}
                         />
                         <ChartWrapper loading={chartLoading.userGrowth}>
@@ -642,14 +967,9 @@ const Dashboard = () => {
                         <ChartHeader
                             title="Jobs by Category"
                             chartType="jobCategory"
-                            onTimeRangeChange={handleChartTimeRangeChange}
-                            onDownload={() =>
-                                downloadChart(
-                                    jobCategoryChartRef,
-                                    "Jobs_by_Category"
-                                )
-                            }
-                            timeRange={chartTimeRanges.jobCategory}
+                            onDateRangeChange={handleChartDateRangeChange}
+                            onDownloadCSV={downloadJobCategoryCSV}
+                            dateRange={chartDateRanges.jobCategory}
                             loading={chartLoading.jobCategory}
                         />
                         <ChartWrapper loading={chartLoading.jobCategory}>
@@ -700,14 +1020,9 @@ const Dashboard = () => {
                         <ChartHeader
                             title="User Status Distribution"
                             chartType="userStatus"
-                            onTimeRangeChange={handleChartTimeRangeChange}
-                            onDownload={() =>
-                                downloadChart(
-                                    userStatusChartRef,
-                                    "User_Status_Distribution"
-                                )
-                            }
-                            timeRange={chartTimeRanges.userStatus}
+                            onDateRangeChange={handleChartDateRangeChange}
+                            onDownloadCSV={downloadUserStatusCSV}
+                            dateRange={chartDateRanges.userStatus}
                             loading={chartLoading.userStatus}
                         />
                         <ChartWrapper loading={chartLoading.userStatus}>
