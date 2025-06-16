@@ -34,8 +34,6 @@ const DEFAULT_FILTER_CONFIG = {
 const DEFAULT_SORT_OPTIONS = [
     { label: "Newest First", value: "-createdAt" },
     { label: "Oldest First", value: "createdAt" },
-    { label: "Company Name A-Z", value: "data.name" },
-    { label: "Company Name Z-A", value: "-data.name" },
 ];
 
 const ManageCompaniesTable = ({
@@ -320,6 +318,7 @@ const ManageCompaniesTable = ({
             handleView: can("companies", "view") ? localHandleView : null,
             handleEdit: can("companies", "edit") ? localHandleEdit : null,
             handleDelete: can("companies", "delete") ? localHandleDelete : null,
+            can,
         });
     }, [can, localHandleView, localHandleEdit, localHandleDelete]);
 
@@ -339,6 +338,7 @@ const ManageCompaniesTable = ({
             className: styles.customTable,
             size: "middle",
             scroll: { x: "max-content" },
+            columns,
             dataSource,
             onChange: handleChange,
             pagination: getPaginationConfig({
@@ -348,7 +348,6 @@ const ManageCompaniesTable = ({
         };
     }, [
         styles.customTable,
-
         columns,
         dataSource,
         handleChange,

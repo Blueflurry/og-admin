@@ -44,9 +44,9 @@ const ManageCompanies = () => {
                 if (response.data.docs) {
                     setCompanies(response.data.docs);
                     setPagination({
-                        page: response.data.page,
-                        limit: response.data.limit,
-                        totalDocs: response.data.totalDocs,
+                        page: response.data.pagination.page,
+                        limit: response.data.pagination.limit,
+                        totalDocs: response.data.pagination.totalDocs,
                         sort,
                     });
                 } else {

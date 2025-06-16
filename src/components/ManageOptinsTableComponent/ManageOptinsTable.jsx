@@ -421,6 +421,7 @@ const ManageOptinsTable = ({
             className: styles.customTable,
             size: "middle",
             scroll: { x: "max-content" },
+            columns,
             dataSource,
             onChange: handleChange,
             pagination: getPaginationConfig({

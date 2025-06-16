@@ -9,15 +9,13 @@ import {
     BuildOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
-import { useUserPermission } from "../../hooks/useUserPermission";
 
 const getManageCompaniesTableColumns = ({
     handleView,
     handleEdit,
     handleDelete,
+    can,
 }) => {
-    const { can } = useUserPermission();
-
     return [
         {
             title: "Company Information",
@@ -49,14 +47,14 @@ const getManageCompaniesTableColumns = ({
         },
         {
             title: "Address",
-            key: "address",
+            key: "fullAddress",
             align: "left",
-            width: 200,
+            width: 300,
             render: (_, record) => {
                 // Try to use the fullAddress field if available
                 let formattedAddress = record.fullAddress;
 
-                // If fullAddress is not available, format from the address object
+                // If address is not available, format from the address object
                 if (!formattedAddress && record.address) {
                     if (typeof record.address === "object") {
                         const parts = [];
@@ -78,11 +76,41 @@ const getManageCompaniesTableColumns = ({
                 }
 
                 return (
-                    <Space>
-                        <HomeOutlined />
-                        {formattedAddress || "No address provided"}
-                    </Space>
+                    <div style={{ maxWidth: "280px" }}>
+                        <Space>
+                            <HomeOutlined />
+                            <span
+                                style={{
+                                    wordWrap: "break-word",
+                                    whiteSpace: "normal",
+                                    lineHeight: "1.4",
+                                }}
+                                title={formattedAddress}
+                            >
+                                {formattedAddress || "No address provided"}
+                            </span>
+                        </Space>
+                    </div>
                 );
+            },
+        },
+        {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            align: "center",
+            width: 100,
+            render: (status) => {
+                const statusConfig = {
+                    1: { color: "green", text: "Active" },
+                    0: { color: "orange", text: "Inactive" },
+                    [-1]: { color: "red", text: "Disabled" },
+                };
+                const config = statusConfig[status] || {
+                    color: "default",
+                    text: "Unknown",
+                };
+                return <Tag color={config.color}>{config.text}</Tag>;
             },
         },
         {

@@ -281,11 +281,6 @@ const NotificationsFormDrawer = ({
                                     required: true,
                                     message: "Please enter title",
                                 },
-                                {
-                                    min: 10,
-                                    message:
-                                        "Title should be at least 10 characters",
-                                },
                             ]}
                         >
                             <Input placeholder="Notification title" />
@@ -302,11 +297,6 @@ const NotificationsFormDrawer = ({
                                 {
                                     required: true,
                                     message: "Please enter notification text",
-                                },
-                                {
-                                    min: 10,
-                                    message:
-                                        "Text should be at least 10 characters",
                                 },
                             ]}
                         >

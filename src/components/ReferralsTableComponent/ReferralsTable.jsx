@@ -374,6 +374,7 @@ const ReferralsTable = ({
             size: "middle",
             scroll: { x: "max-content" },
             dataSource,
+            columns,
             onChange: handleChange,
             pagination: getPaginationConfig({
                 pagination,
@@ -382,7 +383,6 @@ const ReferralsTable = ({
         };
     }, [
         styles.customTable,
-
         columns,
         dataSource,
         handleChange,

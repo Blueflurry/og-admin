@@ -400,6 +400,7 @@ const ManageInstitutesTable = ({
             className: styles.customTable,
             size: "middle",
             scroll: { x: "max-content" },
+            columns,
             dataSource,
             onChange: handleChange,
             pagination: getPaginationConfig({
@@ -409,7 +410,6 @@ const ManageInstitutesTable = ({
         };
     }, [
         styles.customTable,
-
         columns,
         dataSource,
         handleChange,

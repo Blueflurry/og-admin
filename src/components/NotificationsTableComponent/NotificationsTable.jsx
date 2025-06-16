@@ -288,7 +288,6 @@ const NotificationsTable = ({
             className: styles.customTable,
             size: "middle",
             scroll: { x: "max-content" },
-
             columns,
             dataSource,
             onChange: handleChange,
@@ -300,7 +299,6 @@ const NotificationsTable = ({
     }, [
         styles.customTable,
         selectionType,
-
         columns,
         dataSource,
         handleChange,
