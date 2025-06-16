@@ -68,8 +68,9 @@ const CategoriesFormDrawer = ({
 
             // Add all form fields to FormData
             formData.append("title", values.title);
-            formData.append("description", values.description || "");
-            formData.append("link", values.link || "");
+            if (values.description)
+                formData.append("description", values.description || "");
+            if (values.link) formData.append("link", values.link || "");
             formData.append("type", 3); // type=3 for categories
 
             // Add image if changed
