@@ -34,7 +34,7 @@ const getJobTableColumns = ({
                         borderRadius: "50%",
                     }}
                 >
-                    {record.company?.data?.name?.charAt(0) || "J"}
+                    {record.company?.data?.name?.first?.charAt(0) || "J"}
                 </Avatar>
                 <div style={{ marginLeft: 12 }}>
                     <div style={{ fontWeight: 500 }}>
@@ -109,7 +109,7 @@ const getJobTableColumns = ({
         dataIndex: "company",
         align: "left",
         width: 150,
-        render: (company) => company?.data?.name || "N/A",
+        render: (company) => company?.data?.alumni.presentOrg || "N/A",
     },
     {
         title: "Location",
@@ -117,7 +117,7 @@ const getJobTableColumns = ({
         key: "location",
         align: "left",
         render: (location) => {
-            let display = `${location?.city}`;
+            let display = `${location?.street} ${location?.city}`;
             if (location?.state) display += `, ${location?.state}`;
             return (
                 <Space>
