@@ -115,7 +115,7 @@ const ManageEmployeesFormDrawer = ({
 
             // Make API call based on edit or create mode
             if (isEditMode) {
-                await api.updateManageEmployees(
+                await api.updateManageEmployee(
                     initialValues.id || initialValues._id,
                     formData
                 );

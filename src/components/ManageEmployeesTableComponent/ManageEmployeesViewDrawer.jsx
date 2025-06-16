@@ -115,7 +115,7 @@ const ManageEmployeesViewDrawer = ({ open, onClose, employeeData = null }) => {
                     </Tag>
                 </Descriptions.Item>
 
-                <Descriptions.Item label="Email" span={1}>
+                <Descriptions.Item label="Email" span={2}>
                     <Space>
                         <MailOutlined />
                         <a href={`mailto:${employeeData.email}`}>
@@ -131,14 +131,14 @@ const ManageEmployeesViewDrawer = ({ open, onClose, employeeData = null }) => {
                     </Space>
                 </Descriptions.Item>
 
-                <Descriptions.Item label="Date of Birth" span={1}>
+                {/* <Descriptions.Item label="Date of Birth" span={1}>
                     <Space>
                         <CalendarOutlined />
                         {employeeData.dob
                             ? moment(employeeData.dob).format("DD MMM, YYYY")
                             : "N/A"}
                     </Space>
-                </Descriptions.Item>
+                </Descriptions.Item> */}
 
                 <Descriptions.Item label="Status" span={1}>
                     <Tag color={employeeData.status === 1 ? "green" : "red"}>
@@ -147,7 +147,7 @@ const ManageEmployeesViewDrawer = ({ open, onClose, employeeData = null }) => {
                 </Descriptions.Item>
             </Descriptions>
 
-            <Divider orientation="left">Address Information</Divider>
+            {/* <Divider orientation="left">Address Information</Divider>
 
             <Descriptions bordered column={2}>
                 <Descriptions.Item label="Street Address" span={1}>
@@ -160,7 +160,7 @@ const ManageEmployeesViewDrawer = ({ open, onClose, employeeData = null }) => {
                 <Descriptions.Item label="Pincode" span={1}>
                     {employeeData.address?.pincode || "N/A"}
                 </Descriptions.Item>
-            </Descriptions>
+            </Descriptions> */}
 
             <Divider orientation="left">Account Information</Divider>
 

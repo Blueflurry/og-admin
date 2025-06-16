@@ -80,38 +80,45 @@ const ManageCompaniesViewDrawer = ({ open, onClose, companyData = null }) => {
             >
                 <Space>
                     <HomeOutlined />
-                    {companyData.fullAddress ? (
-                        <div className="address-content">
-                            {companyData.fullAddress}
-                        </div>
-                    ) : companyData.address ? (
-                        <div className="address-content">
-                            {typeof companyData.address === "object" ? (
-                                <>
-                                    {companyData.address.street && (
+                    {
+                        // companyData.fullAddress ? (
+                        //     <div className="address-content">
+                        //         {companyData.fullAddress}
+                        //     </div>
+                        // ) :
+                        companyData.address ? (
+                            <div className="address-content">
+                                {typeof companyData.address === "object" ? (
+                                    <>
+                                        {/* {companyData.address.street && (
                                         <div>{companyData.address.street}</div>
-                                    )}
-                                    {companyData.address.city && (
-                                        <div>{companyData.address.city}</div>
-                                    )}
-                                    {companyData.address.state && (
-                                        <div>
-                                            {companyData.address.state}
-                                            {companyData.address.pincode &&
-                                                ` - ${companyData.address.pincode}`}
-                                        </div>
-                                    )}
-                                    {companyData.address.country && (
-                                        <div>{companyData.address.country}</div>
-                                    )}
-                                </>
-                            ) : (
-                                companyData.address
-                            )}
-                        </div>
-                    ) : (
-                        <Text type="secondary">No address provided</Text>
-                    )}
+                                    )} */}
+                                        {companyData.address.city && (
+                                            <div>
+                                                {companyData.address.city}
+                                            </div>
+                                        )}
+                                        {/* {companyData.address.state && (
+                                            <div>
+                                                {companyData.address.state}
+                                                {companyData.address.pincode &&
+                                                    ` - ${companyData.address.pincode}`}
+                                            </div>
+                                        )} */}
+                                        {/* {companyData.address.country && (
+                                            <div>
+                                                {companyData.address.country}
+                                            </div>
+                                        )} */}
+                                    </>
+                                ) : (
+                                    companyData.address
+                                )}
+                            </div>
+                        ) : (
+                            <Text type="secondary">No address provided</Text>
+                        )
+                    }
                 </Space>
             </div>
 

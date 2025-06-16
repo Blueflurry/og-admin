@@ -64,7 +64,7 @@ const ManageCompaniesFormDrawer = ({
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-
+            console.log("Form values:", values);
             // Format the data for API - create FormData for image upload
             const formData = new FormData();
 
@@ -74,8 +74,14 @@ const ManageCompaniesFormDrawer = ({
             formData.append("address[street]", values.address.street);
             formData.append("address[city]", values.address.city);
             formData.append("address[state]", values.address.state);
-            formData.append("address[pincode]", values.address.pincode);
-            formData.append("address[country]", values.address.country);
+            formData.append(
+                "address[pincode]",
+                values.address.pincode || "110008"
+            );
+            formData.append(
+                "address[country]",
+                values.address.country || "India"
+            );
 
             // Add image if changed
             if (imageFile) {
@@ -232,15 +238,9 @@ const ManageCompaniesFormDrawer = ({
                     <Col span={24}>
                         <Form.Item label="Address" required>
                             <Row gutter={16}>
-                                <Col span={24}>
+                                {/* <Col span={24}>
                                     <Form.Item
                                         name={["address", "street"]}
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message: "Street is required",
-                                            },
-                                        ]}
                                         noStyle
                                     >
                                         <Input
@@ -248,7 +248,7 @@ const ManageCompaniesFormDrawer = ({
                                             style={{ marginBottom: 8 }}
                                         />
                                     </Form.Item>
-                                </Col>
+                                </Col> */}
                                 <Col span={12}>
                                     <Form.Item
                                         name={["address", "city"]}
@@ -266,15 +266,9 @@ const ManageCompaniesFormDrawer = ({
                                         />
                                     </Form.Item>
                                 </Col>
-                                <Col span={12}>
+                                {/* <Col span={12}>
                                     <Form.Item
                                         name={["address", "state"]}
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message: "State is required",
-                                            },
-                                        ]}
                                         noStyle
                                     >
                                         <Input
@@ -286,12 +280,6 @@ const ManageCompaniesFormDrawer = ({
                                 <Col span={12}>
                                     <Form.Item
                                         name={["address", "pincode"]}
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message: "Pincode is required",
-                                            },
-                                        ]}
                                         noStyle
                                     >
                                         <Input
@@ -303,17 +291,11 @@ const ManageCompaniesFormDrawer = ({
                                 <Col span={12}>
                                     <Form.Item
                                         name={["address", "country"]}
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message: "Country is required",
-                                            },
-                                        ]}
                                         noStyle
                                     >
                                         <Input placeholder="Country" />
                                     </Form.Item>
-                                </Col>
+                                </Col> */}
                             </Row>
                         </Form.Item>
                     </Col>

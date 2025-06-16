@@ -80,19 +80,19 @@ const getManageEmployeesTableColumns = ({
                 </Space>
             ),
         },
-        {
-            title: "Date of Birth",
-            dataIndex: "dob",
-            key: "dob",
-            align: "center",
-            width: 150,
-            render: (dob) => (
-                <Space>
-                    <CalendarOutlined />
-                    {dob ? moment(dob).format("DD MMM, YYYY") : "N/A"}
-                </Space>
-            ),
-        },
+        // {
+        //     title: "Date of Birth",
+        //     dataIndex: "dob",
+        //     key: "dob",
+        //     align: "center",
+        //     width: 150,
+        //     render: (dob) => (
+        //         <Space>
+        //             <CalendarOutlined />
+        //             {dob ? moment(dob).format("DD MMM, YYYY") : "N/A"}
+        //         </Space>
+        //     ),
+        // },
         {
             title: "Role",
             dataIndex: "role",
@@ -112,8 +112,8 @@ const getManageEmployeesTableColumns = ({
             align: "center",
             width: 100,
             render: (status) => (
-                <Tag color={status === 1 ? "green" : "red"}>
-                    {status === 1 ? "Active" : "Inactive"}
+                <Tag color={status == 1 ? "green" : "red"}>
+                    {status == 1 ? "Active" : "Inactive"}
                 </Tag>
             ),
         },

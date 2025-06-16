@@ -52,22 +52,22 @@ const getManageCompaniesTableColumns = ({
             width: 300,
             render: (_, record) => {
                 // Try to use the fullAddress field if available
-                let formattedAddress = record.fullAddress;
+                let formattedAddress = "";
 
                 // If address is not available, format from the address object
                 if (!formattedAddress && record.address) {
                     if (typeof record.address === "object") {
                         const parts = [];
-                        if (record.address.street)
-                            parts.push(record.address.street);
+                        // if (record.address.street)
+                        //     parts.push(record.address.street);
                         if (record.address.city)
                             parts.push(record.address.city);
-                        if (record.address.state)
-                            parts.push(record.address.state);
-                        if (record.address.pincode)
-                            parts.push(record.address.pincode);
-                        if (record.address.country)
-                            parts.push(record.address.country);
+                        // if (record.address.state)
+                        //     parts.push(record.address.state);
+                        // if (record.address.pincode)
+                        //     parts.push(record.address.pincode);
+                        // if (record.address.country)
+                        //     parts.push(record.address.country);
 
                         formattedAddress = parts.join(", ");
                     } else if (typeof record.address === "string") {

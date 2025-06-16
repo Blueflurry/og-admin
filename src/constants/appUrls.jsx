@@ -10,7 +10,7 @@ const paths = {
     categories: "categories",
     referrals: "referrals",
     manageOptins: "manage/optins",
-    manageEmployess: "manage/employees",
+    manageEmployees: "manage/employees",
     manageCompanies: "manage/companies",
     manageInstitutes: "manage/institutes",
     carousels: "carousels",
