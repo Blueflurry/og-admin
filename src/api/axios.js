@@ -3,8 +3,8 @@ import axios from "axios";
 // const baseURL =
 // "https://962f-2401-4900-1f39-1887-850a-509f-f11d-c5fa.ngrok-free.app/api";
 // const baseURL = "http://localhost:4000/api";
-// const baseURL = "https://jaroconnectapi.jaro.in/api";
-const baseURL = "https://jaro-connect-backend.onrender.com/api";
+const baseURL = "https://jaroconnectapi.jaro.in/api";
+// const baseURL = "https://jaro-connect-backend.onrender.com/api";
 
 // const instance = axios.create({ baseURL });
 const instance = axios.create({ baseURL, withCredentials: true });
