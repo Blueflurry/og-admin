@@ -83,8 +83,6 @@ const JobApplicationsTable = ({
     const sortOptions = [
         { label: "Newest First", value: "-createdAt" },
         { label: "Oldest First", value: "createdAt" },
-        { label: "By Status", value: "status" },
-        { label: "By Name", value: "user.data.name.first" },
     ];
 
     const openSearchFilterDrawer = () => {

@@ -49,8 +49,6 @@ const DEFAULT_FILTER_CONFIG = {
 const DEFAULT_SORT_OPTIONS = [
     { label: "Newest First", value: "-createdAt" },
     { label: "Oldest First", value: "createdAt" },
-    { label: "Optin Title A-Z", value: "title" },
-    { label: "Optin Title Z-A", value: "-title" },
 ];
 
 const ManageOptinsTable = ({

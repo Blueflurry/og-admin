@@ -50,9 +50,6 @@ const DEFAULT_FILTER_CONFIG = {
 const DEFAULT_SORT_OPTIONS = [
     { label: "Newest First", value: "-createdAt" },
     { label: "Oldest First", value: "createdAt" },
-    { label: "Name A-Z", value: "name.first" },
-    { label: "Name Z-A", value: "-name.first" },
-    { label: "Role", value: "appUserRole" },
 ];
 
 const ManageEmployeesTable = ({

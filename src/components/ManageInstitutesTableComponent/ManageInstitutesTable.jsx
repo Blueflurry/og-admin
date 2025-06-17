@@ -43,8 +43,6 @@ const DEFAULT_FILTER_CONFIG = {
 const DEFAULT_SORT_OPTIONS = [
     { label: "Newest First", value: "-createdAt" },
     { label: "Oldest First", value: "createdAt" },
-    { label: "Institute Name A-Z", value: "title" },
-    { label: "Institute Name Z-A", value: "-title" },
 ];
 
 const ManageInstitutesTable = ({

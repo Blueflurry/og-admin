@@ -55,7 +55,6 @@ const CategoriesTable = ({
     const sortOptions = [
         { label: "Newest First", value: "-createdAt" },
         { label: "Oldest First", value: "createdAt" },
-        { label: "By Title", value: "title" },
     ];
 
     const openDrawerForCreate = () => {

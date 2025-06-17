@@ -61,8 +61,6 @@ const ManageEmployeesSearchFilterDrawer = ({
     const sortOptions = [
         { label: "Newest First", value: "-createdAt" },
         { label: "Oldest First", value: "createdAt" },
-        { label: "Name (A-Z)", value: "name.first" },
-        { label: "Name (Z-A)", value: "-name.first" },
     ];
 
     useEffect(() => {
