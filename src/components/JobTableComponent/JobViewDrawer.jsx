@@ -80,14 +80,13 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
                     }}
                 >
                     {!jobData.company?.data?.imageUrl &&
-                        (jobData.company?.data?.alumni?.presentOrg?.charAt(0) ||
-                            "J")}
+                        (jobData.company?.data?.name?.charAt(0) || "J")}
                 </Avatar>
                 <Title level={4} style={{ margin: 0 }}>
                     {jobData.title || "Untitled Job"}
                 </Title>
                 <Text type="secondary">
-                    {jobData.company?.data?.alumni?.presentOrg || "No Company"}
+                    {jobData.company?.data?.name || "No Company"}
                 </Text>
             </div>
 
@@ -132,8 +131,8 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
                         `₹${jobData.minSalary} - ₹${jobData.maxSalary}`}
                 </Descriptions.Item>
                 <Descriptions.Item label="Experience Required" span={1}>
-                    {jobData.minExperience}{" "}
-                    {jobData.minExperience === 1 ? "year" : "years"}+
+                    {jobData.experience?.min}{" "}
+                    {jobData.experience?.min === 1 ? "year" : "years"}+
                 </Descriptions.Item>
                 <Descriptions.Item label="Posted Date" span={1}>
                     {moment(jobData.createdAt).format("DD MMM, YYYY")}
@@ -190,10 +189,12 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
             <Divider orientation="left">Company Information</Divider>
             <Descriptions bordered column={1}>
                 <Descriptions.Item label="Company Name">
-                    {jobData.company?.data?.alumni?.presentOrg || "N/A"}
+                    {jobData.company?.data?.name || "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Company Address">
-                    {jobData.location?.city || "N/A"}
+                    {jobData.location?.street ||
+                        jobData.location?.city ||
+                        "N/A"}
                 </Descriptions.Item>
             </Descriptions>
         </Drawer>

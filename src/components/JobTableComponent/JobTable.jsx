@@ -84,6 +84,7 @@ const JobTable = ({
     };
 
     const handleView = (record) => {
+        console.log("🔄 Opening view drawer for job:", record);
         setViewingJob(record);
         setViewDrawerOpen(true);
     };

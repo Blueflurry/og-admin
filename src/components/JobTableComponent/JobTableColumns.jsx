@@ -34,7 +34,7 @@ const getJobTableColumns = ({
                         borderRadius: "50%",
                     }}
                 >
-                    {record.company?.data?.name?.first?.charAt(0) || "J"}
+                    {record.company?.data?.name?.charAt(0) || "J"}
                 </Avatar>
                 <div style={{ marginLeft: 12 }}>
                     <div style={{ fontWeight: 500 }}>
@@ -66,8 +66,8 @@ const getJobTableColumns = ({
         width: 100,
         render: (_, record) => (
             <span>
-                {record.minExperience}{" "}
-                {record.minExperience === 1 ? "year" : "years"}+
+                {record.experience?.min}{" "}
+                {record.experience?.min === 1 ? "yr" : "yrs"} +
             </span>
         ),
     },
@@ -109,7 +109,7 @@ const getJobTableColumns = ({
         dataIndex: "company",
         align: "left",
         width: 150,
-        render: (company) => company?.data?.alumni.presentOrg || "N/A",
+        render: (company) => company?.data?.name || "N/A",
     },
     {
         title: "Location",
