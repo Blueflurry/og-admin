@@ -44,11 +44,11 @@ const ManageCompaniesFormDrawer = ({
                 const formattedValues = {
                     name: initialValues.data?.name || "",
                     address: {
-                        street: initialValues.address.street,
-                        city: initialValues.address.city,
-                        state: initialValues.address.state,
-                        pincode: initialValues.address.pincode,
-                        country: initialValues.address.country,
+                        street: initialValues.address?.street,
+                        city: initialValues.address?.city,
+                        state: initialValues.address?.state,
+                        pincode: initialValues.address?.pincode,
+                        country: initialValues.address?.country,
                     },
                 };
                 form.setFieldsValue(formattedValues);
