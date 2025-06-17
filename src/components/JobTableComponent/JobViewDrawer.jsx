@@ -80,13 +80,14 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
                     }}
                 >
                     {!jobData.company?.data?.imageUrl &&
-                        (jobData.company?.data?.name?.charAt(0) || "J")}
+                        (jobData.company?.data?.alumni?.presentOrg?.charAt(0) ||
+                            "J")}
                 </Avatar>
                 <Title level={4} style={{ margin: 0 }}>
                     {jobData.title || "Untitled Job"}
                 </Title>
                 <Text type="secondary">
-                    {jobData.company?.data?.name || "No Company"}
+                    {jobData.company?.data?.alumni?.presentOrg || "No Company"}
                 </Text>
             </div>
 
@@ -189,10 +190,10 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
             <Divider orientation="left">Company Information</Divider>
             <Descriptions bordered column={1}>
                 <Descriptions.Item label="Company Name">
-                    {jobData.company?.data?.name || "N/A"}
+                    {jobData.company?.data?.alumni?.presentOrg || "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Company Address">
-                    {jobData.company?.fullAddress || "N/A"}
+                    {jobData.location?.city || "N/A"}
                 </Descriptions.Item>
             </Descriptions>
         </Drawer>
