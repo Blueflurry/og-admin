@@ -164,8 +164,8 @@ const getJobApplicationsTableColumns = ({
         },
         {
             title: "Applied Date",
-            dataIndex: "createdAt",
-            key: "createdAt",
+            dataIndex: "updatedAt",
+            key: "updatedAt",
             align: "center",
             width: 130,
             render: (date) => moment(date).format("DD MMM, YYYY"),
