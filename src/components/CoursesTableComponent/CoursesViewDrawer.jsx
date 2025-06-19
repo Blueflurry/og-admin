@@ -120,7 +120,7 @@ const CoursesViewDrawer = ({ open, onClose, courseData = null }) => {
                 </Descriptions.Item>
                 <Descriptions.Item label="Duration" span={1}>
                     <Space>
-                        /* <ClockCircleOutlined /> */
+                        <ClockCircleOutlined />
                         {formatDuration(courseData.duration)}
                     </Space>
                 </Descriptions.Item>

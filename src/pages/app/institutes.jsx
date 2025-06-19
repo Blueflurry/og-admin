@@ -49,7 +49,7 @@ const Institutes = () => {
                     setPagination({
                         page: response.data.page,
                         limit: response.data.limit,
-                        totalDocs: response.data.totalDocs,
+                        totalDocs: response.data.pagination.totalDocs,
                         sort,
                     });
                 } else {

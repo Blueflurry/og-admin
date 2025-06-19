@@ -100,7 +100,7 @@ const JobApplicationsViewDrawer = ({
                 </Descriptions.Item> */}
                 {/* <Descriptions.Item label="Applied Date" span={1}>
                     <Space>
-                        /* <ClockCircleOutlined />
+                         <ClockCircleOutlined />
                         {applicationData.createdAt
                             ? moment(applicationData.createdAt).format(
                                   "DD MMM, YYYY HH:mm"
