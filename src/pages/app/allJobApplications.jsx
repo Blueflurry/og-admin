@@ -56,7 +56,7 @@ const AllJobApplications = () => {
                 page: updateRecords.page,
                 limit: updateRecords.limit,
                 sort: updateRecords.sort,
-                totalDocs: data.data.totalDocs || 0,
+                totalDocs: data.data.pagination.totalDocs || 0,
                 ...data.data,
             });
         } catch (err) {

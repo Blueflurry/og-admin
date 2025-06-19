@@ -52,7 +52,7 @@ const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         width: 120,
         render: (duration) => (
             <Space>
-                <ClockCircleOutlined />
+                /* <ClockCircleOutlined /> */
                 {formatDuration(duration)}
             </Space>
         ),

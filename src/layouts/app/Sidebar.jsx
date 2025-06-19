@@ -32,7 +32,7 @@ const items = [
     { key: paths.jobs, label: "Jobs", icon: <SolutionOutlined /> },
     {
         key: paths.allJobApplications,
-        label: "JobApplications",
+        label: "Job Applications",
         icon: <SolutionOutlined />,
     },
     { key: paths.courses, label: "Courses", icon: <BookOutlined /> },

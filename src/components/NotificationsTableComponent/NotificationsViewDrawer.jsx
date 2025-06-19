@@ -72,7 +72,7 @@ const NotificationsViewDrawer = ({
                 </Descriptions.Item>
                 <Descriptions.Item label="Scheduled Date" span={1}>
                     <Space>
-                        <ClockCircleOutlined />
+                        {/* <ClockCircleOutlined /> */}
                         {notificationData.date
                             ? moment(notificationData.date).format(
                                   "DD MMM, YYYY HH:mm"
@@ -112,7 +112,7 @@ const NotificationsViewDrawer = ({
                 )}
                 <Descriptions.Item label="Created At" span={1}>
                     <Space>
-                        {/* <ClockCircleOutlined /> */}
+                        {/* <ClockCircleOutlined />  */}
                         {notificationData.createdAt
                             ? moment(notificationData.createdAt).format(
                                   "DD MMM, YYYY HH:mm"

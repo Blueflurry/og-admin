@@ -150,7 +150,7 @@ const getReferralsTableColumns = ({
         width: 130,
         render: (date) => (
             <Space>
-                <ClockCircleOutlined />
+                /* <ClockCircleOutlined /> */
                 {moment(date).format("DD MMM, YYYY")}
             </Space>
         ),

@@ -34,9 +34,9 @@ const Jobs = () => {
 
             // Update pagination with current values
             setPagination({
-                page: updateRecords.page,
-                limit: updateRecords.limit,
-                sort: updateRecords.sort,
+                page: page,
+                limit: limit,
+                sort: sort,
                 totalDocs: data.data.pagination?.totalDocs || 0,
                 ...data.data.pagination,
             });
@@ -47,7 +47,11 @@ const Jobs = () => {
 
     const handleUpdateRecords = (newRecords) => {
         // console.log("Updating records with:", newRecords);
-        setUpdateRecords(newRecords);
+        // setUpdateRecords(newRecords);
+        setUpdateRecords((prevRecords) => ({
+            ...prevRecords, // Merge with previous state
+            ...newRecords,
+        }));
     };
 
     // if (isLoading && jobs.length === 0) return <div>Loading...</div>;

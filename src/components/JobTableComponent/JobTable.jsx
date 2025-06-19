@@ -160,8 +160,8 @@ const JobTable = ({
             setUpdateRecords({
                 page: page,
                 limit: pageSize,
-                sort: pagination.sort || "",
-                filters: activeFilters,
+                // sort: pagination.sort || "",
+                // filters: activeFilters,
             });
         }
     };

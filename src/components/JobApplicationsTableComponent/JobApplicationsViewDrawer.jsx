@@ -95,22 +95,22 @@ const JobApplicationsViewDrawer = ({
                 <Descriptions.Item label="Application ID" span={2}>
                     {applicationData.id || applicationData._id || "N/A"}
                 </Descriptions.Item>
-                <Descriptions.Item label="Status" span={1}>
+                {/* <Descriptions.Item label="Status" span={1}>
                     {getStatusTag(applicationData.status)}
-                </Descriptions.Item>
-                <Descriptions.Item label="Applied Date" span={1}>
+                </Descriptions.Item> */}
+                {/* <Descriptions.Item label="Applied Date" span={1}>
                     <Space>
-                        <ClockCircleOutlined />
+                        /* <ClockCircleOutlined />
                         {applicationData.createdAt
                             ? moment(applicationData.createdAt).format(
                                   "DD MMM, YYYY HH:mm"
                               )
                             : "N/A"}
                     </Space>
-                </Descriptions.Item>
-                <Descriptions.Item label="Last Updated" span={2}>
+                </Descriptions.Item> */}
+                <Descriptions.Item label="Applied Date" span={2}>
                     <Space>
-                        <ClockCircleOutlined />
+                        {/* <ClockCircleOutlined /> */}
                         {applicationData.updatedAt
                             ? moment(applicationData.updatedAt).format(
                                   "DD MMM, YYYY HH:mm"
@@ -213,13 +213,13 @@ const JobApplicationsViewDrawer = ({
                         </Row>
 
                         <div style={{ marginBottom: 8 }}>
-                            <strong>Salary Range:</strong> ₹
-                            {jobDetails.minSalary} - ₹{jobDetails.maxSalary}
+                            <strong>Salary Range: </strong>
+                            {jobDetails.salaryRange}
                         </div>
 
                         <div>
                             <strong>Min Experience:</strong>{" "}
-                            {jobDetails.minExperience} years
+                            {jobDetails.experience?.min} years
                         </div>
                     </Card>
                 </>
@@ -314,7 +314,7 @@ const JobApplicationsViewDrawer = ({
                                     style={{ fontSize: "12px", color: "#999" }}
                                 >
                                     {exp.startYear} -{" "}
-                                    {exp.isCurrent ? "Present" : exp.endYear}
+                                    {exp.isCurrent ? "Present " : exp.endYear}
                                     {exp.isCurrent && (
                                         <Tag color="green" size="small">
                                             Current
