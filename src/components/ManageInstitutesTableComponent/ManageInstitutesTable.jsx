@@ -334,7 +334,7 @@ const ManageInstitutesTable = ({
             // Create fetch function for download
             const fetchInstitutesForDownload = async () => {
                 console.log("📡 Fetching institutes for download...");
-                const downloadLimit = limit === "all" ? 999999 : limit;
+                const downloadLimit = limit === "all" ? -1 : limit;
 
                 // Ensure type=1 for institutes
                 const instituteFilters = { ...activeFilters, type: 1 };

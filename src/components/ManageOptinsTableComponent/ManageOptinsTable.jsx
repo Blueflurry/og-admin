@@ -357,7 +357,7 @@ const ManageOptinsTable = ({
             // Create fetch function for download
             const fetchOptinsForDownload = async () => {
                 console.log("📡 Fetching optins for download...");
-                const downloadLimit = limit === "all" ? 999999 : limit;
+                const downloadLimit = limit === "all" ? -1 : limit;
 
                 // Ensure type=0 for optins
                 const optinFilters = { ...activeFilters, type: 0 };

@@ -104,7 +104,15 @@ export class API {
     }
 
     getCompanies() {
-        return this.request(() => this.client.post(`/auth/company/search`, {}));
+        return this.request(() =>
+            this.client.post(
+                `/auth/company/search`,
+                {},
+                {
+                    params: { page: 1, limit: -1 },
+                }
+            )
+        );
     }
 
     // Categories API methods (for dropdown in job form)

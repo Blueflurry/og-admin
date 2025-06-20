@@ -313,7 +313,7 @@ const ReferralsTable = ({
             // Create fetch function for download
             const fetchReferralsForDownload = async () => {
                 console.log("📡 Fetching referrals for download...");
-                const downloadLimit = limit === "all" ? 999999 : limit;
+                const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getReferrals(
                     1, // Always start from page 1 for downloads

@@ -227,7 +227,7 @@ const NotificationsTable = ({
             // Create fetch function for download
             const fetchNotificationsForDownload = async () => {
                 console.log("📡 Fetching notifications for download...");
-                const downloadLimit = limit === "all" ? 999999 : limit;
+                const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getNotifications(
                     1, // Always start from page 1 for downloads

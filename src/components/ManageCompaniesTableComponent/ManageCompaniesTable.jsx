@@ -278,7 +278,7 @@ const ManageCompaniesTable = ({
             // Create fetch function for download
             const fetchCompaniesForDownload = async () => {
                 console.log("📡 Fetching companies for download...");
-                const downloadLimit = limit === "all" ? 999999 : limit;
+                const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getManageCompanies({
                     page: 1, // Always start from page 1 for downloads

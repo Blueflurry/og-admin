@@ -287,7 +287,7 @@ const WebinarsTable = ({
             // Create fetch function for download
             const fetchWebinarsForDownload = async () => {
                 console.log("📡 Fetching webinars for download...");
-                const downloadLimit = limit === "all" ? 999999 : limit;
+                const downloadLimit = limit === "all" ? -1 : limit;
 
                 // Ensure status=0 for webinars (not courses)
                 const webinarFilters = { ...activeFilters, status: 0 };

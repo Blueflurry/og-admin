@@ -238,7 +238,7 @@ const Users = () => {
             // Create fetch function for download
             const fetchUsersForDownload = async () => {
                 console.log("📡 Fetching users for download...");
-                const downloadLimit = limit === "all" ? 999999 : limit;
+                const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getUsers(
                     1, // Always start from page 1 for downloads

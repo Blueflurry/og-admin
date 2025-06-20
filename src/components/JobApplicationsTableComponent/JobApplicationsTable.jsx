@@ -335,7 +335,7 @@ const JobApplicationsTable = ({
             // Create fetch function for download - Note: This will need the jobId
             const fetchApplicationsForDownload = async () => {
                 console.log("📡 Fetching job applications for download...");
-                const downloadLimit = limit === "all" ? 999999 : limit;
+                const downloadLimit = limit === "all" ? -1 : limit;
 
                 // Get jobId from jobDetails or from the current context
                 const jobId = jobDetails?.id || jobDetails?._id;

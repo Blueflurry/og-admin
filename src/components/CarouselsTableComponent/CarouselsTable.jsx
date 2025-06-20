@@ -334,7 +334,7 @@ const CarouselsTable = ({
             // Create fetch function for download
             const fetchCarouselsForDownload = async () => {
                 console.log("📡 Fetching carousels for download...");
-                const downloadLimit = limit === "all" ? 999999 : limit;
+                const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getCarousels(
                     1, // Always start from page 1 for downloads

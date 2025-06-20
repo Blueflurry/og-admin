@@ -300,7 +300,7 @@ const ManageEmployeesTable = ({
             // Create fetch function for download
             const fetchEmployeesForDownload = async () => {
                 console.log("📡 Fetching employees for download...");
-                const downloadLimit = limit === "all" ? 999999 : limit;
+                const downloadLimit = limit === "all" ? -1 : limit;
 
                 // Add role filter to get only employees, managers, and admins
                 const employeeFilters = {

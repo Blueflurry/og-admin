@@ -278,7 +278,7 @@ const JobTable = ({
             // Create fetch function for download
             const fetchJobsForDownload = async () => {
                 console.log("📡 Fetching jobs for download...");
-                const downloadLimit = limit === "all" ? 999999 : limit;
+                const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getJobs(
                     1, // Always start from page 1 for downloads
