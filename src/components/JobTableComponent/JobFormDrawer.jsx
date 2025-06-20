@@ -64,8 +64,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         "",
                     description: initialValues.description || "",
                     isRemote: initialValues.isRemote || false,
-                    minSalary: initialValues.minSalary || 0,
-                    maxSalary: initialValues.maxSalary || 0,
+                    salaryRange: initialValues.salaryRange || "",
                     minExperience: initialValues.minExperience || 0,
                     street: initialValues.location?.street || "",
                     city: initialValues.location?.city || "",
@@ -161,8 +160,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                 category: values.category,
                 description: values.description,
                 isRemote: values.isRemote || false,
-                minSalary: values.minSalary,
-                maxSalary: values.maxSalary,
+                salaryRange: values.salaryRange,
                 minExperience: values.minExperience,
                 location: {
                     street: values.street,
@@ -460,40 +458,18 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                 </Row>
 
                 <Row gutter={16}>
-                    <Col span={12}>
+                    <Col span={24}>
                         <Form.Item
-                            name="minSalary"
-                            label="Minimum Salary (₹)"
+                            name="salaryRange"
+                            label="Salary Range"
                             rules={[
                                 {
                                     required: true,
-                                    message: "Please enter minimum salary",
+                                    message: "Please enter salary range",
                                 },
                             ]}
                         >
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Minimum salary"
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name="maxSalary"
-                            label="Maximum Salary (₹)"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter maximum salary",
-                                },
-                            ]}
-                        >
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Maximum salary"
-                            />
+                            <Input placeholder="e.g., ₹50,000 - ₹80,000 per month" />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -524,7 +500,16 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item name="state" label="State">
+                        <Form.Item
+                            name="state"
+                            label="State"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter state",
+                                },
+                            ]}
+                        >
                             <Input placeholder="State" />
                         </Form.Item>
                     </Col>
@@ -532,12 +517,30 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item name="pincode" label="Pincode">
+                        <Form.Item
+                            name="pincode"
+                            label="Pincode"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter pincode",
+                                },
+                            ]}
+                        >
                             <Input placeholder="Pincode" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item name="country" label="Country">
+                        <Form.Item
+                            name="country"
+                            label="Country"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter country",
+                                },
+                            ]}
+                        >
                             <Input placeholder="Country" />
                         </Form.Item>
                     </Col>
