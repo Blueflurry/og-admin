@@ -335,16 +335,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            name="dob"
-                            label={<>Date of Birth </>}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please select date of birth",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="dob" label={<>Date of Birth </>}>
                             <DatePicker
                                 style={{ width: "100%" }}
                                 placeholder="Select date"
@@ -359,12 +350,6 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         <Form.Item
                             name="streetAddress"
                             label={<>Street Address </>}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter street address",
-                                },
-                            ]}
                         >
                             <Input.TextArea
                                 rows={3}

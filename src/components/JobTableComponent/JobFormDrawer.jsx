@@ -194,6 +194,18 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
         }
     };
 
+    // Custom filter function for companies
+    const filterCompanyOption = (input, option) => {
+        const companyName = option.label || "";
+        return companyName.toLowerCase().includes(input.toLowerCase());
+    };
+
+    // Custom filter function for categories (add this near the filterCompanyOption function)
+    const filterCategoryOption = (input, option) => {
+        const categoryTitle = option.label || "";
+        return categoryTitle.toLowerCase().includes(input.toLowerCase());
+    };
+
     return (
         <Drawer
             title={isEditMode ? "Edit Job" : "Create Job"}
@@ -244,9 +256,16 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                             ]}
                         >
                             <Select
-                                placeholder="Select company"
+                                placeholder="Search and select company"
                                 loading={loadingCompanies}
                                 optionLabelProp="label"
+                                showSearch
+                                filterOption={filterCompanyOption}
+                                notFoundContent={
+                                    loadingCompanies
+                                        ? "Loading..."
+                                        : "No companies found"
+                                }
                             >
                                 {companies.map((company) => (
                                     <Option
@@ -289,9 +308,16 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                             ]}
                         >
                             <Select
-                                placeholder="Select category"
+                                placeholder="Search and select category"
                                 loading={loadingCategories}
                                 optionLabelProp="label"
+                                showSearch
+                                filterOption={filterCategoryOption}
+                                notFoundContent={
+                                    loadingCategories
+                                        ? "Loading..."
+                                        : "No categories found"
+                                }
                             >
                                 {categories.map((category) => (
                                     <Option

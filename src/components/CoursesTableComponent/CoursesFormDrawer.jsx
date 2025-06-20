@@ -199,6 +199,12 @@ const CoursesFormDrawer = ({
         </div>
     );
 
+    // Custom filter function for categories (add this near the filterCompanyOption function)
+    const filterCategoryOption = (input, option) => {
+        const categoryTitle = option.label || "";
+        return categoryTitle.toLowerCase().includes(input.toLowerCase());
+    };
+
     return (
         <Drawer
             title={isEditMode ? "Edit Course" : "Create Course"}
@@ -316,13 +322,22 @@ const CoursesFormDrawer = ({
                             ]}
                         >
                             <Select
-                                placeholder="Select category"
+                                placeholder="Search and select category"
                                 loading={loadingCategories}
+                                optionLabelProp="label"
+                                showSearch
+                                filterOption={filterCategoryOption}
+                                notFoundContent={
+                                    loadingCategories
+                                        ? "Loading..."
+                                        : "No categories found"
+                                }
                             >
                                 {categories.map((category) => (
                                     <Option
                                         key={category._id || category.id}
                                         value={category._id || category.id}
+                                        label={category.title}
                                     >
                                         {category.title}
                                     </Option>
