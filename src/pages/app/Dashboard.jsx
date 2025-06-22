@@ -44,6 +44,7 @@ import {
 import { useAPI } from "../../hooks/useAPI";
 import moment from "moment";
 import Papa from "papaparse";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -60,7 +61,7 @@ const COLORS = [
 
 // Date range presets
 const getDatePresets = () => {
-    const today = moment().startOf("day"); // Ensure we start from beginning of today
+    const today = moment().startOf("day");
     return {
         "Last 7 Days": [
             moment().subtract(6, "days").startOf("day"),
@@ -103,17 +104,10 @@ const Dashboard = () => {
     });
 
     // Individual chart date ranges - each chart can have its own date range
-    const [chartDateRanges, setChartDateRanges] = useState(() => {
-        const today = moment().startOf("day");
-        const defaultRange = [
-            moment().subtract(6, "days").startOf("day"),
-            today.clone(),
-        ];
-        return {
-            userGrowth: defaultRange,
-            jobCategory: [...defaultRange], // Create new array reference
-            userStatus: [...defaultRange], // Create new array reference
-        };
+    const [chartDateRanges, setChartDateRanges] = useState({
+        userGrowth: [dayjs().subtract(6, "day"), dayjs()],
+        jobCategory: [dayjs().subtract(6, "day"), dayjs()],
+        userStatus: [dayjs().subtract(6, "day"), dayjs()],
     });
 
     // Chart refs for downloading
@@ -217,26 +211,15 @@ const Dashboard = () => {
     // Convert date range to API format
     const formatDateRangeForAPI = (dateRange) => {
         if (!dateRange || !Array.isArray(dateRange) || dateRange.length !== 2) {
-            // Fallback to last 7 days
-            const today = moment();
-            const weekAgo = moment().subtract(6, "days");
             return {
-                from: weekAgo.format("DD/MM/YYYY"),
-                to: today.format("DD/MM/YYYY"),
+                from: dayjs().subtract(6, "day").format("DD/MM/YYYY"),
+                to: dayjs().format("DD/MM/YYYY"),
             };
         }
 
-        const [startDate, endDate] = dateRange;
-
-        // Ensure we have valid moment objects
-        const start = moment.isMoment(startDate)
-            ? startDate
-            : moment(startDate);
-        const end = moment.isMoment(endDate) ? endDate : moment(endDate);
-
         return {
-            from: start.format("DD/MM/YYYY"),
-            to: end.format("DD/MM/YYYY"),
+            from: dateRange[0].format("DD/MM/YYYY"),
+            to: dateRange[1].format("DD/MM/YYYY"),
         };
     };
 
@@ -405,11 +388,44 @@ const Dashboard = () => {
 
     // Handle chart date range change
     const handleChartDateRangeChange = (chartType, newDateRange) => {
-        setChartDateRanges((prev) => ({
-            ...prev,
-            [chartType]: newDateRange,
-        }));
-        updateChartData(chartType, newDateRange);
+        // Validate the new date range
+        if (
+            !newDateRange ||
+            !Array.isArray(newDateRange) ||
+            newDateRange.length !== 2
+        ) {
+            console.error(
+                "Invalid date range provided to handleChartDateRangeChange"
+            );
+            return;
+        }
+
+        try {
+            // Ensure we have valid moment objects
+            const validatedRange = [
+                moment.isMoment(newDateRange[0])
+                    ? newDateRange[0]
+                    : moment(newDateRange[0]),
+                moment.isMoment(newDateRange[1])
+                    ? newDateRange[1]
+                    : moment(newDateRange[1]),
+            ];
+
+            // Validate the moments
+            if (!validatedRange[0].isValid() || !validatedRange[1].isValid()) {
+                throw new Error("Invalid moment objects");
+            }
+
+            setChartDateRanges((prev) => ({
+                ...prev,
+                [chartType]: validatedRange,
+            }));
+
+            updateChartData(chartType, validatedRange);
+        } catch (error) {
+            console.error("Error handling chart date range change:", error);
+            message.error("Invalid date range selected");
+        }
     };
 
     // CSV Download functions
@@ -506,53 +522,25 @@ const Dashboard = () => {
         chartType,
     }) => {
         const [dropdownVisible, setDropdownVisible] = useState(false);
-        const presets = getDatePresets();
 
-        const handlePresetClick = (presetRange) => {
-            if (Array.isArray(presetRange) && presetRange.length === 2) {
-                // Clone the moments to avoid mutation
-                const clonedRange = [
-                    presetRange[0].clone(),
-                    presetRange[1].clone(),
-                ];
-                onChange(chartType, clonedRange);
-                setDropdownVisible(false);
-            }
+        // Simple preset handler
+        const handlePresetClick = (days) => {
+            const end = dayjs();
+            const start = dayjs().subtract(days - 1, "day");
+            onChange(chartType, [start, end]);
+            setDropdownVisible(false);
         };
 
-        const handleCustomRangeChange = (dates) => {
-            if (dates && Array.isArray(dates) && dates.length === 2) {
-                onChange(chartType, dates);
-                setDropdownVisible(false);
-            }
-        };
-
-        const formatDisplayText = () => {
+        // Simple display text
+        const getDisplayText = () => {
             if (value && Array.isArray(value) && value.length === 2) {
                 const [start, end] = value;
-                const startMoment = moment.isMoment(start)
-                    ? start
-                    : moment(start);
-                const endMoment = moment.isMoment(end) ? end : moment(end);
+                const daysDiff = end.diff(start, "day") + 1;
 
-                // Check if it matches any preset (use current presets, not stale ones)
-                const currentPresets = getDatePresets();
-                const matchingPreset = Object.entries(currentPresets).find(
-                    ([_, range]) => {
-                        return (
-                            startMoment.isSame(range[0], "day") &&
-                            endMoment.isSame(range[1], "day")
-                        );
-                    }
-                );
+                if (daysDiff === 7) return "Last 7 Days";
+                if (daysDiff <= 31 && start.date() === 1) return "This Month";
 
-                if (matchingPreset) {
-                    return matchingPreset[0];
-                }
-
-                return `${startMoment.format("MMM DD")} - ${endMoment.format(
-                    "MMM DD"
-                )}`;
+                return `${start.format("MMM DD")} - ${end.format("MMM DD")}`;
             }
             return "Last 7 Days";
         };
@@ -561,18 +549,15 @@ const Dashboard = () => {
             <div
                 style={{
                     padding: "12px",
-                    minWidth: "320px",
+                    minWidth: "300px",
                     backgroundColor: "white",
                 }}
-                onClick={(e) => e.stopPropagation()}
             >
-                {/* Preset buttons */}
                 <div style={{ marginBottom: "16px" }}>
                     <div
                         style={{
                             fontWeight: 600,
                             marginBottom: "8px",
-                            color: "#262626",
                             fontSize: "14px",
                         }}
                     >
@@ -585,44 +570,36 @@ const Dashboard = () => {
                             gap: "4px",
                         }}
                     >
-                        {Object.entries(getDatePresets()).map(
-                            ([label, range]) => {
-                                const isSelected =
-                                    value &&
-                                    Array.isArray(value) &&
-                                    value.length === 2 &&
-                                    moment(value[0]).isSame(range[0], "day") &&
-                                    moment(value[1]).isSame(range[1], "day");
-
-                                return (
-                                    <Button
-                                        key={label}
-                                        type={isSelected ? "primary" : "text"}
-                                        block
-                                        size="small"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handlePresetClick(range);
-                                        }}
-                                        style={{
-                                            textAlign: "left",
-                                            height: "32px",
-                                            justifyContent: "flex-start",
-                                        }}
-                                    >
-                                        {label}
-                                    </Button>
-                                );
-                            }
-                        )}
+                        <Button
+                            type="text"
+                            block
+                            size="small"
+                            onClick={() => handlePresetClick(7)}
+                            style={{
+                                textAlign: "left",
+                                justifyContent: "flex-start",
+                            }}
+                        >
+                            Last 7 Days
+                        </Button>
+                        <Button
+                            type="text"
+                            block
+                            size="small"
+                            onClick={() => handlePresetClick(30)}
+                            style={{
+                                textAlign: "left",
+                                justifyContent: "flex-start",
+                            }}
+                        >
+                            Last 30 Days
+                        </Button>
                     </div>
                 </div>
 
-                {/* Divider */}
                 <div
                     style={{
                         borderTop: "1px solid #f0f0f0",
-                        margin: "16px 0 12px 0",
                         paddingTop: "12px",
                     }}
                 >
@@ -630,7 +607,6 @@ const Dashboard = () => {
                         style={{
                             fontWeight: 600,
                             marginBottom: "8px",
-                            color: "#262626",
                             fontSize: "14px",
                         }}
                     >
@@ -638,39 +614,17 @@ const Dashboard = () => {
                     </div>
                     <RangePicker
                         value={value}
-                        onChange={(dates, dateStrings) => {
-                            if (
-                                dates &&
-                                Array.isArray(dates) &&
-                                dates.length === 2
-                            ) {
-                                // Ensure end date is not in the future
-                                const endDate = dates[1];
-                                const today = moment().startOf("day");
-                                if (endDate.isAfter(today)) {
-                                    message.warning(
-                                        "End date cannot be in the future"
-                                    );
-                                    return;
-                                }
-                                handleCustomRangeChange(dates);
+                        onChange={(dates) => {
+                            if (dates && dates.length === 2) {
+                                onChange(chartType, dates);
+                                setDropdownVisible(false);
                             }
                         }}
                         format="DD/MM/YYYY"
-                        disabled={loading}
                         style={{ width: "100%" }}
-                        placeholder={["Start Date", "End Date"]}
-                        allowClear={false}
-                        size="middle"
-                        disabledDate={(current) => {
-                            // Disable future dates more strictly
-                            return current && current < moment().endOf("day");
-                        }}
-                        showTime={false}
-                        // defaultPickerValue={[
-                        //     moment().subtract(7, "days"),
-                        //     moment(),
-                        // ]}
+                        disabledDate={(current) =>
+                            current && current > dayjs().endOf("day")
+                        }
                     />
                 </div>
             </div>
@@ -681,22 +635,14 @@ const Dashboard = () => {
                 dropdownRender={() => dropdownContent}
                 trigger={["click"]}
                 open={dropdownVisible}
-                onOpenChange={(visible) => {
-                    if (!loading) {
-                        setDropdownVisible(visible);
-                    }
-                }}
-                disabled={loading}
+                onOpenChange={setDropdownVisible}
                 placement="bottomLeft"
-                overlayStyle={{ zIndex: 1050 }}
             >
                 <Button
                     icon={<CalendarOutlined />}
-                    disabled={loading}
                     style={{ minWidth: "180px" }}
                 >
-                    {formatDisplayText()}
-                    <DownOutlined />
+                    {getDisplayText()} <DownOutlined />
                 </Button>
             </Dropdown>
         );
