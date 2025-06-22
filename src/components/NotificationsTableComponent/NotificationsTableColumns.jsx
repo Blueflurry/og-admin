@@ -7,7 +7,6 @@ import {
     EditOutlined,
     EyeOutlined,
     BellOutlined,
-    ClockCircleOutlined,
     LinkOutlined,
     SyncOutlined,
 } from "@ant-design/icons";
@@ -64,10 +63,7 @@ const getNotificationsTableColumns = ({
         align: "center",
         width: 150,
         render: (date) => (
-            <Space>
-                {/* <ClockCircleOutlined /> */}
-                {moment(date).format("DD MMM, YYYY HH:mm")}
-            </Space>
+            <Space>{moment(date).format("DD MMM, YYYY HH:mm")}</Space>
         ),
     },
     {
@@ -78,7 +74,6 @@ const getNotificationsTableColumns = ({
         width: 150,
         render: (date) => (
             <Space>
-                {/* <ClockCircleOutlined /> */}
                 {date ? moment(date).format("DD MMM, YYYY HH:mm") : "NA"}
             </Space>
         ),

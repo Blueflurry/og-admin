@@ -20,7 +20,6 @@ import {
     FileTextOutlined,
     DollarOutlined,
     TrophyOutlined,
-    ClockCircleOutlined,
     HomeOutlined,
     CalendarOutlined,
     BankOutlined,
@@ -100,7 +99,7 @@ const JobApplicationsViewDrawer = ({
                 </Descriptions.Item> */}
                 {/* <Descriptions.Item label="Applied Date" span={1}>
                     <Space>
-                         <ClockCircleOutlined />
+                         
                         {applicationData.createdAt
                             ? moment(applicationData.createdAt).format(
                                   "DD MMM, YYYY HH:mm"
@@ -110,7 +109,6 @@ const JobApplicationsViewDrawer = ({
                 </Descriptions.Item> */}
                 <Descriptions.Item label="Applied Date" span={2}>
                     <Space>
-                        {/* <ClockCircleOutlined /> */}
                         {applicationData.updatedAt
                             ? moment(applicationData.updatedAt).format(
                                   "DD MMM, YYYY HH:mm"

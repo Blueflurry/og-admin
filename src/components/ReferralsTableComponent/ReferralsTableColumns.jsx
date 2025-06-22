@@ -8,7 +8,6 @@ import {
     EyeOutlined,
     UserOutlined,
     TeamOutlined,
-    ClockCircleOutlined,
     CheckCircleOutlined,
     CloseCircleOutlined,
     HourglassOutlined,
@@ -148,12 +147,7 @@ const getReferralsTableColumns = ({
         key: "createdAt",
         align: "center",
         width: 130,
-        render: (date) => (
-            <Space>
-                <ClockCircleOutlined />
-                {moment(date).format("DD MMM, YYYY")}
-            </Space>
-        ),
+        render: (date) => <Space>{moment(date).format("DD MMM, YYYY")}</Space>,
     },
     {
         title: "Actions",

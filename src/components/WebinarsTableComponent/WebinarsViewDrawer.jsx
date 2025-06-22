@@ -14,7 +14,6 @@ import {
 } from "antd";
 import {
     CalendarOutlined,
-    ClockCircleOutlined,
     TeamOutlined,
     LinkOutlined,
     VideoCameraOutlined,
@@ -123,10 +122,7 @@ const WebinarsViewDrawer = ({ open, onClose, courseData = null }) => {
                     {courseData.title || "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Duration" span={1}>
-                    <Space>
-                        <ClockCircleOutlined />
-                        {formatDuration(courseData.duration)}
-                    </Space>
+                    <Space>{formatDuration(courseData.duration)}</Space>
                 </Descriptions.Item>
                 <Descriptions.Item label="Enrolled Students" span={1}>
                     <Space>

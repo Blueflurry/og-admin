@@ -16,7 +16,6 @@ import {
 import {
     UserOutlined,
     TeamOutlined,
-    ClockCircleOutlined,
     CheckCircleOutlined,
     CloseCircleOutlined,
     HourglassOutlined,

@@ -6,7 +6,6 @@ import {
     EditOutlined,
     EyeOutlined,
     CalendarOutlined,
-    ClockCircleOutlined,
     TeamOutlined,
     LinkOutlined,
     VideoCameraOutlined,
@@ -50,12 +49,7 @@ const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         dataIndex: "duration",
         align: "center",
         width: 120,
-        render: (duration) => (
-            <Space>
-                <ClockCircleOutlined />
-                {formatDuration(duration)}
-            </Space>
-        ),
+        render: (duration) => <Space>{formatDuration(duration)}</Space>,
     },
     {
         title: "Enrolled",
@@ -75,7 +69,7 @@ const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         dataIndex: "startDate",
         key: "startDate",
         align: "center",
-        width: 120,
+        width: 150,
         render: (date) => (
             <Space>
                 <CalendarOutlined />

@@ -6,7 +6,6 @@ import {
     EditOutlined,
     EyeOutlined,
     CalendarOutlined,
-    ClockCircleOutlined,
     TeamOutlined,
     LinkOutlined,
 } from "@ant-design/icons";
@@ -48,12 +47,7 @@ const getCoursesTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         dataIndex: "duration",
         align: "center",
         width: 120,
-        render: (duration) => (
-            <Space>
-                <ClockCircleOutlined />
-                {formatDuration(duration)}
-            </Space>
-        ),
+        render: (duration) => <Space>{formatDuration(duration)}</Space>,
     },
     {
         title: "Enrolled",

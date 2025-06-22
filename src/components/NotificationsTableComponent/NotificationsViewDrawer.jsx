@@ -11,12 +11,7 @@ import {
     Divider,
     Card,
 } from "antd";
-import {
-    BellOutlined,
-    ClockCircleOutlined,
-    LinkOutlined,
-    SyncOutlined,
-} from "@ant-design/icons";
+import { BellOutlined, LinkOutlined, SyncOutlined } from "@ant-design/icons";
 import moment from "moment";
 
 const { Text, Title } = Typography;
@@ -72,7 +67,6 @@ const NotificationsViewDrawer = ({
                 </Descriptions.Item>
                 <Descriptions.Item label="Scheduled Date" span={1}>
                     <Space>
-                        {/* <ClockCircleOutlined /> */}
                         {notificationData.date
                             ? moment(notificationData.date).format(
                                   "DD MMM, YYYY HH:mm"
@@ -112,7 +106,6 @@ const NotificationsViewDrawer = ({
                 )}
                 <Descriptions.Item label="Created At" span={1}>
                     <Space>
-                        {/* <ClockCircleOutlined />  */}
                         {notificationData.createdAt
                             ? moment(notificationData.createdAt).format(
                                   "DD MMM, YYYY HH:mm"
