@@ -171,6 +171,8 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                 },
                 status: values.status || 0,
                 type: values.type || 0,
+                minSalary: 0,
+                maxSalary: 0,
             };
 
             if (isEditMode) {
@@ -500,16 +502,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            name="state"
-                            label="State"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter state",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="state" label="State">
                             <Input placeholder="State" />
                         </Form.Item>
                     </Col>
@@ -517,30 +510,12 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            name="pincode"
-                            label="Pincode"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter pincode",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="pincode" label="Pincode">
                             <Input placeholder="Pincode" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            name="country"
-                            label="Country"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter country",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="country" label="Country">
                             <Input placeholder="Country" />
                         </Form.Item>
                     </Col>

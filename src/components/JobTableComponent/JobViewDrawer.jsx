@@ -131,8 +131,8 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
                         `₹${jobData.minSalary} - ₹${jobData.maxSalary}`}
                 </Descriptions.Item>
                 <Descriptions.Item label="Experience Required" span={1}>
-                    {jobData.experience?.min}{" "}
-                    {jobData.experience?.min === 1 ? "year" : "years"}+
+                    {jobData.minExperience}{" "}
+                    {jobData.minExperience === 1 ? "year" : "years"}+
                 </Descriptions.Item>
                 <Descriptions.Item label="Posted Date" span={1}>
                     {moment(jobData.createdAt).format("DD MMM, YYYY")}
@@ -192,8 +192,8 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
                     {jobData.company?.data?.name || "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Company Address">
-                    {jobData.location?.street ||
-                        jobData.location?.city ||
+                    {jobData.company?.address?.street ||
+                        jobData.company?.address?.city ||
                         "N/A"}
                 </Descriptions.Item>
             </Descriptions>

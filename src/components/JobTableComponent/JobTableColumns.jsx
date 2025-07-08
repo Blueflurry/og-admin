@@ -66,8 +66,8 @@ const getJobTableColumns = ({
         width: 100,
         render: (_, record) => (
             <span>
-                {record.experience?.min}{" "}
-                {record.experience?.min === 1 ? "yr" : "yrs"} +
+                {record.minExperience}{" "}
+                {record.minExperience === 1 ? "yr" : "yrs"} +
             </span>
         ),
     },
