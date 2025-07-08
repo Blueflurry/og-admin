@@ -192,9 +192,10 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
                     {jobData.company?.data?.name || "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Company Address">
-                    {jobData.company?.address?.street ||
-                        jobData.company?.address?.city ||
-                        "N/A"}
+                    {jobData.company?.address?.street &&
+                    jobData.company?.address?.street !== "undefined"
+                        ? jobData.company?.address?.street
+                        : jobData.company?.address?.city || "N/A"}
                 </Descriptions.Item>
             </Descriptions>
         </Drawer>

@@ -117,8 +117,11 @@ const getJobTableColumns = ({
         key: "location",
         align: "left",
         render: (location) => {
-            let display = `${location?.street} ${location?.city}`;
-            if (location?.state) display += `, ${location?.state}`;
+            let display = `${
+                location?.street == "undefined" ? "" : location?.street
+            } ${location?.city}`;
+            if (location?.state && location?.state != "undefined")
+                display += `, ${location?.state}`;
             return (
                 <Space>
                     <EnvironmentOutlined />
