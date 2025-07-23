@@ -1,4 +1,4 @@
-// src/pages/app/Dashboard.jsx
+// src/pages/app/Dashboard.jsx - FIXED VERSION
 import React, { useState, useEffect, useRef } from "react";
 import {
     Card,
@@ -42,14 +42,13 @@ import {
     ResponsiveContainer,
 } from "recharts";
 import { useAPI } from "../../hooks/useAPI";
-import moment from "moment";
 import Papa from "papaparse";
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
-// Color palette for charts - Updated with brand colors
+// Color palette for charts
 const COLORS = [
     "#04248c",
     "#52c41a",
@@ -59,26 +58,9 @@ const COLORS = [
     "#13c2c2",
 ];
 
-// Date range presets
-const getDatePresets = () => {
-    const today = moment().startOf("day");
-    return {
-        "Last 7 Days": [
-            moment().subtract(6, "days").startOf("day"),
-            today.clone(),
-        ],
-        "This Month": [moment().startOf("month"), today.clone()],
-        "Last Month": [
-            moment().subtract(1, "month").startOf("month"),
-            moment().subtract(1, "month").endOf("month"),
-        ],
-    };
-};
-
 const Dashboard = () => {
     const { api, isLoading } = useAPI();
     const [dashboardData, setDashboardData] = useState({
-        // Current overall statistics (from /dashboard/metrics - no time range)
         totalUsers: 0,
         activeUsers: 0,
         inactiveUsers: 0,
@@ -88,22 +70,18 @@ const Dashboard = () => {
         jobApplications: 0,
         monthlyRegistrations: 0,
         registrationTrend: 0,
-
-        // Chart data (time-based from individual chart APIs)
         userGrowthData: [],
         jobCategoryData: [],
         userStatusData: [],
     });
     const [refreshing, setRefreshing] = useState(false);
-
-    // Individual chart loading states
     const [chartLoading, setChartLoading] = useState({
         userGrowth: false,
         jobCategory: false,
         userStatus: false,
     });
 
-    // Individual chart date ranges - each chart can have its own date range
+    // Individual chart date ranges
     const [chartDateRanges, setChartDateRanges] = useState({
         userGrowth: [dayjs().subtract(6, "day"), dayjs()],
         jobCategory: [dayjs().subtract(6, "day"), dayjs()],
@@ -115,41 +93,7 @@ const Dashboard = () => {
     const jobCategoryChartRef = useRef(null);
     const userStatusChartRef = useRef(null);
 
-    const processJobCategoryData = (jobStatsResponse) => {
-        if (
-            !jobStatsResponse ||
-            !jobStatsResponse.data ||
-            !Array.isArray(jobStatsResponse.data)
-        ) {
-            return [];
-        }
-
-        return jobStatsResponse.data.map((categoryData) => {
-            const category = categoryData.category || "Unknown";
-            let active = 0;
-            let inactive = 0;
-
-            // Process stats array to count active/inactive jobs
-            if (categoryData.stats && Array.isArray(categoryData.stats)) {
-                categoryData.stats.forEach((stat) => {
-                    if (stat.status === 1) {
-                        active = stat.count || 0;
-                    } else if (stat.status === -1 || stat.status === 0) {
-                        inactive += stat.count || 0;
-                    }
-                });
-            }
-
-            return {
-                category,
-                active,
-                inactive,
-                total: categoryData.totalJobs || 0,
-            };
-        });
-    };
-
-    // Process the new metrics data format
+    // FIXED: Process metrics data with better error handling and logging
     const processMetricsData = (metricsResponse) => {
         const defaultMetrics = {
             totalUsers: 0,
@@ -163,129 +107,283 @@ const Dashboard = () => {
             registrationTrend: 0,
         };
 
-        // If the response has the expected structure
-        if (metricsResponse && metricsResponse.data) {
-            const data = metricsResponse.data;
+        console.log("🔍 Raw metrics response:", metricsResponse);
 
-            return {
-                ...defaultMetrics,
-                // Users data
-                totalUsers: data.users?.total || 0,
-                activeUsers: data.users?.Active || 0,
-                inactiveUsers: data.users?.Unauthorized || 0,
-
-                // Jobs data
-                totalJobs: data.jobs?.total || 0,
-                activeJobs: data.jobs?.Active || 0,
-                inactiveJobs:
-                    (data.jobs?.total || 0) - (data.jobs?.Active || 0),
-
-                // Applications data
-                jobApplications: data.applicationStats || 0,
-
-                // Use active users as proxy for monthly registrations
-                monthlyRegistrations: data.users?.Active || 0,
-            };
+        if (!metricsResponse || !metricsResponse.data) {
+            console.warn("❌ No metrics response or data received");
+            message.warning("No dashboard metrics data received from server");
+            return defaultMetrics;
         }
 
-        // Fallback if data structure is different or missing
-        return defaultMetrics;
+        const data = metricsResponse.data;
+        console.log("🔍 Extracted metrics data:", data);
+
+        // More flexible data extraction - try multiple possible field names
+        const processedMetrics = {
+            ...defaultMetrics,
+
+            // Users data - try multiple possible field structures
+            totalUsers:
+                data.users?.total ||
+                data.totalUsers ||
+                data.userStats?.total ||
+                (data.users?.Active || 0) + (data.users?.Unauthorized || 0) ||
+                0,
+
+            activeUsers:
+                data.users?.Active ||
+                data.users?.active ||
+                data.activeUsers ||
+                data.userStats?.active ||
+                0,
+
+            inactiveUsers:
+                data.users?.Unauthorized ||
+                data.users?.inactive ||
+                data.users?.Inactive ||
+                data.inactiveUsers ||
+                data.userStats?.inactive ||
+                0,
+
+            // Jobs data - try multiple possible field structures
+            totalJobs:
+                data.jobs?.total ||
+                data.totalJobs ||
+                data.jobStats?.total ||
+                (data.jobs?.Active || 0) + (data.jobs?.Inactive || 0) ||
+                0,
+
+            activeJobs:
+                data.jobs?.Active ||
+                data.jobs?.active ||
+                data.activeJobs ||
+                data.jobStats?.active ||
+                0,
+
+            inactiveJobs:
+                data.jobs?.Inactive ||
+                data.jobs?.inactive ||
+                data.inactiveJobs ||
+                data.jobStats?.inactive ||
+                (data.jobs?.total || 0) - (data.jobs?.Active || 0) ||
+                0,
+
+            // Applications data - try multiple possible field names
+            jobApplications:
+                data.applicationStats ||
+                data.applications ||
+                data.jobApplications ||
+                data.totalApplications ||
+                0,
+
+            // Monthly registrations - use active users as fallback
+            monthlyRegistrations:
+                data.monthlyRegistrations ||
+                data.users?.Active ||
+                data.activeUsers ||
+                0,
+
+            // Trend data
+            registrationTrend: data.registrationTrend || data.trend || 0,
+        };
+
+        console.log("✅ Processed metrics:", processedMetrics);
+        console.log("📊 Card values that will be displayed:", {
+            totalUsers: processedMetrics.totalUsers,
+            activeUsers: processedMetrics.activeUsers,
+            inactiveUsers: processedMetrics.inactiveUsers,
+            totalJobs: processedMetrics.totalJobs,
+            activeJobs: processedMetrics.activeJobs,
+            inactiveJobs: processedMetrics.inactiveJobs,
+            jobApplications: processedMetrics.jobApplications,
+        });
+
+        return processedMetrics;
     };
 
-    // Process user status data for pie chart from the new API format
+    // FIXED: Convert date range to match API format (YYYY-MM-DD instead of DD/MM/YYYY)
+    const formatDateRangeForAPI = (dateRange) => {
+        if (!dateRange || !Array.isArray(dateRange) || dateRange.length !== 2) {
+            const fallback = {
+                from: dayjs().subtract(6, "day").format("YYYY-MM-DD"), // FIXED: Use YYYY-MM-DD
+                to: dayjs().format("YYYY-MM-DD"), // FIXED: Use YYYY-MM-DD
+            };
+            console.log("Using fallback date range for API:", fallback);
+            return fallback;
+        }
+
+        const startDate = dateRange[0];
+        const endDate = dateRange[1];
+
+        const apiFormat = {
+            from: startDate.format("YYYY-MM-DD"), // FIXED: Use YYYY-MM-DD format
+            to: endDate.format("YYYY-MM-DD"), // FIXED: Use YYYY-MM-DD format
+        };
+
+        console.log("📅 Date range formatted for API:", apiFormat);
+        return apiFormat;
+    };
+
+    // Process job category data
+    const processJobCategoryData = (jobStatsResponse) => {
+        console.log("🔍 Raw job category response:", jobStatsResponse);
+
+        if (
+            !jobStatsResponse ||
+            !jobStatsResponse.data ||
+            !Array.isArray(jobStatsResponse.data)
+        ) {
+            console.warn("❌ Invalid job category data structure");
+            return [];
+        }
+
+        return jobStatsResponse.data.map((categoryData) => {
+            const category =
+                categoryData.category || categoryData.name || "Unknown";
+            let active = 0;
+            let inactive = 0;
+
+            if (categoryData.stats && Array.isArray(categoryData.stats)) {
+                categoryData.stats.forEach((stat) => {
+                    if (stat.status === 1) {
+                        active = stat.count || 0;
+                    } else if (stat.status === -1 || stat.status === 0) {
+                        inactive += stat.count || 0;
+                    }
+                });
+            } else {
+                // Try direct properties
+                active = categoryData.active || categoryData.Active || 0;
+                inactive = categoryData.inactive || categoryData.Inactive || 0;
+            }
+
+            return {
+                category,
+                active,
+                inactive,
+                total:
+                    categoryData.totalJobs ||
+                    categoryData.total ||
+                    active + inactive,
+            };
+        });
+    };
+
+    // Process user status data
     const processUserStatusData = (userStatsResponse) => {
+        console.log("🔍 Raw user status response:", userStatsResponse);
+
         if (
             !userStatsResponse ||
             !userStatsResponse.data ||
             !Array.isArray(userStatsResponse.data)
         ) {
+            console.warn("❌ Invalid user status data structure");
             return [];
         }
 
         return userStatsResponse.data.map((statusData) => ({
-            name: statusData.label || "Unknown",
-            value: statusData.count || 0,
+            name:
+                statusData.label ||
+                statusData.name ||
+                statusData.status ||
+                "Unknown",
+            value: statusData.count || statusData.value || 0,
         }));
     };
 
-    // Convert date range to API format
-    const formatDateRangeForAPI = (dateRange) => {
-        if (!dateRange || !Array.isArray(dateRange) || dateRange.length !== 2) {
-            return {
-                from: dayjs().subtract(6, "day").format("DD/MM/YYYY"),
-                to: dayjs().format("DD/MM/YYYY"),
-            };
-        }
-
-        return {
-            from: dateRange[0].format("DD/MM/YYYY"),
-            to: dateRange[1].format("DD/MM/YYYY"),
-        };
-    };
-
+    // FIXED: Main data fetching function with better error handling
     const fetchDashboardData = async () => {
         try {
+            console.log("🔄 Starting dashboard data fetch...");
             setRefreshing(true);
 
-            // Fetch all data in parallel with respective date ranges
-            const [
-                metricsResponse,
+            // Fetch metrics data (no time range needed)
+            console.log("📡 Fetching dashboard metrics...");
+            const metricsResponse = await api.getDashboardMetrics();
+            console.log("✅ Metrics response received:", metricsResponse);
+
+            // Process metrics data
+            const processedMetrics = processMetricsData(metricsResponse);
+
+            // Fetch chart data in parallel
+            const [chartResponse, jobCategoryResponse, userStatusResponse] =
+                await Promise.all([
+                    api
+                        .getDashboardChart(
+                            formatDateRangeForAPI(chartDateRanges.userGrowth)
+                        )
+                        .catch((err) => {
+                            console.warn("⚠️ Chart data fetch failed:", err);
+                            return { data: [] };
+                        }),
+                    (api.getJobCategoryStats
+                        ? api.getJobCategoryStats(
+                              formatDateRangeForAPI(chartDateRanges.jobCategory)
+                          )
+                        : Promise.resolve({ data: [] })
+                    ).catch((err) => {
+                        console.warn("⚠️ Job category data fetch failed:", err);
+                        return { data: [] };
+                    }),
+                    (api.getUserStatusStats
+                        ? api.getUserStatusStats(
+                              formatDateRangeForAPI(chartDateRanges.userStatus)
+                          )
+                        : Promise.resolve({ data: [] })
+                    ).catch((err) => {
+                        console.warn("⚠️ User status data fetch failed:", err);
+                        return { data: [] };
+                    }),
+                ]);
+
+            console.log("📊 Chart responses:", {
                 chartResponse,
                 jobCategoryResponse,
                 userStatusResponse,
-            ] = await Promise.all([
-                api.getDashboardMetrics(), // No time range - gets current overall statistics
-                api.getDashboardChart(
-                    formatDateRangeForAPI(chartDateRanges.userGrowth)
-                ),
-                api.getJobCategoryStats
-                    ? api.getJobCategoryStats(
-                          formatDateRangeForAPI(chartDateRanges.jobCategory)
-                      )
-                    : api.getMockJobCategoryStats
-                    ? api.getMockJobCategoryStats(
-                          formatDateRangeForAPI(chartDateRanges.jobCategory)
-                      )
-                    : Promise.resolve({ data: [] }),
-                api.getUserStatusStats
-                    ? api.getUserStatusStats(
-                          formatDateRangeForAPI(chartDateRanges.userStatus)
-                      )
-                    : api.getMockUserStatusStats
-                    ? api.getMockUserStatusStats(
-                          formatDateRangeForAPI(chartDateRanges.userStatus)
-                      )
-                    : Promise.resolve({ data: [] }),
-            ]);
+            });
 
-            // Process all the responses
-            const processedMetrics = processMetricsData(metricsResponse);
+            // Process chart data
             const processedJobCategories =
                 processJobCategoryData(jobCategoryResponse);
             const processedUserStatusData =
                 processUserStatusData(userStatusResponse);
 
-            // Combine API responses into dashboard data structure
+            // Combine all data
             const combinedData = {
-                // Processed metrics data
                 ...processedMetrics,
-
-                // Chart data
                 userGrowthData:
                     chartResponse.data || chartResponse.userGrowthData || [],
-                jobCategoryData: processedJobCategories || [],
-                userStatusData: processedUserStatusData || [],
+                jobCategoryData: processedJobCategories,
+                userStatusData: processedUserStatusData,
             };
 
+            console.log("🎯 Final combined dashboard data:", combinedData);
             setDashboardData(combinedData);
+
+            message.success("Dashboard data loaded successfully");
         } catch (error) {
-            console.error("Error fetching dashboard data:", error);
-            message.error("Failed to load dashboard data");
+            console.error("❌ Error fetching dashboard data:", error);
+
+            // Show specific error message
+            const errorMessage =
+                error.response?.data?.message ||
+                error.message ||
+                "Unknown error";
+            message.error(`Failed to load dashboard data: ${errorMessage}`);
+
+            // Log the full error for debugging
+            console.error("Full error details:", {
+                error,
+                response: error.response,
+                data: error.response?.data,
+            });
         } finally {
             setRefreshing(false);
         }
     };
 
+    // Update individual chart data
     const updateChartData = async (chartType, newDateRange) => {
         try {
             if (
@@ -297,21 +395,11 @@ const Dashboard = () => {
                 return;
             }
 
-            console.log(
-                `Updating ${chartType} chart data for date range:`,
-                newDateRange.map((d) =>
-                    moment.isMoment(d)
-                        ? d.format("DD/MM/YYYY")
-                        : moment(d).format("DD/MM/YYYY")
-                )
-            );
+            console.log(`🔄 Updating ${chartType} chart data...`);
 
-            // Set loading state for ONLY the specific chart
             setChartLoading((prev) => ({
-                userGrowth: chartType === "userGrowth" ? true : prev.userGrowth,
-                jobCategory:
-                    chartType === "jobCategory" ? true : prev.jobCategory,
-                userStatus: chartType === "userStatus" ? true : prev.userStatus,
+                ...prev,
+                [chartType]: true,
             }));
 
             let updatedData = {};
@@ -324,46 +412,25 @@ const Dashboard = () => {
                         chartData.data || chartData.userGrowthData || [],
                 };
             } else if (chartType === "jobCategory") {
-                let jobCategoryResponse;
                 if (api.getJobCategoryStats) {
-                    jobCategoryResponse = await api.getJobCategoryStats(
+                    const jobCategoryResponse = await api.getJobCategoryStats(
                         dateRangeForAPI
                     );
-                } else if (api.getMockJobCategoryStats) {
-                    jobCategoryResponse = await api.getMockJobCategoryStats(
-                        dateRangeForAPI
-                    );
-                } else {
-                    jobCategoryResponse = { data: [] };
+                    const processedJobCategories =
+                        processJobCategoryData(jobCategoryResponse);
+                    updatedData = { jobCategoryData: processedJobCategories };
                 }
-
-                const processedJobCategories =
-                    processJobCategoryData(jobCategoryResponse);
-                updatedData = {
-                    jobCategoryData: processedJobCategories,
-                };
             } else if (chartType === "userStatus") {
-                let userStatusResponse;
                 if (api.getUserStatusStats) {
-                    userStatusResponse = await api.getUserStatusStats(
+                    const userStatusResponse = await api.getUserStatusStats(
                         dateRangeForAPI
                     );
-                } else if (api.getMockUserStatusStats) {
-                    userStatusResponse = await api.getMockUserStatusStats(
-                        dateRangeForAPI
-                    );
-                } else {
-                    userStatusResponse = { data: [] };
+                    const processedUserStatusData =
+                        processUserStatusData(userStatusResponse);
+                    updatedData = { userStatusData: processedUserStatusData };
                 }
-
-                const processedUserStatusData =
-                    processUserStatusData(userStatusResponse);
-                updatedData = {
-                    userStatusData: processedUserStatusData,
-                };
             }
 
-            console.log(`${chartType} updated data:`, updatedData);
             setDashboardData((prevData) => ({
                 ...prevData,
                 ...updatedData,
@@ -371,50 +438,48 @@ const Dashboard = () => {
 
             message.success(`${chartType} chart updated successfully`);
         } catch (error) {
-            console.error(`Error updating ${chartType} chart data:`, error);
+            console.error(`❌ Error updating ${chartType} chart:`, error);
             message.error(`Failed to update ${chartType} chart`);
         } finally {
-            // Clear loading state for ONLY the specific chart
             setChartLoading((prev) => ({
-                userGrowth:
-                    chartType === "userGrowth" ? false : prev.userGrowth,
-                jobCategory:
-                    chartType === "jobCategory" ? false : prev.jobCategory,
-                userStatus:
-                    chartType === "userStatus" ? false : prev.userStatus,
+                ...prev,
+                [chartType]: false,
             }));
         }
     };
 
-    // Handle chart date range change
+    // Handle chart date range changes
     const handleChartDateRangeChange = (chartType, newDateRange) => {
-        // Validate the new date range
         if (
             !newDateRange ||
             !Array.isArray(newDateRange) ||
             newDateRange.length !== 2
         ) {
-            console.error(
-                "Invalid date range provided to handleChartDateRangeChange"
-            );
+            console.error("Invalid date range provided");
             return;
         }
 
         try {
-            // Ensure we have valid moment objects
-            const validatedRange = [
-                moment.isMoment(newDateRange[0])
-                    ? newDateRange[0]
-                    : moment(newDateRange[0]),
-                moment.isMoment(newDateRange[1])
-                    ? newDateRange[1]
-                    : moment(newDateRange[1]),
-            ];
+            let validatedRange = newDateRange;
 
-            // Validate the moments
-            if (!validatedRange[0].isValid() || !validatedRange[1].isValid()) {
-                throw new Error("Invalid moment objects");
+            if (
+                !dayjs.isDayjs(newDateRange[0]) ||
+                !dayjs.isDayjs(newDateRange[1])
+            ) {
+                validatedRange = [
+                    dayjs(newDateRange[0]),
+                    dayjs(newDateRange[1]),
+                ];
             }
+
+            if (!validatedRange[0].isValid() || !validatedRange[1].isValid()) {
+                throw new Error("Invalid dayjs objects");
+            }
+
+            console.log(`📅 ${chartType} date range changed:`, {
+                from: validatedRange[0].format("YYYY-MM-DD"),
+                to: validatedRange[1].format("YYYY-MM-DD"),
+            });
 
             setChartDateRanges((prev) => ({
                 ...prev,
@@ -440,7 +505,7 @@ const Dashboard = () => {
                 link.setAttribute("href", url);
                 link.setAttribute(
                     "download",
-                    `${filename}_${moment().format("DD/MM/YYYY")}.csv`
+                    `${filename}_${dayjs().format("DD-MM-YYYY")}.csv`
                 );
                 link.style.visibility = "hidden";
                 document.body.appendChild(link);
@@ -482,6 +547,7 @@ const Dashboard = () => {
         downloadCSV(csvData, "User_Status_Distribution");
     };
 
+    // Load dashboard data on component mount
     useEffect(() => {
         fetchDashboardData();
     }, []);
@@ -514,7 +580,7 @@ const Dashboard = () => {
         return null;
     };
 
-    // Custom DateRangePicker with presets
+    // Date Range Picker with presets
     const DateRangePickerWithPresets = ({
         value,
         onChange,
@@ -523,26 +589,73 @@ const Dashboard = () => {
     }) => {
         const [dropdownVisible, setDropdownVisible] = useState(false);
 
-        // Simple preset handler
         const handlePresetClick = (days) => {
-            const end = dayjs();
-            const start = dayjs().subtract(days - 1, "day");
+            const end = dayjs().startOf("day");
+            const start = dayjs()
+                .subtract(days - 1, "day")
+                .startOf("day");
             onChange(chartType, [start, end]);
             setDropdownVisible(false);
         };
 
-        // Simple display text
         const getDisplayText = () => {
             if (value && Array.isArray(value) && value.length === 2) {
                 const [start, end] = value;
-                const daysDiff = end.diff(start, "day") + 1;
+                if (
+                    dayjs.isDayjs(start) &&
+                    dayjs.isDayjs(end) &&
+                    start.isValid() &&
+                    end.isValid()
+                ) {
+                    const daysDiff = end.diff(start, "day") + 1;
+                    const today = dayjs().startOf("day");
+                    const last7Start = today.subtract(6, "day");
+                    const last30Start = today.subtract(29, "day");
 
-                if (daysDiff === 7) return "Last 7 Days";
-                if (daysDiff <= 31 && start.date() === 1) return "This Month";
-
-                return `${start.format("MMM DD")} - ${end.format("MMM DD")}`;
+                    if (
+                        daysDiff === 7 &&
+                        start.format("YYYY-MM-DD") ===
+                            last7Start.format("YYYY-MM-DD")
+                    ) {
+                        return "Last 7 Days";
+                    }
+                    if (
+                        daysDiff === 30 &&
+                        start.format("YYYY-MM-DD") ===
+                            last30Start.format("YYYY-MM-DD")
+                    ) {
+                        return "Last 30 Days";
+                    }
+                    return `${start.format("DD MMM YYYY")} - ${end.format(
+                        "DD MMM YYYY"
+                    )}`;
+                }
             }
             return "Last 7 Days";
+        };
+
+        const handleCustomDateChange = (dates) => {
+            if (dates && dates.length === 2 && dates[0] && dates[1]) {
+                const cleanStart = dayjs(dates[0].format("YYYY-MM-DD"));
+                const cleanEnd = dayjs(dates[1].format("YYYY-MM-DD"));
+                onChange(chartType, [cleanStart, cleanEnd]);
+                setDropdownVisible(false);
+            }
+        };
+
+        const getRangePickerValue = () => {
+            if (value && Array.isArray(value) && value.length === 2) {
+                const [start, end] = value;
+                if (
+                    dayjs.isDayjs(start) &&
+                    dayjs.isDayjs(end) &&
+                    start.isValid() &&
+                    end.isValid()
+                ) {
+                    return [start, end];
+                }
+            }
+            return null;
         };
 
         const dropdownContent = (
@@ -613,18 +726,15 @@ const Dashboard = () => {
                         Custom Range
                     </div>
                     <RangePicker
-                        value={value}
-                        onChange={(dates) => {
-                            if (dates && dates.length === 2) {
-                                onChange(chartType, dates);
-                                setDropdownVisible(false);
-                            }
-                        }}
+                        value={getRangePickerValue()}
+                        onChange={handleCustomDateChange}
                         format="DD/MM/YYYY"
                         style={{ width: "100%" }}
                         disabledDate={(current) =>
                             current && current > dayjs().endOf("day")
                         }
+                        placeholder={["Start Date", "End Date"]}
+                        allowClear={false}
                     />
                 </div>
             </div>
@@ -641,6 +751,7 @@ const Dashboard = () => {
                 <Button
                     icon={<CalendarOutlined />}
                     style={{ minWidth: "180px" }}
+                    loading={loading}
                 >
                     {getDisplayText()} <DownOutlined />
                 </Button>
@@ -648,7 +759,7 @@ const Dashboard = () => {
         );
     };
 
-    // Chart header component with controls
+    // Chart header component
     const ChartHeader = ({
         title,
         chartType,
@@ -714,6 +825,7 @@ const Dashboard = () => {
         </div>
     );
 
+    // FIXED: Statistics cards with proper data display
     const statisticCards = [
         {
             title: "Total Users",
@@ -819,27 +931,6 @@ const Dashboard = () => {
                             }
                             valueStyle={{ color: stat.color }}
                         />
-                        {stat.trend && (
-                            <div style={{ marginTop: 8 }}>
-                                <Space>
-                                    {stat.trend === "up" ? (
-                                        <RiseOutlined
-                                            style={{ color: "#52c41a" }}
-                                        />
-                                    ) : (
-                                        <FallOutlined
-                                            style={{ color: "#e31c24" }}
-                                        />
-                                    )}
-                                    <Text
-                                        type="secondary"
-                                        style={{ fontSize: 12 }}
-                                    >
-                                        {stat.trendValue}% from last month
-                                    </Text>
-                                </Space>
-                            </div>
-                        )}
                     </Card>
                 ))}
             </div>
