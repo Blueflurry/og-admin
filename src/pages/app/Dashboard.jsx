@@ -816,7 +816,7 @@ const Dashboard = () => {
             <div
                 style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                    gridTemplateColumns: "repeat(4, 1fr)",
                     gap: 20,
                     marginBottom: 32,
                 }}
