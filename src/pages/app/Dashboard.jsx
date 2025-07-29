@@ -1,4 +1,4 @@
-// src/pages/app/Dashboard.jsx - FIXED VERSION
+// src/pages/app/Dashboard.jsx - UPDATED VERSION
 import React, { useState, useEffect, useRef } from "react";
 import {
     Card,
@@ -19,6 +19,8 @@ import {
     TeamOutlined,
     InboxOutlined,
     FileTextOutlined,
+    VideoCameraOutlined,
+    BookOutlined,
     RiseOutlined,
     FallOutlined,
     ReloadOutlined,
@@ -68,32 +70,30 @@ const Dashboard = () => {
         activeJobs: 0,
         inactiveJobs: 0,
         jobApplications: 0,
+        activeCourses: 0,
+        activeWebinars: 0,
         monthlyRegistrations: 0,
         registrationTrend: 0,
         userGrowthData: [],
-        jobCategoryData: [],
         userStatusData: [],
     });
     const [refreshing, setRefreshing] = useState(false);
     const [chartLoading, setChartLoading] = useState({
         userGrowth: false,
-        jobCategory: false,
         userStatus: false,
     });
 
     // Individual chart date ranges
     const [chartDateRanges, setChartDateRanges] = useState({
         userGrowth: [dayjs().subtract(6, "day"), dayjs()],
-        jobCategory: [dayjs().subtract(6, "day"), dayjs()],
         userStatus: [dayjs().subtract(6, "day"), dayjs()],
     });
 
     // Chart refs for downloading
     const userGrowthChartRef = useRef(null);
-    const jobCategoryChartRef = useRef(null);
     const userStatusChartRef = useRef(null);
 
-    // FIXED: Process metrics data with better error handling and logging
+    // UPDATED: Process metrics data with new API structure
     const processMetricsData = (metricsResponse) => {
         const defaultMetrics = {
             totalUsers: 0,
@@ -103,6 +103,8 @@ const Dashboard = () => {
             activeJobs: 0,
             inactiveJobs: 0,
             jobApplications: 0,
+            activeCourses: 0,
+            activeWebinars: 0,
             monthlyRegistrations: 0,
             registrationTrend: 0,
         };
@@ -118,72 +120,30 @@ const Dashboard = () => {
         const data = metricsResponse.data;
         console.log("🔍 Extracted metrics data:", data);
 
-        // More flexible data extraction - try multiple possible field names
+        // Process the new API structure
         const processedMetrics = {
             ...defaultMetrics,
 
-            // Users data - try multiple possible field structures
-            totalUsers:
-                data.users?.total ||
-                data.totalUsers ||
-                data.userStats?.total ||
-                (data.users?.Active || 0) + (data.users?.Unauthorized || 0) ||
-                0,
+            // Users data from new structure
+            totalUsers: data.users?.total || 0,
+            activeUsers: data.users?.Active || 0,
+            inactiveUsers: data.users?.Unauthorized || 0,
 
-            activeUsers:
-                data.users?.Active ||
-                data.users?.active ||
-                data.activeUsers ||
-                data.userStats?.active ||
-                0,
+            // Jobs data from new structure
+            totalJobs: data.jobs?.total || 0,
+            activeJobs: data.jobs?.Active || 0,
+            inactiveJobs: data.jobs?.Inactive || 0,
 
-            inactiveUsers:
-                data.users?.Unauthorized ||
-                data.users?.inactive ||
-                data.users?.Inactive ||
-                data.inactiveUsers ||
-                data.userStats?.inactive ||
-                0,
+            // Applications data
+            jobApplications: data.applicationStats || 0,
 
-            // Jobs data - try multiple possible field structures
-            totalJobs:
-                data.jobs?.total ||
-                data.totalJobs ||
-                data.jobStats?.total ||
-                (data.jobs?.Active || 0) + (data.jobs?.Inactive || 0) ||
-                0,
+            // New fields for courses and webinars
+            activeCourses: data.activeCourses || 0,
+            activeWebinars: data.activeWebinars || 0,
 
-            activeJobs:
-                data.jobs?.Active ||
-                data.jobs?.active ||
-                data.activeJobs ||
-                data.jobStats?.active ||
-                0,
-
-            inactiveJobs:
-                data.jobs?.Inactive ||
-                data.jobs?.inactive ||
-                data.inactiveJobs ||
-                data.jobStats?.inactive ||
-                (data.jobs?.total || 0) - (data.jobs?.Active || 0) ||
-                0,
-
-            // Applications data - try multiple possible field names
-            jobApplications:
-                data.applicationStats ||
-                data.applications ||
-                data.jobApplications ||
-                data.totalApplications ||
-                0,
-
-            // Monthly registrations - use active users as fallback
+            // Keep existing fields for compatibility
             monthlyRegistrations:
-                data.monthlyRegistrations ||
-                data.users?.Active ||
-                data.activeUsers ||
-                0,
-
-            // Trend data
+                data.monthlyRegistrations || data.users?.Active || 0,
             registrationTrend: data.registrationTrend || data.trend || 0,
         };
 
@@ -196,17 +156,19 @@ const Dashboard = () => {
             activeJobs: processedMetrics.activeJobs,
             inactiveJobs: processedMetrics.inactiveJobs,
             jobApplications: processedMetrics.jobApplications,
+            activeCourses: processedMetrics.activeCourses,
+            activeWebinars: processedMetrics.activeWebinars,
         });
 
         return processedMetrics;
     };
 
-    // FIXED: Convert date range to match API format (YYYY-MM-DD instead of DD/MM/YYYY)
+    // UPDATED: Convert date range to match API format
     const formatDateRangeForAPI = (dateRange) => {
         if (!dateRange || !Array.isArray(dateRange) || dateRange.length !== 2) {
             const fallback = {
-                from: dayjs().subtract(6, "day").format("YYYY-MM-DD"), // FIXED: Use YYYY-MM-DD
-                to: dayjs().format("YYYY-MM-DD"), // FIXED: Use YYYY-MM-DD
+                from: dayjs().subtract(6, "day").format("YYYY-MM-DD"),
+                to: dayjs().format("YYYY-MM-DD"),
             };
             console.log("Using fallback date range for API:", fallback);
             return fallback;
@@ -216,57 +178,12 @@ const Dashboard = () => {
         const endDate = dateRange[1];
 
         const apiFormat = {
-            from: startDate.format("YYYY-MM-DD"), // FIXED: Use YYYY-MM-DD format
-            to: endDate.format("YYYY-MM-DD"), // FIXED: Use YYYY-MM-DD format
+            from: startDate.format("YYYY-MM-DD"),
+            to: endDate.format("YYYY-MM-DD"),
         };
 
         console.log("📅 Date range formatted for API:", apiFormat);
         return apiFormat;
-    };
-
-    // Process job category data
-    const processJobCategoryData = (jobStatsResponse) => {
-        console.log("🔍 Raw job category response:", jobStatsResponse);
-
-        if (
-            !jobStatsResponse ||
-            !jobStatsResponse.data ||
-            !Array.isArray(jobStatsResponse.data)
-        ) {
-            console.warn("❌ Invalid job category data structure");
-            return [];
-        }
-
-        return jobStatsResponse.data.map((categoryData) => {
-            const category =
-                categoryData.category || categoryData.name || "Unknown";
-            let active = 0;
-            let inactive = 0;
-
-            if (categoryData.stats && Array.isArray(categoryData.stats)) {
-                categoryData.stats.forEach((stat) => {
-                    if (stat.status === 1) {
-                        active = stat.count || 0;
-                    } else if (stat.status === -1 || stat.status === 0) {
-                        inactive += stat.count || 0;
-                    }
-                });
-            } else {
-                // Try direct properties
-                active = categoryData.active || categoryData.Active || 0;
-                inactive = categoryData.inactive || categoryData.Inactive || 0;
-            }
-
-            return {
-                category,
-                active,
-                inactive,
-                total:
-                    categoryData.totalJobs ||
-                    categoryData.total ||
-                    active + inactive,
-            };
-        });
     };
 
     // Process user status data
@@ -292,7 +209,7 @@ const Dashboard = () => {
         }));
     };
 
-    // FIXED: Main data fetching function with better error handling
+    // UPDATED: Main data fetching function with simplified chart data fetching
     const fetchDashboardData = async () => {
         try {
             console.log("🔄 Starting dashboard data fetch...");
@@ -306,46 +223,33 @@ const Dashboard = () => {
             // Process metrics data
             const processedMetrics = processMetricsData(metricsResponse);
 
-            // Fetch chart data in parallel
-            const [chartResponse, jobCategoryResponse, userStatusResponse] =
-                await Promise.all([
-                    api
-                        .getDashboardChart(
-                            formatDateRangeForAPI(chartDateRanges.userGrowth)
-                        )
-                        .catch((err) => {
-                            console.warn("⚠️ Chart data fetch failed:", err);
-                            return { data: [] };
-                        }),
-                    (api.getJobCategoryStats
-                        ? api.getJobCategoryStats(
-                              formatDateRangeForAPI(chartDateRanges.jobCategory)
-                          )
-                        : Promise.resolve({ data: [] })
-                    ).catch((err) => {
-                        console.warn("⚠️ Job category data fetch failed:", err);
+            // Fetch chart data in parallel (removed job category)
+            const [chartResponse, userStatusResponse] = await Promise.all([
+                api
+                    .getDashboardChart(
+                        formatDateRangeForAPI(chartDateRanges.userGrowth)
+                    )
+                    .catch((err) => {
+                        console.warn("⚠️ Chart data fetch failed:", err);
                         return { data: [] };
                     }),
-                    (api.getUserStatusStats
-                        ? api.getUserStatusStats(
-                              formatDateRangeForAPI(chartDateRanges.userStatus)
-                          )
-                        : Promise.resolve({ data: [] })
-                    ).catch((err) => {
-                        console.warn("⚠️ User status data fetch failed:", err);
-                        return { data: [] };
-                    }),
-                ]);
+                (api.getUserStatusStats
+                    ? api.getUserStatusStats(
+                          formatDateRangeForAPI(chartDateRanges.userStatus)
+                      )
+                    : Promise.resolve({ data: [] })
+                ).catch((err) => {
+                    console.warn("⚠️ User status data fetch failed:", err);
+                    return { data: [] };
+                }),
+            ]);
 
             console.log("📊 Chart responses:", {
                 chartResponse,
-                jobCategoryResponse,
                 userStatusResponse,
             });
 
             // Process chart data
-            const processedJobCategories =
-                processJobCategoryData(jobCategoryResponse);
             const processedUserStatusData =
                 processUserStatusData(userStatusResponse);
 
@@ -354,7 +258,6 @@ const Dashboard = () => {
                 ...processedMetrics,
                 userGrowthData:
                     chartResponse.data || chartResponse.userGrowthData || [],
-                jobCategoryData: processedJobCategories,
                 userStatusData: processedUserStatusData,
             };
 
@@ -383,7 +286,7 @@ const Dashboard = () => {
         }
     };
 
-    // Update individual chart data
+    // UPDATED: Update individual chart data (removed job category)
     const updateChartData = async (chartType, newDateRange) => {
         try {
             if (
@@ -411,15 +314,6 @@ const Dashboard = () => {
                     userGrowthData:
                         chartData.data || chartData.userGrowthData || [],
                 };
-            } else if (chartType === "jobCategory") {
-                if (api.getJobCategoryStats) {
-                    const jobCategoryResponse = await api.getJobCategoryStats(
-                        dateRangeForAPI
-                    );
-                    const processedJobCategories =
-                        processJobCategoryData(jobCategoryResponse);
-                    updatedData = { jobCategoryData: processedJobCategories };
-                }
             } else if (chartType === "userStatus") {
                 if (api.getUserStatusStats) {
                     const userStatusResponse = await api.getUserStatusStats(
@@ -527,16 +421,6 @@ const Dashboard = () => {
             "Active Users": item.activeUsers || 0,
         }));
         downloadCSV(csvData, "User_Growth_Trend");
-    };
-
-    const downloadJobCategoryCSV = () => {
-        const csvData = dashboardData.jobCategoryData.map((item) => ({
-            Category: item.category || "",
-            "Active Jobs": item.active || 0,
-            "Inactive Jobs": item.inactive || 0,
-            "Total Jobs": item.total || 0,
-        }));
-        downloadCSV(csvData, "Jobs_by_Category");
     };
 
     const downloadUserStatusCSV = () => {
@@ -825,36 +709,74 @@ const Dashboard = () => {
         </div>
     );
 
-    // FIXED: Statistics cards with proper data display
+    // UPDATED: Statistics cards with new structure
     const statisticCards = [
         {
-            title: "Total Users",
+            title: "Users",
             value: dashboardData.totalUsers,
             icon: <UserOutlined />,
             color: "#04248c",
-            suffix: "users",
+            bgColor: "#f0f4ff",
+            stats: [
+                {
+                    label: "Active",
+                    value: dashboardData.activeUsers,
+                    color: "#52c41a",
+                },
+                {
+                    label: "Unauthorized",
+                    value: dashboardData.inactiveUsers,
+                    color: "#ff4d4f",
+                },
+            ],
         },
         {
-            title: "User Status",
-            value: dashboardData.activeUsers,
-            icon: <TeamOutlined />,
-            color: "#52c41a",
-            suffix: `active / ${dashboardData.inactiveUsers} unauthorized`,
-            prefix: null,
-        },
-        {
-            title: "Job Postings",
-            value: dashboardData.activeJobs,
+            title: "Jobs",
+            value: dashboardData.totalJobs,
             icon: <InboxOutlined />,
-            color: "#722ed1",
-            suffix: `active / ${dashboardData.inactiveJobs} inactive`,
+            color: "#52c41a",
+            bgColor: "#f6ffed",
+            stats: [
+                {
+                    label: "Active",
+                    value: dashboardData.activeJobs,
+                    color: "#52c41a",
+                },
+                {
+                    label: "Inactive",
+                    value: dashboardData.inactiveJobs,
+                    color: "#d9d9d9",
+                },
+            ],
         },
         {
-            title: "Job Applications",
+            title: "Content",
+            value: dashboardData.activeWebinars + dashboardData.activeCourses,
+            icon: <VideoCameraOutlined />,
+            color: "#722ed1",
+            bgColor: "#f9f0ff",
+            // subtitle: "Webinars",
+            stats: [
+                {
+                    label: "Webinars",
+                    value: dashboardData.activeWebinars,
+                    color: "#722ed1",
+                },
+                {
+                    label: "Courses",
+                    value: dashboardData.activeCourses,
+                    color: "#722ed1",
+                },
+            ],
+        },
+        {
+            title: "Applications",
             value: dashboardData.jobApplications,
             icon: <FileTextOutlined />,
             color: "#fa8c16",
-            suffix: "applications",
+            bgColor: "#fff7e6",
+            subtitle: "Total Received",
+            stats: [],
         },
     ];
 
@@ -890,13 +812,13 @@ const Dashboard = () => {
                 </Col>
             </Row>
 
-            {/* Statistics Cards */}
+            {/* UPDATED: Statistics Cards with new design */}
             <div
                 style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                    gap: 16,
-                    marginBottom: 24,
+                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                    gap: 20,
+                    marginBottom: 32,
                 }}
             >
                 {statisticCards.map((stat, index) => (
@@ -905,39 +827,159 @@ const Dashboard = () => {
                         hoverable
                         className="dashboard-stat-card"
                         style={{
-                            borderRadius: 8,
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                            borderRadius: 12,
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                            border: "none",
+                            overflow: "hidden",
+                            position: "relative",
                         }}
+                        bodyStyle={{ padding: 0 }}
                     >
-                        <Statistic
-                            title={
-                                <Space>
-                                    <span
+                        <div style={{ padding: "24px" }}>
+                            {/* Header with icon and title */}
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    marginBottom: "16px",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "12px",
+                                    }}
+                                >
+                                    <div
                                         style={{
+                                            width: "40px",
+                                            height: "40px",
+                                            borderRadius: "10px",
+                                            backgroundColor: stat.bgColor,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            fontSize: "18px",
                                             color: stat.color,
-                                            fontSize: 20,
                                         }}
                                     >
                                         {stat.icon}
-                                    </span>
-                                    <span>{stat.title}</span>
-                                </Space>
-                            }
-                            value={stat.value}
-                            suffix={
-                                <Text type="secondary" style={{ fontSize: 14 }}>
-                                    {stat.suffix}
-                                </Text>
-                            }
-                            valueStyle={{ color: stat.color }}
-                        />
+                                    </div>
+                                    <div>
+                                        <div
+                                            style={{
+                                                fontSize: "14px",
+                                                fontWeight: 500,
+                                                color: "#262626",
+                                                marginBottom: "2px",
+                                            }}
+                                        >
+                                            {stat.title}
+                                        </div>
+                                        {stat.subtitle && (
+                                            <div
+                                                style={{
+                                                    fontSize: "12px",
+                                                    color: "#8c8c8c",
+                                                }}
+                                            >
+                                                {stat.subtitle}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Main value */}
+                            <div
+                                style={{
+                                    fontSize: "32px",
+                                    fontWeight: 700,
+                                    color: stat.color,
+                                    lineHeight: 1,
+                                    marginBottom: "16px",
+                                }}
+                            >
+                                {stat.value.toLocaleString()}
+                            </div>
+
+                            {/* Stats breakdown */}
+                            {stat.stats && stat.stats.length > 0 && (
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        gap: "16px",
+                                        flexWrap: "wrap",
+                                    }}
+                                >
+                                    {stat.stats.map((subStat, subIndex) => (
+                                        <div
+                                            key={subIndex}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "6px",
+                                                padding: "6px 12px",
+                                                backgroundColor: "#fafafa",
+                                                borderRadius: "6px",
+                                                border: `1px solid ${subStat.color}20`,
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    width: "8px",
+                                                    height: "8px",
+                                                    borderRadius: "50%",
+                                                    backgroundColor:
+                                                        subStat.color,
+                                                }}
+                                            ></div>
+                                            <span
+                                                style={{
+                                                    fontSize: "12px",
+                                                    color: "#595959",
+                                                    marginRight: "4px",
+                                                }}
+                                            >
+                                                {subStat.label}:
+                                            </span>
+                                            <span
+                                                style={{
+                                                    fontSize: "12px",
+                                                    fontWeight: 600,
+                                                    color: subStat.color,
+                                                }}
+                                            >
+                                                {subStat.value.toLocaleString()}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Decorative element */}
+                        <div
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                right: 0,
+                                width: "60px",
+                                height: "60px",
+                                background: `linear-gradient(135deg, ${stat.color}15, ${stat.color}05)`,
+                                borderBottomLeft: "60px solid transparent",
+                                borderTop: `60px solid ${stat.color}10`,
+                            }}
+                        ></div>
                     </Card>
                 ))}
             </div>
 
             <Divider />
 
-            {/* Charts Section */}
+            {/* UPDATED: Charts Section - Only 2 charts now */}
             <Row gutter={[16, 16]}>
                 {/* User Growth Line Chart */}
                 <Col xs={24}>
@@ -998,61 +1040,8 @@ const Dashboard = () => {
                     </Card>
                 </Col>
 
-                {/* Job Categories Bar Chart */}
-                <Col xs={24} lg={12}>
-                    <Card style={{ padding: "24px" }}>
-                        <ChartHeader
-                            title="Jobs by Category"
-                            chartType="jobCategory"
-                            onDateRangeChange={handleChartDateRangeChange}
-                            onDownloadCSV={downloadJobCategoryCSV}
-                            dateRange={chartDateRanges.jobCategory}
-                            loading={chartLoading.jobCategory}
-                        />
-                        <ChartWrapper loading={chartLoading.jobCategory}>
-                            <div ref={jobCategoryChartRef}>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <BarChart
-                                        data={dashboardData.jobCategoryData}
-                                        margin={{
-                                            top: 5,
-                                            right: 30,
-                                            left: 20,
-                                            bottom: 5,
-                                        }}
-                                    >
-                                        <CartesianGrid
-                                            strokeDasharray="3 3"
-                                            stroke="#f0f0f0"
-                                        />
-                                        <XAxis
-                                            dataKey="category"
-                                            stroke="#8c8c8c"
-                                        />
-                                        <YAxis stroke="#8c8c8c" />
-                                        <Tooltip content={<CustomTooltip />} />
-                                        <Legend />
-                                        <Bar
-                                            dataKey="active"
-                                            fill="#04248c"
-                                            name="Active Jobs"
-                                            radius={[8, 8, 0, 0]}
-                                        />
-                                        <Bar
-                                            dataKey="inactive"
-                                            fill="#fa8c16"
-                                            name="Inactive Jobs"
-                                            radius={[8, 8, 0, 0]}
-                                        />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </ChartWrapper>
-                    </Card>
-                </Col>
-
-                {/* User Status Pie Chart */}
-                <Col xs={24} lg={12}>
+                {/* User Status Pie Chart - Full width now */}
+                <Col xs={24}>
                     <Card style={{ padding: "24px" }}>
                         <ChartHeader
                             title="User Status Distribution"
