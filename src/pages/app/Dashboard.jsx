@@ -32,7 +32,6 @@ import {
     BarChart,
     Bar,
     LineChart,
-    AreaChart,
     Line,
     PieChart,
     Pie,
@@ -76,25 +75,25 @@ const Dashboard = () => {
         monthlyRegistrations: 0,
         registrationTrend: 0,
         userGrowthData: [],
-        userStatusData: [],
+        jobApplicationsData: [],
     });
     const [refreshing, setRefreshing] = useState(false);
     const [chartLoading, setChartLoading] = useState({
         userGrowth: false,
-        userStatus: false,
+        jobApplications: false,
     });
 
     // Individual chart date ranges
     const [chartDateRanges, setChartDateRanges] = useState({
         userGrowth: [dayjs().subtract(6, "day"), dayjs()],
-        userStatus: [dayjs().subtract(6, "day"), dayjs()],
+        jobApplications: [dayjs().subtract(6, "day"), dayjs()],
     });
 
     // Chart refs for downloading
     const userGrowthChartRef = useRef(null);
-    const userStatusChartRef = useRef(null);
+    const jobApplicationsChartRef = useRef(null);
 
-    // UPDATED: Process metrics data with new API structure
+    // Process metrics data with new API structure
     const processMetricsData = (metricsResponse) => {
         const defaultMetrics = {
             totalUsers: 0,
@@ -164,7 +163,7 @@ const Dashboard = () => {
         return processedMetrics;
     };
 
-    // UPDATED: Convert date range to match API format
+    // Convert date range to match API format
     const formatDateRangeForAPI = (dateRange) => {
         if (!dateRange || !Array.isArray(dateRange) || dateRange.length !== 2) {
             const fallback = {
@@ -187,30 +186,26 @@ const Dashboard = () => {
         return apiFormat;
     };
 
-    // Process user status data
-    const processUserStatusData = (userStatsResponse) => {
-        console.log("🔍 Raw user status response:", userStatsResponse);
+    // Process job applications chart data
+    const processJobApplicationsData = (jobAppResponse) => {
+        console.log("🔍 Raw job applications response:", jobAppResponse);
 
         if (
-            !userStatsResponse ||
-            !userStatsResponse.data ||
-            !Array.isArray(userStatsResponse.data)
+            !jobAppResponse ||
+            !jobAppResponse.data ||
+            !Array.isArray(jobAppResponse.data)
         ) {
-            console.warn("❌ Invalid user status data structure");
+            console.warn("❌ Invalid job applications data structure");
             return [];
         }
 
-        return userStatsResponse.data.map((statusData) => ({
-            name:
-                statusData.label ||
-                statusData.name ||
-                statusData.status ||
-                "Unknown",
-            value: statusData.count || statusData.value || 0,
+        return jobAppResponse.data.map((item) => ({
+            date: item.date || "",
+            applications: item.total || 0,
         }));
     };
 
-    // UPDATED: Main data fetching function with simplified chart data fetching
+    // Main data fetching function
     const fetchDashboardData = async () => {
         try {
             console.log("🔄 Starting dashboard data fetch...");
@@ -224,42 +219,53 @@ const Dashboard = () => {
             // Process metrics data
             const processedMetrics = processMetricsData(metricsResponse);
 
-            // Fetch chart data in parallel (removed job category)
-            const [chartResponse, userStatusResponse] = await Promise.all([
-                api
-                    .getDashboardChart(
-                        formatDateRangeForAPI(chartDateRanges.userGrowth)
-                    )
-                    .catch((err) => {
-                        console.warn("⚠️ Chart data fetch failed:", err);
-                        return { data: [] };
-                    }),
-                (api.getUserStatusStats
-                    ? api.getUserStatusStats(
-                          formatDateRangeForAPI(chartDateRanges.userStatus)
-                      )
-                    : Promise.resolve({ data: [] })
-                ).catch((err) => {
-                    console.warn("⚠️ User status data fetch failed:", err);
-                    return { data: [] };
-                }),
-            ]);
+            // Fetch chart data in parallel
+            const [userGrowthResponse, jobApplicationsResponse] =
+                await Promise.all([
+                    api
+                        .getDashboardChart(
+                            formatDateRangeForAPI(chartDateRanges.userGrowth)
+                        )
+                        .catch((err) => {
+                            console.warn(
+                                "⚠️ User growth chart data fetch failed:",
+                                err
+                            );
+                            return { data: [] };
+                        }),
+                    api
+                        .getJobApplicationChart(
+                            formatDateRangeForAPI(
+                                chartDateRanges.jobApplications
+                            )
+                        )
+                        .catch((err) => {
+                            console.warn(
+                                "⚠️ Job applications chart data fetch failed:",
+                                err
+                            );
+                            return { data: [] };
+                        }),
+                ]);
 
             console.log("📊 Chart responses:", {
-                chartResponse,
-                userStatusResponse,
+                userGrowthResponse,
+                jobApplicationsResponse,
             });
 
             // Process chart data
-            const processedUserStatusData =
-                processUserStatusData(userStatusResponse);
+            const processedJobApplicationsData = processJobApplicationsData(
+                jobApplicationsResponse
+            );
 
             // Combine all data
             const combinedData = {
                 ...processedMetrics,
                 userGrowthData:
-                    chartResponse.data || chartResponse.userGrowthData || [],
-                userStatusData: processedUserStatusData,
+                    userGrowthResponse.data ||
+                    userGrowthResponse.userGrowthData ||
+                    [],
+                jobApplicationsData: processedJobApplicationsData,
             };
 
             console.log("🎯 Final combined dashboard data:", combinedData);
@@ -287,7 +293,7 @@ const Dashboard = () => {
         }
     };
 
-    // UPDATED: Update individual chart data (removed job category)
+    // Update individual chart data
     const updateChartData = async (chartType, newDateRange) => {
         try {
             if (
@@ -315,15 +321,13 @@ const Dashboard = () => {
                     userGrowthData:
                         chartData.data || chartData.userGrowthData || [],
                 };
-            } else if (chartType === "userStatus") {
-                if (api.getUserStatusStats) {
-                    const userStatusResponse = await api.getUserStatusStats(
-                        dateRangeForAPI
-                    );
-                    const processedUserStatusData =
-                        processUserStatusData(userStatusResponse);
-                    updatedData = { userStatusData: processedUserStatusData };
-                }
+            } else if (chartType === "jobApplications") {
+                const jobAppData = await api.getJobApplicationChart(
+                    dateRangeForAPI
+                );
+                const processedJobAppData =
+                    processJobApplicationsData(jobAppData);
+                updatedData = { jobApplicationsData: processedJobAppData };
             }
 
             setDashboardData((prevData) => ({
@@ -418,18 +422,17 @@ const Dashboard = () => {
     const downloadUserGrowthCSV = () => {
         const csvData = dashboardData.userGrowthData.map((item) => ({
             Date: item.date || "",
-            "Total Users": item.users || 0,
             "Active Users": item.activeUsers || 0,
         }));
         downloadCSV(csvData, "User_Growth_Trend");
     };
 
-    const downloadUserStatusCSV = () => {
-        const csvData = dashboardData.userStatusData.map((item) => ({
-            Status: item.name || "",
-            Count: item.value || 0,
+    const downloadJobApplicationsCSV = () => {
+        const csvData = dashboardData.jobApplicationsData.map((item) => ({
+            Date: item.date || "",
+            Applications: item.applications || 0,
         }));
-        downloadCSV(csvData, "User_Status_Distribution");
+        downloadCSV(csvData, "Job_Applications_Trend");
     };
 
     // Load dashboard data on component mount
@@ -710,7 +713,7 @@ const Dashboard = () => {
         </div>
     );
 
-    // UPDATED: Statistics cards with new structure
+    // Statistics cards with new structure
     const statisticCards = [
         {
             title: "Users",
@@ -756,7 +759,6 @@ const Dashboard = () => {
             icon: <VideoCameraOutlined />,
             color: "#722ed1",
             bgColor: "#f9f0ff",
-            // subtitle: "Webinars",
             stats: [
                 {
                     label: "Webinars",
@@ -813,7 +815,7 @@ const Dashboard = () => {
                 </Col>
             </Row>
 
-            {/* UPDATED: Statistics Cards with new design */}
+            {/* Statistics Cards */}
             <div
                 style={{
                     display: "grid",
@@ -980,11 +982,11 @@ const Dashboard = () => {
 
             <Divider />
 
-            {/* UPDATED: Charts Section - Only 2 charts now */}
+            {/* Charts Section */}
             <Row gutter={[16, 16]}>
                 {/* User Growth Line Chart */}
                 <Col xs={24}>
-                    <Card style={{ padding: "24px" }}>
+                    <Card style={{ padding: "24px", marginBottom: "16px" }}>
                         <ChartHeader
                             title="User Growth Trend"
                             chartType="userGrowth"
@@ -1016,15 +1018,7 @@ const Dashboard = () => {
                                         <YAxis stroke="#8c8c8c" />
                                         <Tooltip content={<CustomTooltip />} />
                                         <Legend />
-                                        <Line
-                                            type="monotone"
-                                            dataKey="users"
-                                            stroke="#04248c"
-                                            strokeWidth={2}
-                                            dot={{ fill: "#04248c", r: 4 }}
-                                            activeDot={{ r: 6 }}
-                                            name="Total Users"
-                                        />
+
                                         <Line
                                             type="monotone"
                                             dataKey="activeUsers"
@@ -1033,6 +1027,56 @@ const Dashboard = () => {
                                             dot={{ fill: "#52c41a", r: 4 }}
                                             activeDot={{ r: 6 }}
                                             name="Active Users"
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </ChartWrapper>
+                    </Card>
+                </Col>
+
+                {/* Job Applications Trend Chart */}
+                <Col xs={24}>
+                    <Card style={{ padding: "24px" }}>
+                        <ChartHeader
+                            title="Job Applications Trend"
+                            chartType="jobApplications"
+                            onDateRangeChange={handleChartDateRangeChange}
+                            onDownloadCSV={downloadJobApplicationsCSV}
+                            dateRange={chartDateRanges.jobApplications}
+                            loading={chartLoading.jobApplications}
+                        />
+                        <ChartWrapper loading={chartLoading.jobApplications}>
+                            <div ref={jobApplicationsChartRef}>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart
+                                        data={dashboardData.jobApplicationsData}
+                                        margin={{
+                                            top: 5,
+                                            right: 30,
+                                            left: 20,
+                                            bottom: 5,
+                                        }}
+                                    >
+                                        <CartesianGrid
+                                            strokeDasharray="3 3"
+                                            stroke="#f0f0f0"
+                                        />
+                                        <XAxis
+                                            dataKey="date"
+                                            stroke="#8c8c8c"
+                                        />
+                                        <YAxis stroke="#8c8c8c" />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="applications"
+                                            stroke="#fa8c16"
+                                            strokeWidth={2}
+                                            dot={{ fill: "#fa8c16", r: 4 }}
+                                            activeDot={{ r: 6 }}
+                                            name="Applications"
                                         />
                                     </LineChart>
                                 </ResponsiveContainer>

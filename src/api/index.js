@@ -931,6 +931,39 @@ export class API {
         );
     }
 
+    getJobApplicationChart(dateRange) {
+        // Handle both old string format and new object format
+        let from, to;
+
+        if (typeof dateRange === "string") {
+            // Legacy format: "7days", "30days", etc.
+            const formatted = this.formatDateForAPI(dateRange);
+            from = formatted.from;
+            to = formatted.to;
+        } else if (
+            dateRange &&
+            typeof dateRange === "object" &&
+            dateRange.from &&
+            dateRange.to
+        ) {
+            // New format: {from: "YYYY-MM-DD", to: "YYYY-MM-DD"}
+            from = dateRange.from;
+            to = dateRange.to;
+        } else {
+            // Fallback to last 7 days
+            const fallback = this.formatDateForAPI("7days");
+            from = fallback.from;
+            to = fallback.to;
+        }
+
+        console.log(
+            `📡 API: getJobApplicationChart call: from=${from}, to=${to}`
+        );
+        return this.request(() =>
+            this.client.get(`/auth/job-application/chart?from=${from}&to=${to}`)
+        );
+    }
+
     // FIXED: Helper function to format dates for API
     formatDateForAPI(timeRange) {
         const today = new Date();
