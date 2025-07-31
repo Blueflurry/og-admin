@@ -110,8 +110,8 @@ const Sidebar = ({ collapsed }) => {
             [paths.users]: { module: "users", action: "view" },
             [paths.categories]: { module: "categories", action: "view" },
             [paths.jobs]: { module: "jobs", action: "view" },
-            [paths.jobApplications]: {
-                module: "jobApplications",
+            [paths.allJobApplications]: {
+                module: "allJobApplications",
                 action: "view",
             },
             [paths.courses]: { module: "courses", action: "view" },

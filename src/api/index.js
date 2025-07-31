@@ -815,90 +815,90 @@ export class API {
     }
 
     // Get user status statistics (for pie chart) - FIXED for DD/MM/YYYY format
-    getUserStatusStats(dateRange) {
-        // Handle both old string format and new object format
-        let from, to;
+    // getUserStatusStats(dateRange) {
+    //     // Handle both old string format and new object format
+    //     let from, to;
 
-        if (typeof dateRange === "string") {
-            // Legacy format: "7days", "30days", etc.
-            const formatted = this.formatDateForAPI(dateRange);
-            from = formatted.from;
-            to = formatted.to;
-        } else if (
-            dateRange &&
-            typeof dateRange === "object" &&
-            dateRange.from &&
-            dateRange.to
-        ) {
-            // SPECIAL CASE: User Status API expects DD/MM/YYYY format
-            // Convert from YYYY-MM-DD to DD/MM/YYYY
-            const convertToUserStatusFormat = (dateStr) => {
-                if (dateStr.includes("-")) {
-                    // Convert YYYY-MM-DD to DD/MM/YYYY
-                    const [year, month, day] = dateStr.split("-");
-                    return `${day}/${month}/${year}`;
-                }
-                return dateStr; // Already in correct format
-            };
+    //     if (typeof dateRange === "string") {
+    //         // Legacy format: "7days", "30days", etc.
+    //         const formatted = this.formatDateForAPI(dateRange);
+    //         from = formatted.from;
+    //         to = formatted.to;
+    //     } else if (
+    //         dateRange &&
+    //         typeof dateRange === "object" &&
+    //         dateRange.from &&
+    //         dateRange.to
+    //     ) {
+    //         // SPECIAL CASE: User Status API expects DD/MM/YYYY format
+    //         // Convert from YYYY-MM-DD to DD/MM/YYYY
+    //         const convertToUserStatusFormat = (dateStr) => {
+    //             if (dateStr.includes("-")) {
+    //                 // Convert YYYY-MM-DD to DD/MM/YYYY
+    //                 const [year, month, day] = dateStr.split("-");
+    //                 return `${day}/${month}/${year}`;
+    //             }
+    //             return dateStr; // Already in correct format
+    //         };
 
-            from = convertToUserStatusFormat(dateRange.from);
-            to = convertToUserStatusFormat(dateRange.to);
-        } else {
-            // Fallback to last 7 days in DD/MM/YYYY format
-            const today = new Date();
-            const fromDate = new Date(today);
-            fromDate.setDate(today.getDate() - 7);
+    //         from = convertToUserStatusFormat(dateRange.from);
+    //         to = convertToUserStatusFormat(dateRange.to);
+    //     } else {
+    //         // Fallback to last 7 days in DD/MM/YYYY format
+    //         const today = new Date();
+    //         const fromDate = new Date(today);
+    //         fromDate.setDate(today.getDate() - 7);
 
-            const formatForUserStatus = (date) => {
-                const day = String(date.getDate()).padStart(2, "0");
-                const month = String(date.getMonth() + 1).padStart(2, "0");
-                const year = date.getFullYear();
-                return `${day}/${month}/${year}`;
-            };
+    //         const formatForUserStatus = (date) => {
+    //             const day = String(date.getDate()).padStart(2, "0");
+    //             const month = String(date.getMonth() + 1).padStart(2, "0");
+    //             const year = date.getFullYear();
+    //             return `${day}/${month}/${year}`;
+    //         };
 
-            from = formatForUserStatus(fromDate);
-            to = formatForUserStatus(today);
-        }
+    //         from = formatForUserStatus(fromDate);
+    //         to = formatForUserStatus(today);
+    //     }
 
-        console.log(
-            `📡 API: getUserStatusStats call with DD/MM/YYYY format: from=${from}, to=${to}`
-        );
-        return this.request(() =>
-            this.client.get(`/auth/user/metrics?from=${from}&to=${to}`)
-        );
-    }
+    //     console.log(
+    //         `📡 API: getUserStatusStats call with DD/MM/YYYY format: from=${from}, to=${to}`
+    //     );
+    //     return this.request(() =>
+    //         this.client.get(`/auth/user/metrics?from=${from}&to=${to}`)
+    //     );
+    // }
 
     // Get job category statistics with time range
-    getJobCategoryStats(dateRange) {
-        // Handle both old string format and new object format
-        let from, to;
+    // getJobCategoryStats(dateRange) {
+    //     // Handle both old string format and new object format
+    //     let from, to;
 
-        if (typeof dateRange === "string") {
-            // Legacy format: "7days", "30days", etc.
-            const formatted = this.formatDateForAPI(dateRange);
-            from = formatted.from;
-            to = formatted.to;
-        } else if (
-            dateRange &&
-            typeof dateRange === "object" &&
-            dateRange.from &&
-            dateRange.to
-        ) {
-            // New format: {from: "YYYY-MM-DD", to: "YYYY-MM-DD"}
-            from = dateRange.from;
-            to = dateRange.to;
-        } else {
-            // Fallback to last 7 days
-            const fallback = this.formatDateForAPI("7days");
-            from = fallback.from;
-            to = fallback.to;
-        }
+    //     if (typeof dateRange === "string") {
+    //         // Legacy format: "7days", "30days", etc.
+    //         const formatted = this.formatDateForAPI(dateRange);
+    //         from = formatted.from;
+    //         to = formatted.to;
+    //     } else if (
+    //         dateRange &&
+    //         typeof dateRange === "object" &&
+    //         dateRange.from &&
+    //         dateRange.to
+    //     ) {
+    //         // New format: {from: "YYYY-MM-DD", to: "YYYY-MM-DD"}
+    //         from = dateRange.from;
+    //         to = dateRange.to;
+    //     } else {
+    //         // Fallback to last 7 days
+    //         const fallback = this.formatDateForAPI("7days");
+    //         from = fallback.from;
+    //         to = fallback.to;
+    //     }
 
-        console.log(`📡 API: getJobCategoryStats call: from=${from}, to=${to}`);
-        return this.request(() =>
-            this.client.get(`/jobs/stats?from=${from}&to=${to}`)
-        );
-    }
+    //     console.log(`📡 API: getJobCategoryStats call: from=${from}, to=${to}`);
+    //     return this.request(() =>
+    //         this.client.get(`/jobs/stats?from=${from}&to=${to}`)
+    //     );
+    // }
 
     getDashboardChart(dateRange) {
         // Handle both old string format and new object format

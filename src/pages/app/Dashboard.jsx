@@ -32,6 +32,7 @@ import {
     BarChart,
     Bar,
     LineChart,
+    AreaChart,
     Line,
     PieChart,
     Pie,
@@ -745,7 +746,7 @@ const Dashboard = () => {
                 {
                     label: "Inactive",
                     value: dashboardData.inactiveJobs,
-                    color: "#d9d9d9",
+                    color: "#ff4d4f",
                 },
             ],
         },
@@ -1034,102 +1035,6 @@ const Dashboard = () => {
                                             name="Active Users"
                                         />
                                     </LineChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </ChartWrapper>
-                    </Card>
-                </Col>
-
-                {/* User Status Pie Chart - Full width now */}
-                <Col xs={24}>
-                    <Card style={{ padding: "24px" }}>
-                        <ChartHeader
-                            title="User Status Distribution"
-                            chartType="userStatus"
-                            onDateRangeChange={handleChartDateRangeChange}
-                            onDownloadCSV={downloadUserStatusCSV}
-                            dateRange={chartDateRanges.userStatus}
-                            loading={chartLoading.userStatus}
-                        />
-                        <ChartWrapper loading={chartLoading.userStatus}>
-                            <div ref={userStatusChartRef}>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <PieChart>
-                                        <Pie
-                                            data={dashboardData.userStatusData}
-                                            cx="50%"
-                                            cy="50%"
-                                            labelLine={false}
-                                            label={({
-                                                cx,
-                                                cy,
-                                                midAngle,
-                                                innerRadius,
-                                                outerRadius,
-                                                percent,
-                                            }) => {
-                                                const radius =
-                                                    innerRadius +
-                                                    (outerRadius -
-                                                        innerRadius) *
-                                                        0.5;
-                                                const x =
-                                                    cx +
-                                                    radius *
-                                                        Math.cos(
-                                                            -midAngle *
-                                                                (Math.PI / 180)
-                                                        );
-                                                const y =
-                                                    cy +
-                                                    radius *
-                                                        Math.sin(
-                                                            -midAngle *
-                                                                (Math.PI / 180)
-                                                        );
-
-                                                return (
-                                                    <text
-                                                        x={x}
-                                                        y={y}
-                                                        fill="white"
-                                                        textAnchor={
-                                                            x > cx
-                                                                ? "start"
-                                                                : "end"
-                                                        }
-                                                        dominantBaseline="central"
-                                                        style={{
-                                                            fontWeight: 600,
-                                                        }}
-                                                    >
-                                                        {`${(
-                                                            percent * 100
-                                                        ).toFixed(0)}%`}
-                                                    </text>
-                                                );
-                                            }}
-                                            outerRadius={100}
-                                            fill="#8884d8"
-                                            dataKey="value"
-                                        >
-                                            {dashboardData.userStatusData.map(
-                                                (entry, index) => (
-                                                    <Cell
-                                                        key={`cell-${index}`}
-                                                        fill={
-                                                            entry.name ===
-                                                            "Active"
-                                                                ? "#52c41a"
-                                                                : "#ff4d4f"
-                                                        }
-                                                    />
-                                                )
-                                            )}
-                                        </Pie>
-                                        <Tooltip />
-                                        <Legend />
-                                    </PieChart>
                                 </ResponsiveContainer>
                             </div>
                         </ChartWrapper>
