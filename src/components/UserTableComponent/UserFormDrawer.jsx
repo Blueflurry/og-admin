@@ -94,22 +94,30 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             const formData = new FormData();
 
             formData.append("name[first]", values.firstName);
-            formData.append("name[middle]", values.middleName || "");
-            formData.append("name[last]", values.lastName || "");
+
+            if (values.middleName)
+                formData.append("name[middle]", values.middleName || "");
+            if (values.lastName)
+                formData.append("name[last]", values.lastName || "");
             formData.append("email", values.email);
             formData.append("phone1", values.primaryPhone);
-            formData.append("phone2", values.secondaryPhone || "");
-            formData.append(
-                "dob",
-                values.dob ? values.dob.format("YYYY-MM-DD") : ""
-            );
+            if (values.secondaryPhone)
+                formData.append("phone2", values.secondaryPhone || "");
+            if (values.dob)
+                formData.append(
+                    "dob",
+                    values.dob ? values.dob.format("YYYY-MM-DD") : ""
+                );
 
             // Add address fields using bracket notation
-            formData.append("address[street]", values.streetAddress);
-            formData.append("address[city]", values.city);
-            formData.append("address[state]", values.state);
-            formData.append("address[country]", values.country);
-            formData.append("address[pincode]", values.pincode);
+            if (values.streetAddress)
+                formData.append("address[street]", values.streetAddress);
+            if (values.city) formData.append("address[city]", values.city);
+            if (values.state) formData.append("address[state]", values.state);
+            if (values.country)
+                formData.append("address[country]", values.country);
+            if (values.pincode)
+                formData.append("address[pincode]", values.pincode);
 
             formData.append("status", values.status);
 
@@ -361,30 +369,12 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            name="city"
-                            label={<>City </>}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter city",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="city" label={<>City </>}>
                             <Input placeholder="City" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            name="state"
-                            label={<>State </>}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter state",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="state" label={<>State </>}>
                             <Input placeholder="State" />
                         </Form.Item>
                     </Col>
@@ -392,30 +382,12 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            name="pincode"
-                            label={<>Pincode </>}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter pincode",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="pincode" label={<>Pincode </>}>
                             <Input placeholder="Pincode" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            name="country"
-                            label={<>Country </>}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please enter country",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="country" label={<>Country </>}>
                             <Input placeholder="Country" />
                         </Form.Item>
                     </Col>
