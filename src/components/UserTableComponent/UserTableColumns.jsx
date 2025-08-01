@@ -153,29 +153,33 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
 
                 const part1 = address.city
                     ? address.city
-                    : streetParts.length > 3
-                    ? streetParts[streetParts.length - 3]
-                    : streetParts.length > 2
-                    ? streetParts[streetParts.length - 2]
-                    : streetParts.length > 1
+                    : streetParts && streetParts?.length > 3
+                    ? streetParts[streetParts?.length - 3]
+                    : streetParts && streetParts?.length > 2
+                    ? streetParts[streetParts?.length - 2]
+                    : streetParts && streetParts?.length > 1
                     ? streetParts[1]
-                    : streetParts[0];
+                    : streetParts && streetParts?.length > 0
+                    ? streetParts[0]
+                    : "";
 
                 let part2,
                     part3 = null;
+                console.log(part1, streetParts);
+                console.log(address);
 
-                if (part1.length < 20) {
+                if (part1 && part1?.length && part1?.length < 20) {
                     part2 = address.state
                         ? address.state
-                        : streetParts.length > 3
-                        ? streetParts[streetParts.length - 2]
-                        : streetParts.length > 2
+                        : streetParts?.length > 3
+                        ? streetParts[streetParts?.length - 2]
+                        : streetParts?.length > 2
                         ? streetParts[0]
                         : null;
 
                     part3 = address.country
                         ? address.country
-                        : streetParts.length > 3
+                        : streetParts?.length > 3
                         ? streetParts[1]
                         : null;
                 }
@@ -256,7 +260,7 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
                 }
 
                 // Don't render the dropdown if there are no permitted actions
-                if (items.length === 0) {
+                if (items?.length === 0) {
                     return null;
                 }
 
