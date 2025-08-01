@@ -38,7 +38,6 @@ const ManageCompaniesFormDrawer = ({
             setImageUrl(null);
             setUploading(false);
 
-            console.log("initialValues", initialValues);
             if (initialValues) {
                 // Format the data for the form
                 const formattedValues = {
@@ -64,7 +63,6 @@ const ManageCompaniesFormDrawer = ({
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-            console.log("Form values:", values);
             // Format the data for API - create FormData for image upload
             const formData = new FormData();
 
@@ -107,7 +105,6 @@ const ManageCompaniesFormDrawer = ({
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
-            console.error("Form submission error:", error);
             message.error("There was an error processing your request.");
         }
     };

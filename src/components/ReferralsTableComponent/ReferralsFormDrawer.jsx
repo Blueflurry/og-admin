@@ -99,7 +99,6 @@ const ReferralsFormDrawer = ({
                 setCourses(courseData);
             }
         } catch (error) {
-            console.error("Error fetching courses:", error);
             message.error("Failed to load courses");
         } finally {
             setLoadingCourses(false);
@@ -146,7 +145,6 @@ const ReferralsFormDrawer = ({
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
-            console.error("Form submission error:", error);
             message.error("There was an error processing your request.");
         }
     };

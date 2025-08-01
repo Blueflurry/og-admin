@@ -164,7 +164,6 @@ const ManageOptinsTable = ({
                     setUpdateRecords((prev) => ({ ...prev }));
                 }
             } catch (error) {
-                console.error("Error deleting optin:", error);
                 message.error("Failed to delete optin");
             }
         }
@@ -192,23 +191,13 @@ const ManageOptinsTable = ({
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format optin data for CSV export
             const formatOptinData = (optins) => {
-                console.log("🔄 Formatting", optins.length, "optins for CSV");
-
                 return optins.map((optin, index) => {
                     try {
                         const formattedOptin = {
@@ -317,20 +306,10 @@ const ManageOptinsTable = ({
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted optin:",
-                                formattedOptin
-                            );
                         }
 
                         return formattedOptin;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting optin at index",
-                            index,
-                            ":",
-                            formatError
-                        );
                         return {
                             "Optin ID": optin.id || optin._id || "Unknown",
                             "Optin Title": optin.title || "Unknown",
@@ -356,7 +335,6 @@ const ManageOptinsTable = ({
 
             // Create fetch function for download
             const fetchOptinsForDownload = async () => {
-                console.log("📡 Fetching optins for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 // Ensure type=0 for optins
@@ -369,11 +347,8 @@ const ManageOptinsTable = ({
                     filters: optinFilters,
                 });
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchOptinsForDownload,
@@ -382,14 +357,10 @@ const ManageOptinsTable = ({
                 activeFilters,
                 pagination.sort || ""
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -478,7 +449,6 @@ const ManageOptinsTable = ({
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

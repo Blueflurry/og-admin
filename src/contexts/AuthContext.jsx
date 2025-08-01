@@ -43,7 +43,6 @@ export const AuthProvider = ({ children }) => {
                 throw new Error("Invalid response from server");
             }
         } catch (error) {
-            console.error("Login error:", error);
             throw error; // Re-throw the error so the login component can handle it
         }
     };

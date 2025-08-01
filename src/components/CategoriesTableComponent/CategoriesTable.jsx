@@ -203,7 +203,6 @@ const CategoriesTable = ({
         }
 
         // TODO: Implement bulk download functionality
-        console.log("Bulk download categories:", selectedRowKeys);
         message.info(`Downloading ${selectedRowKeys.length} categories...`);
     };
 

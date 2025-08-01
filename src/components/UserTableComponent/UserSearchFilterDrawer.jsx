@@ -46,7 +46,6 @@ const UserSearchFilterDrawer = ({
         const fetchConfig = async () => {
             try {
                 const res = await api.getUsersConfig();
-                console.log("User filter config:", res);
 
                 if (res?.data?.filters) {
                     setFilterConfig(res.data.filters);
@@ -235,9 +234,7 @@ const UserSearchFilterDrawer = ({
     const handleApply = () => {
         form.validateFields()
             .then((values) => {
-                // console.log("Form values:", values);
                 const formattedFilters = formatFiltersForApi(values);
-                // console.log("Formatted filters:", formattedFilters);
                 onSearch(formattedFilters);
                 onClose();
             })

@@ -61,8 +61,6 @@ const JobApplications = () => {
     const [selectedApplication, setSelectedApplication] = useState(null);
 
     useEffect(() => {
-        console.log("JobApplications mounted, jobId:", jobId);
-
         if (jobId) {
             fetchJobDetails();
             fetchApplications();
@@ -72,10 +70,8 @@ const JobApplications = () => {
     const fetchJobDetails = async () => {
         try {
             const data = await api.getJobById(jobId);
-            console.log("Job details fetched:", data);
             setJobDetails(data.data || data);
         } catch (err) {
-            console.error("Error fetching job details:", err);
             message.error("Failed to fetch job details");
         }
     };
@@ -84,14 +80,6 @@ const JobApplications = () => {
         try {
             const { page, limit, sort, filters = {} } = updateRecords;
 
-            console.log("Fetching applications with:", {
-                jobId,
-                page,
-                limit,
-                sort,
-                filters,
-            });
-
             const data = await api.getJobApplications(
                 jobId,
                 page,
@@ -99,7 +87,6 @@ const JobApplications = () => {
                 sort,
                 filters
             );
-            console.log("Applications data received:", data);
 
             // Handle the response structure - the API should return populated user data
             const applicationsData = data.data?.docs || data.data || [];
@@ -114,13 +101,11 @@ const JobApplications = () => {
                 ...data.data,
             });
         } catch (err) {
-            console.error("Error fetching applications:", err);
             message.error("Failed to fetch job applications");
         }
     };
 
     const handleUpdateRecords = (newRecords) => {
-        console.log("Updating records with:", newRecords);
         setUpdateRecords((prevRecords) => ({
             ...prevRecords,
             ...newRecords,
@@ -129,13 +114,11 @@ const JobApplications = () => {
 
     // Handlers for CRUD operations
     const handleEdit = (application) => {
-        console.log("Edit application:", application);
         setSelectedApplication(application);
         setFormDrawerOpen(true);
     };
 
     const handleView = (application) => {
-        console.log("View application:", application);
         setSelectedApplication(application);
         setViewDrawerOpen(true);
     };
@@ -143,23 +126,18 @@ const JobApplications = () => {
     const handleDelete = async (application) => {
         try {
             const applicationId = application.id || application._id;
-            console.log("Deleting application with ID:", applicationId);
 
             await api.deleteJobApplication(applicationId);
-            console.log("Deleted application");
 
             message.success("Application deleted successfully");
             fetchApplications();
         } catch (error) {
-            console.error("Error deleting application:", error);
             message.error("Failed to delete application");
         }
     };
 
     const handleBulkUpdate = async (selectedIds, updateData) => {
         try {
-            console.log("Bulk updating applications:", selectedIds, updateData);
-
             await api.bulkUpdateJobApplications({
                 ids: selectedIds,
                 update: updateData,
@@ -170,13 +148,11 @@ const JobApplications = () => {
             );
             fetchApplications();
         } catch (error) {
-            console.error("Error bulk updating applications:", error);
             message.error("Failed to update applications");
         }
     };
 
     const handleFormSuccess = () => {
-        console.log("Form submitted successfully");
         fetchApplications();
     };
 

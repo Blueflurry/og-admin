@@ -43,13 +43,6 @@ const Webinars = () => {
             // Always ensure status=0 is in the filters for webinars
             const webinarFilters = { ...filters, status: 0 };
 
-            console.log("Fetching webinars with:", {
-                page,
-                limit,
-                sort,
-                filters: webinarFilters,
-            });
-
             // Use the getCourses method directly to avoid any issues
             const data = await api.getCourses(
                 page,
@@ -57,8 +50,6 @@ const Webinars = () => {
                 sort,
                 webinarFilters
             );
-            console.log("Webinars data:", data);
-
             setWebinars(data.data.docs || []);
 
             // Update pagination with current values
@@ -70,7 +61,6 @@ const Webinars = () => {
                 ...data.data,
             });
         } catch (err) {
-            console.error("Error fetching webinars:", err);
             message.error("Failed to fetch webinars");
         }
     };
@@ -78,34 +68,27 @@ const Webinars = () => {
     const handleDelete = async (webinar) => {
         try {
             const webinarId = webinar.id || webinar._id;
-            console.log("Deleting webinar with ID:", webinarId);
             // Call the API with explicit await
             const result = await api.deleteWebinar(webinarId);
-            console.log("Deleted webinar result:", result);
 
             message.success("Webinar deleted successfully");
             fetchWebinars(); // Reload the webinar list after deletion
         } catch (error) {
-            console.error("Error deleting webinar:", error);
             message.error("Failed to delete webinar");
         }
     };
 
     const handleEdit = (webinar) => {
-        console.log("Edit webinar:", webinar);
         setSelectedWebinar(webinar);
         setFormDrawerOpen(true);
     };
 
     const handleView = (webinar) => {
-        console.log("View webinar:", webinar);
         setSelectedWebinar(webinar);
         setViewDrawerOpen(true);
     };
 
     const handleUpdateRecords = (newRecords) => {
-        console.log("Updating records with:", newRecords);
-
         // Ensure status=0 is always set for webinars
         const filters = newRecords.filters || {};
         const updatedFilters = { ...filters, status: 0 };
@@ -118,7 +101,6 @@ const Webinars = () => {
     };
 
     const handleFormSuccess = () => {
-        console.log("Form submitted successfully");
         fetchWebinars();
         setFormDrawerOpen(false);
     };

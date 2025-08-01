@@ -63,7 +63,6 @@ const ManageCompanies = () => {
                 setFilters(filters);
             }
         } catch (error) {
-            console.error("Error fetching companies:", error);
             message.error("Failed to load companies");
         }
     };
@@ -93,7 +92,6 @@ const ManageCompanies = () => {
                 filters,
             });
         } catch (error) {
-            console.error("Error deleting company:", error);
             message.error("Failed to delete company");
         }
         //     },

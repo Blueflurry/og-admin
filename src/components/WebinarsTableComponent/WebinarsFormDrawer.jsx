@@ -55,8 +55,6 @@ const WebinarsFormDrawer = ({
             fetchCategories();
 
             if (initialValues) {
-                // console.log("Initial values:", initialValues);
-
                 // Format the data for the form
                 const formattedValues = {
                     title: initialValues.title || "",
@@ -93,7 +91,6 @@ const WebinarsFormDrawer = ({
         try {
             setLoadingCategories(true);
             const response = await api.getCategories();
-            // console.log("Categories API response:", response);
 
             if (response && response.data) {
                 // Extract categories from the response based on the structure
@@ -107,7 +104,6 @@ const WebinarsFormDrawer = ({
                 setCategories(categoryData || []);
             }
         } catch (error) {
-            console.error("Error fetching categories:", error);
             message.error("Failed to load categories");
         } finally {
             setLoadingCategories(false);
@@ -173,7 +169,6 @@ const WebinarsFormDrawer = ({
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
-            console.error("Form submission error:", error);
             message.error("There was an error processing your request.");
         }
     };
@@ -191,7 +186,6 @@ const WebinarsFormDrawer = ({
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
-            console.error("Conversion error:", error);
             message.error("Failed to convert webinar to course");
         } finally {
             setConvertingToCourse(false);

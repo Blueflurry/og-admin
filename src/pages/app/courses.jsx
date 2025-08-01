@@ -44,15 +44,7 @@ const Courses = () => {
                 filters.status = 1;
             }
 
-            console.log("Fetching courses with:", {
-                page,
-                limit,
-                sort,
-                filters,
-            });
-
             const data = await api.getCourses(page, limit, sort, filters);
-            console.log("Courses data:", data);
 
             setCourses(data.data.docs || []);
 
@@ -65,7 +57,6 @@ const Courses = () => {
                 ...data.data,
             });
         } catch (err) {
-            console.error("Error fetching courses:", err);
             message.error("Failed to fetch courses");
         }
     };
@@ -77,13 +68,11 @@ const Courses = () => {
     };
 
     const handleEdit = (course) => {
-        console.log("Edit course:", course);
         setSelectedCourse(course);
         setFormDrawerOpen(true);
     };
 
     const handleView = (course) => {
-        console.log("View course:", course);
         setSelectedCourse(course);
         setViewDrawerOpen(true);
     };
@@ -91,26 +80,21 @@ const Courses = () => {
     const handleDelete = async (course) => {
         try {
             const courseId = course.id || course._id;
-            console.log("Deleting course with ID:", courseId);
             // Call the API with explicit await
             const deleteCourse = await api.deleteCourse(courseId);
-            console.log("Deleted course:", deleteCourse);
 
             message.success("Course deleted successfully");
             fetchCourses(); // Reload the course list after deletion
         } catch (error) {
-            console.error("Error deleting course:", error);
             message.error("Failed to delete course");
         }
     };
 
     const handleFormSuccess = () => {
-        console.log("Form submitted successfully");
         fetchCourses();
     };
 
     const handleUpdateRecords = (newRecords) => {
-        console.log("Updating records with:", newRecords);
         setUpdateRecords((prevRecords) => ({
             ...prevRecords,
             ...newRecords,

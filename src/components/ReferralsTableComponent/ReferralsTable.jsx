@@ -114,27 +114,13 @@ const ReferralsTable = ({
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format referral data for CSV export
             const formatReferralData = (referrals) => {
-                console.log(
-                    "🔄 Formatting",
-                    referrals.length,
-                    "referrals for CSV"
-                );
-
                 return referrals.map((referral, index) => {
                     try {
                         const referrerData = referral.data || {};
@@ -272,20 +258,10 @@ const ReferralsTable = ({
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted referral:",
-                                formattedReferral
-                            );
                         }
 
                         return formattedReferral;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting referral at index",
-                            index,
-                            ":",
-                            formatError
-                        );
                         return {
                             "Referral ID":
                                 referral.id || referral._id || "Unknown",
@@ -312,7 +288,6 @@ const ReferralsTable = ({
 
             // Create fetch function for download
             const fetchReferralsForDownload = async () => {
-                console.log("📡 Fetching referrals for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getReferrals(
@@ -322,11 +297,8 @@ const ReferralsTable = ({
                     activeFilters
                 );
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchReferralsForDownload,
@@ -335,14 +307,10 @@ const ReferralsTable = ({
                 activeFilters,
                 pagination.sort || ""
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -415,7 +383,6 @@ const ReferralsTable = ({
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

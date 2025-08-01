@@ -60,7 +60,6 @@ const Categories = () => {
                 }
             }
         } catch (error) {
-            console.error("Error fetching categories:", error);
             message.error("Failed to load categories");
         }
     };
@@ -72,7 +71,6 @@ const Categories = () => {
             message.success("Category deleted successfully");
             fetchCategories();
         } catch (error) {
-            console.error("Error deleting category:", error);
             message.error("Failed to delete category");
         }
     };

@@ -40,7 +40,6 @@ const Notifications = () => {
                 ...data.data,
             });
         } catch (err) {
-            console.error("Error fetching notifications:", err);
             message.error("Failed to fetch notifications");
         }
     };
@@ -72,7 +71,6 @@ const Notifications = () => {
             message.success("Notification deleted successfully");
             fetchNotifications(); // Reload the list after deletion
         } catch (error) {
-            console.error("Error deleting notification:", error);
             message.error("Failed to delete notification");
         }
     };

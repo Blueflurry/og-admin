@@ -29,7 +29,6 @@ const Jobs = () => {
 
             const data = await api.getJobs(page, limit, sort, filters);
 
-            // console.log("Jobs data:", data);
             setJobs(data.data.docs || []);
 
             // Update pagination with current values
@@ -46,7 +45,6 @@ const Jobs = () => {
     };
 
     const handleUpdateRecords = (newRecords) => {
-        // console.log("Updating records with:", newRecords);
         // setUpdateRecords(newRecords);
         setUpdateRecords((prevRecords) => ({
             ...prevRecords, // Merge with previous state

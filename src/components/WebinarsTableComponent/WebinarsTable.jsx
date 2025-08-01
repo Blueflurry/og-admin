@@ -160,27 +160,13 @@ const WebinarsTable = ({
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format webinar data for CSV export
             const formatWebinarData = (webinars) => {
-                console.log(
-                    "🔄 Formatting",
-                    webinars.length,
-                    "webinars for CSV"
-                );
-
                 return webinars.map((webinar, index) => {
                     try {
                         const formattedWebinar = {
@@ -258,21 +244,10 @@ const WebinarsTable = ({
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted webinar:",
-                                formattedWebinar
-                            );
                         }
 
                         return formattedWebinar;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting webinar at index",
-                            index,
-                            ":",
-                            formatError
-                        );
-                        console.error("❌ Problematic webinar data:", webinar);
                         // Return a basic format to prevent the whole process from failing
                         return {
                             "Webinar ID":
@@ -286,7 +261,6 @@ const WebinarsTable = ({
 
             // Create fetch function for download
             const fetchWebinarsForDownload = async () => {
-                console.log("📡 Fetching webinars for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 // Ensure status=0 for webinars (not courses)
@@ -299,11 +273,8 @@ const WebinarsTable = ({
                     webinarFilters
                 );
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchWebinarsForDownload,
@@ -312,14 +283,10 @@ const WebinarsTable = ({
                 activeFilters,
                 pagination.sort || ""
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -388,7 +355,6 @@ const WebinarsTable = ({
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

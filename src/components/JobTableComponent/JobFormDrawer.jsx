@@ -47,8 +47,6 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             fetchJobConfig();
 
             if (initialValues) {
-                // console.log("Initial values:", initialValues);
-
                 // Format the data for the form
                 const formattedValues = {
                     title: initialValues.title || "",
@@ -84,13 +82,11 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
         try {
             setLoadingConfig(true);
             const response = await api.getJobsConfig();
-            // console.log("Job config API response:", response);
 
             if (response && response.data) {
                 setJobConfig(response.data);
             }
         } catch (error) {
-            console.error("Error fetching job configuration:", error);
             message.error("Failed to load job configuration");
         } finally {
             setLoadingConfig(false);
@@ -102,7 +98,6 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
         try {
             setLoadingCompanies(true);
             const response = await api.getCompanies();
-            // console.log("Companies API response:", response);
 
             if (response && response.data) {
                 // Extract companies from the response based on the structure
@@ -116,7 +111,6 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                 setCompanies(companyData || []);
             }
         } catch (error) {
-            console.error("Error fetching companies:", error);
             message.error("Failed to load companies");
         } finally {
             setLoadingCompanies(false);
@@ -128,7 +122,6 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
         try {
             setLoadingCategories(true);
             const response = await api.getCategories();
-            // console.log("Categories API response:", response);
 
             if (response && response.data) {
                 // Extract categories from the response based on the structure
@@ -142,7 +135,6 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                 setCategories(categoryData || []);
             }
         } catch (error) {
-            console.error("Error fetching categories:", error);
             message.error("Failed to load categories");
         } finally {
             setLoadingCategories(false);
@@ -189,7 +181,6 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
-            console.error("Form submission error:", error);
             message.error("There was an error processing your request.");
         }
     };

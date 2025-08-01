@@ -108,7 +108,6 @@ const ManageEmployeesTable = ({
                 setUpdateRecords((prev) => ({ ...prev }));
             }
         } catch (error) {
-            console.error("Error deleting employee:", error);
             message.error("Failed to delete employee");
         }
     };
@@ -152,27 +151,13 @@ const ManageEmployeesTable = ({
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format employee data for CSV export
             const formatEmployeeData = (employees) => {
-                console.log(
-                    "🔄 Formatting",
-                    employees.length,
-                    "employees for CSV"
-                );
-
                 return employees.map((employee, index) => {
                     try {
                         const name = employee.name || {};
@@ -256,20 +241,10 @@ const ManageEmployeesTable = ({
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted employee:",
-                                formattedEmployee
-                            );
                         }
 
                         return formattedEmployee;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting employee at index",
-                            index,
-                            ":",
-                            formatError
-                        );
                         return {
                             "Employee ID":
                                 employee.id || employee._id || "Unknown",
@@ -299,7 +274,6 @@ const ManageEmployeesTable = ({
 
             // Create fetch function for download
             const fetchEmployeesForDownload = async () => {
-                console.log("📡 Fetching employees for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 // Add role filter to get only employees, managers, and admins
@@ -315,11 +289,8 @@ const ManageEmployeesTable = ({
                     filters: employeeFilters,
                 });
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchEmployeesForDownload,
@@ -328,14 +299,10 @@ const ManageEmployeesTable = ({
                 activeFilters,
                 pagination.sort || ""
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -424,7 +391,6 @@ const ManageEmployeesTable = ({
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

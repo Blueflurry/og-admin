@@ -45,8 +45,6 @@ const JobApplicationsFormDrawer = ({
             form.resetFields();
 
             if (initialValues) {
-                console.log("Initial values:", initialValues);
-
                 // Format the data for the form using actual API structure
                 const formattedValues = {
                     status:
@@ -81,7 +79,6 @@ const JobApplicationsFormDrawer = ({
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
-            console.error("Form submission error:", error);
             message.error("There was an error processing your request.");
         }
     };

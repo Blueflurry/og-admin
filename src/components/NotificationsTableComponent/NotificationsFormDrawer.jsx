@@ -91,7 +91,6 @@ const NotificationsFormDrawer = ({
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
-            console.error("Send now error:", error);
             message.error("There was an error sending the notification");
         }
     };
@@ -124,7 +123,6 @@ const NotificationsFormDrawer = ({
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
-            console.error("Schedule error:", error);
             message.error("There was an error scheduling the notification");
         }
     };

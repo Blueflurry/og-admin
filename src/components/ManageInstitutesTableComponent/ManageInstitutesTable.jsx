@@ -158,7 +158,6 @@ const ManageInstitutesTable = ({
                     setUpdateRecords((prev) => ({ ...prev }));
                 }
             } catch (error) {
-                console.error("Error deleting institute:", error);
                 message.error("Failed to delete institute");
             }
         }
@@ -186,27 +185,13 @@ const ManageInstitutesTable = ({
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format institute data for CSV export
             const formatInstituteData = (institutes) => {
-                console.log(
-                    "🔄 Formatting",
-                    institutes.length,
-                    "institutes for CSV"
-                );
-
                 return institutes.map((institute, index) => {
                     try {
                         const location = institute.location || {};
@@ -293,20 +278,10 @@ const ManageInstitutesTable = ({
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted institute:",
-                                formattedInstitute
-                            );
                         }
 
                         return formattedInstitute;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting institute at index",
-                            index,
-                            ":",
-                            formatError
-                        );
                         return {
                             "Institute ID":
                                 institute.id || institute._id || "Unknown",
@@ -333,7 +308,6 @@ const ManageInstitutesTable = ({
 
             // Create fetch function for download
             const fetchInstitutesForDownload = async () => {
-                console.log("📡 Fetching institutes for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 // Ensure type=1 for institutes
@@ -346,11 +320,8 @@ const ManageInstitutesTable = ({
                     filters: instituteFilters,
                 });
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchInstitutesForDownload,
@@ -359,14 +330,10 @@ const ManageInstitutesTable = ({
                 activeFilters,
                 pagination.sort || ""
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -456,7 +423,6 @@ const ManageInstitutesTable = ({
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

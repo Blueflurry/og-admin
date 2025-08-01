@@ -34,13 +34,6 @@ const AllJobApplications = () => {
         try {
             const { page, limit, sort, filters = {} } = updateRecords;
 
-            console.log("Fetching all job applications with:", {
-                page,
-                limit,
-                sort,
-                filters,
-            });
-
             // Use the new getAllJobApplications API method
             const data = await api.getAllJobApplications(
                 page,
@@ -48,7 +41,6 @@ const AllJobApplications = () => {
                 sort,
                 filters
             );
-            console.log("All applications data:", data);
 
             setApplications(data.data.docs || []);
 
@@ -60,13 +52,11 @@ const AllJobApplications = () => {
                 ...data.data,
             });
         } catch (err) {
-            console.error("Error fetching all applications:", err);
             message.error("Failed to fetch job applications");
         }
     };
 
     const handleUpdateRecords = (newRecords) => {
-        console.log("Updating records with:", newRecords);
         setUpdateRecords((prevRecords) => ({
             ...prevRecords,
             ...newRecords,
@@ -75,13 +65,11 @@ const AllJobApplications = () => {
 
     // Handlers for CRUD operations
     const handleEdit = (application) => {
-        console.log("Edit application:", application);
         setSelectedApplication(application);
         setFormDrawerOpen(true);
     };
 
     const handleView = (application) => {
-        console.log("View application:", application);
         setSelectedApplication(application);
         setViewDrawerOpen(true);
     };
@@ -89,23 +77,18 @@ const AllJobApplications = () => {
     const handleDelete = async (application) => {
         try {
             const applicationId = application.id || application._id;
-            console.log("Deleting application with ID:", applicationId);
 
             await api.deleteJobApplication(applicationId);
-            console.log("Deleted application");
 
             message.success("Application deleted successfully");
             fetchApplications();
         } catch (error) {
-            console.error("Error deleting application:", error);
             message.error("Failed to delete application");
         }
     };
 
     const handleBulkUpdate = async (selectedIds, updateData) => {
         try {
-            console.log("Bulk updating applications:", selectedIds, updateData);
-
             await api.bulkUpdateJobApplications({
                 ids: selectedIds,
                 update: updateData,
@@ -116,13 +99,11 @@ const AllJobApplications = () => {
             );
             fetchApplications();
         } catch (error) {
-            console.error("Error bulk updating applications:", error);
             message.error("Failed to update applications");
         }
     };
 
     const handleFormSuccess = () => {
-        console.log("Form submitted successfully");
         fetchApplications();
     };
 

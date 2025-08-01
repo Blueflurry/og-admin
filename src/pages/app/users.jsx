@@ -46,21 +46,12 @@ const Users = () => {
 
     const fetchUsers = async () => {
         try {
-            console.log("Fetching users with:", {
-                page: updateRecords.page,
-                limit: updateRecords.limit,
-                sort: updateRecords.sort,
-                filters: updateRecords.filters,
-            });
-
             const data = await api.getUsers(
                 updateRecords.page,
                 updateRecords.limit,
                 updateRecords.sort,
                 updateRecords.filters
             );
-
-            console.log("Fetched users data:", data);
 
             setUsers(data.data.docs);
             setPagination({
@@ -70,13 +61,11 @@ const Users = () => {
                 ...data.data.pagination,
             });
         } catch (err) {
-            console.error("Error fetching users:", err);
             message.error("Failed to fetch users");
         }
     };
 
     const handleUpdateRecords = (newRecords) => {
-        console.log("Updating records with:", newRecords);
         setUpdateRecords((prevRecords) => ({
             ...prevRecords,
             ...newRecords,
@@ -93,36 +82,28 @@ const Users = () => {
     };
 
     const handleEdit = (user) => {
-        console.log("Edit user:", user);
         setSelectedUser(user);
         setFormDrawerOpen(true);
     };
 
     const handleView = (user) => {
-        console.log("View user:", user);
         setSelectedUser(user);
         setViewDrawerOpen(true);
     };
 
     const handleDelete = async (user) => {
-        console.log("Delete user called with:", user);
-
         try {
             const userId = user.id || user._id;
-            console.log("Deleting user with ID:", userId);
             await api.deleteUser(userId);
-            console.log("Deleted user successfully");
 
             message.success("User deleted successfully");
             fetchUsers(); // Reload the user list after deletion
         } catch (error) {
-            console.error("Error deleting user:", error);
             message.error("Failed to delete user");
         }
     };
 
     const handleFormSuccess = () => {
-        console.log("Form submitted successfully");
         fetchUsers();
     };
 
@@ -131,8 +112,6 @@ const Users = () => {
     // ========================================
 
     const handleSearch = (filters) => {
-        console.log("Received search filters:", filters);
-
         // Extract sort if it exists
         let sort = updateRecords.sort;
         if (filters.sort) {
@@ -153,23 +132,13 @@ const Users = () => {
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format user data for CSV export
             const formatUserData = (users) => {
-                console.log("🔄 Formatting", users.length, "users for CSV");
-
                 return users.map((user, index) => {
                     try {
                         const formattedUser = {
@@ -210,21 +179,10 @@ const Users = () => {
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted user:",
-                                formattedUser
-                            );
                         }
 
                         return formattedUser;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting user at index",
-                            index,
-                            ":",
-                            formatError
-                        );
-                        console.error("❌ Problematic user data:", user);
                         // Return a basic format to prevent the whole process from failing
                         return {
                             "User ID": user.id || user._id || "Unknown",
@@ -237,7 +195,6 @@ const Users = () => {
 
             // Create fetch function for download
             const fetchUsersForDownload = async () => {
-                console.log("📡 Fetching users for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getUsers(
@@ -247,11 +204,8 @@ const Users = () => {
                     updateRecords.filters
                 );
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchUsersForDownload,
@@ -260,14 +214,10 @@ const Users = () => {
                 updateRecords.filters,
                 updateRecords.sort
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -326,7 +276,6 @@ const Users = () => {
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

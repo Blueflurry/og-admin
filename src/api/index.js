@@ -170,7 +170,6 @@ export class API {
             });
         }
 
-        // console.log("Query Params:", filters, `${queryParams}`);
         // Make the request with all query parameters
         return this.request(() => this.client.get(`/courses?${queryParams}`));
     }
@@ -183,7 +182,6 @@ export class API {
         delete webinarFilters.status;
         webinarFilters.status = 0;
 
-        // console.log("HEREEEEE", page, limit, sort, webinarFilters);
         return this.getCourses(page, limit, sort, webinarFilters);
     }
 
@@ -251,8 +249,6 @@ export class API {
             sort = "-createdAt",
             filters = {},
         } = params;
-
-        console.log(params);
 
         return this.request(() =>
             this.client.post("/auth/company/search/admin", filters, {
@@ -660,8 +656,6 @@ export class API {
             queryParams += `&sort=${sort}`;
         }
 
-        console.log("Job Applications Params:", `${queryParams}`);
-
         // Make the request with all query parameters
         return this.request(() =>
             this.client.get(`/jobs/applications?${queryParams}`)
@@ -712,8 +706,6 @@ export class API {
                 }
             });
         }
-
-        console.log("Job Applications Query Params:", `${queryParams}`);
 
         // Make the request with all query parameters
         return this.request(() =>
@@ -808,9 +800,6 @@ export class API {
 
     // DASHBOARD - Updated methods with proper error handling and logging
     getDashboardMetrics() {
-        console.log(
-            "📡 API: Fetching dashboard metrics from /auth/dashboard-stats"
-        );
         return this.request(() => this.client.get(`/auth/dashboard-stats`));
     }
 
@@ -860,9 +849,6 @@ export class API {
     //         to = formatForUserStatus(today);
     //     }
 
-    //     console.log(
-    //         `📡 API: getUserStatusStats call with DD/MM/YYYY format: from=${from}, to=${to}`
-    //     );
     //     return this.request(() =>
     //         this.client.get(`/auth/user/metrics?from=${from}&to=${to}`)
     //     );
@@ -894,7 +880,6 @@ export class API {
     //         to = fallback.to;
     //     }
 
-    //     console.log(`📡 API: getJobCategoryStats call: from=${from}, to=${to}`);
     //     return this.request(() =>
     //         this.client.get(`/jobs/stats?from=${from}&to=${to}`)
     //     );
@@ -925,7 +910,6 @@ export class API {
             to = fallback.to;
         }
 
-        console.log(`📡 API: getDashboardChart call: from=${from}, to=${to}`);
         return this.request(() =>
             this.client.get(`/auth/user/chart?from=${from}&to=${to}`)
         );
@@ -956,9 +940,6 @@ export class API {
             to = fallback.to;
         }
 
-        console.log(
-            `📡 API: getJobApplicationChart call: from=${from}, to=${to}`
-        );
         return this.request(() =>
             this.client.get(`/auth/job-application/chart?from=${from}&to=${to}`)
         );

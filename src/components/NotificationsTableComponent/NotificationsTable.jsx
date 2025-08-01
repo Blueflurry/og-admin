@@ -125,27 +125,13 @@ const NotificationsTable = ({
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format notification data for CSV export
             const formatNotificationData = (notifications) => {
-                console.log(
-                    "🔄 Formatting",
-                    notifications.length,
-                    "notifications for CSV"
-                );
-
                 return notifications.map((notification, index) => {
                     try {
                         const formattedNotification = {
@@ -193,24 +179,10 @@ const NotificationsTable = ({
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted notification:",
-                                formattedNotification
-                            );
                         }
 
                         return formattedNotification;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting notification at index",
-                            index,
-                            ":",
-                            formatError
-                        );
-                        console.error(
-                            "❌ Problematic notification data:",
-                            notification
-                        );
                         // Return a basic format to prevent the whole process from failing
                         return {
                             "Notification ID":
@@ -226,7 +198,6 @@ const NotificationsTable = ({
 
             // Create fetch function for download
             const fetchNotificationsForDownload = async () => {
-                console.log("📡 Fetching notifications for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getNotifications(
@@ -236,11 +207,8 @@ const NotificationsTable = ({
                     activeFilters
                 );
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchNotificationsForDownload,
@@ -249,14 +217,10 @@ const NotificationsTable = ({
                 activeFilters,
                 pagination.sort || ""
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -337,7 +301,6 @@ const NotificationsTable = ({
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

@@ -68,7 +68,6 @@ const JobTable = ({
                 setSortOptions(config.data.sort || []);
             }
         } catch (error) {
-            console.error("Error fetching filter config:", error);
             message.error("Failed to load search and filter options");
         }
     };
@@ -84,7 +83,6 @@ const JobTable = ({
     };
 
     const handleView = (record) => {
-        console.log("🔄 Opening view drawer for job:", record);
         setViewingJob(record);
         setViewDrawerOpen(true);
     };
@@ -149,7 +147,6 @@ const JobTable = ({
                 setUpdateRecords((prev) => ({ ...prev })); // Trigger refetch
             }
         } catch (error) {
-            console.error("Error deleting job:", error);
             message.error("Failed to delete job");
         }
     };
@@ -185,23 +182,13 @@ const JobTable = ({
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format job data for CSV export
             const formatJobData = (jobs) => {
-                console.log("🔄 Formatting", jobs.length, "jobs for CSV");
-
                 return jobs.map((job, index) => {
                     try {
                         const formattedJob = {
@@ -250,21 +237,10 @@ const JobTable = ({
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted job:",
-                                formattedJob
-                            );
                         }
 
                         return formattedJob;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting job at index",
-                            index,
-                            ":",
-                            formatError
-                        );
-                        console.error("❌ Problematic job data:", job);
                         // Return a basic format to prevent the whole process from failing
                         return {
                             "Job ID": job.id || job._id || "Unknown",
@@ -277,7 +253,6 @@ const JobTable = ({
 
             // Create fetch function for download
             const fetchJobsForDownload = async () => {
-                console.log("📡 Fetching jobs for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getJobs(
@@ -287,11 +262,8 @@ const JobTable = ({
                     activeFilters
                 );
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchJobsForDownload,
@@ -300,14 +272,10 @@ const JobTable = ({
                 activeFilters,
                 pagination.sort || ""
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -363,7 +331,6 @@ const JobTable = ({
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

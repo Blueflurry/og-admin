@@ -184,7 +184,6 @@ const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
                     label: "View",
                     icon: <EyeOutlined />,
                     onClick: () => {
-                        // console.log("View clicked for record:", record);
                         if (handleView) handleView(record);
                     },
                 });
@@ -196,7 +195,6 @@ const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
                     label: "Edit",
                     icon: <EditOutlined />,
                     onClick: () => {
-                        // console.log("Edit clicked for record:", record);
                         if (handleEdit) handleEdit(record);
                     },
                 });
@@ -211,7 +209,6 @@ const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
                     icon: <DeleteOutlined />,
                     danger: true,
                     onClick: () => {
-                        // console.log("Delete clicked for record:", record);
                         handleDelete(record);
                     },
                 });

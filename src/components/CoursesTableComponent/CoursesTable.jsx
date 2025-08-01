@@ -151,23 +151,13 @@ const CoursesTable = ({
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format course data for CSV export
             const formatCourseData = (courses) => {
-                console.log("🔄 Formatting", courses.length, "courses for CSV");
-
                 return courses.map((course, index) => {
                     try {
                         const formattedCourse = {
@@ -221,21 +211,10 @@ const CoursesTable = ({
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted course:",
-                                formattedCourse
-                            );
                         }
 
                         return formattedCourse;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting course at index",
-                            index,
-                            ":",
-                            formatError
-                        );
-                        console.error("❌ Problematic course data:", course);
                         // Return a basic format to prevent the whole process from failing
                         return {
                             "Course ID": course.id || course._id || "Unknown",
@@ -248,7 +227,6 @@ const CoursesTable = ({
 
             // Create fetch function for download
             const fetchCoursesForDownload = async () => {
-                console.log("📡 Fetching courses for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 // Ensure status=1 for courses (not webinars)
@@ -261,11 +239,8 @@ const CoursesTable = ({
                     coursesFilters
                 );
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchCoursesForDownload,
@@ -274,14 +249,10 @@ const CoursesTable = ({
                 activeFilters,
                 pagination.sort || ""
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -350,7 +321,6 @@ const CoursesTable = ({
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

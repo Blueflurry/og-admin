@@ -63,7 +63,6 @@ const ManageOptins = () => {
                 }
             }
         } catch (error) {
-            console.error("Error fetching optins:", error);
             message.error("Failed to load optins");
         }
     };
@@ -83,7 +82,6 @@ const ManageOptins = () => {
             message.success("Optin deleted successfully");
             fetchOptins();
         } catch (error) {
-            console.error("Error deleting optin:", error);
             message.error("Failed to delete optin");
         }
         //     },

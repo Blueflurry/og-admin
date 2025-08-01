@@ -38,20 +38,12 @@ const Carousels = () => {
             // Always ensure type=2 is in the filters for carousels
             const carouselFilters = { ...filters, type: 2 };
 
-            console.log("Fetching carousels with:", {
-                page,
-                limit,
-                sort,
-                filters: carouselFilters,
-            });
-
             const data = await api.getCarousels(
                 page,
                 limit,
                 sort,
                 carouselFilters
             );
-            console.log("Carousels data:", data);
 
             // Handle the response structure
             if (data && data.data) {
@@ -68,7 +60,6 @@ const Carousels = () => {
                 });
             }
         } catch (err) {
-            console.error("Error fetching carousels:", err);
             message.error("Failed to fetch carousels");
         }
     };
@@ -80,13 +71,11 @@ const Carousels = () => {
     };
 
     const handleEdit = (carousel) => {
-        console.log("Edit carousel:", carousel);
         setSelectedCarousel(carousel);
         setFormDrawerOpen(true);
     };
 
     const handleView = (carousel) => {
-        console.log("View carousel:", carousel);
         setSelectedCarousel(carousel);
         setViewDrawerOpen(true);
     };
@@ -94,26 +83,21 @@ const Carousels = () => {
     const handleDelete = async (carousel) => {
         try {
             const carouselId = carousel.id || carousel._id;
-            console.log("Deleting carousel with ID:", carouselId);
 
             await api.deleteCarousel(carouselId);
-            console.log("Deleted carousel successfully");
 
             message.success("Carousel deleted successfully");
             fetchCarousels(); // Reload the carousel list after deletion
         } catch (error) {
-            console.error("Error deleting carousel:", error);
             message.error("Failed to delete carousel");
         }
     };
 
     const handleFormSuccess = () => {
-        console.log("Form submitted successfully");
         fetchCarousels();
     };
 
     const handleUpdateRecords = (newRecords) => {
-        console.log("Updating records with:", newRecords);
         setUpdateRecords((prevRecords) => ({
             ...prevRecords,
             ...newRecords,

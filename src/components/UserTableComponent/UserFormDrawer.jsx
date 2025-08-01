@@ -45,7 +45,6 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             setMakeAlumni(false);
 
             if (initialValues) {
-                console.log("Initial values for edit:", initialValues);
                 // Format the data for the form
                 const formattedValues = {
                     firstName: initialValues.name?.first || "",
@@ -66,19 +65,10 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
 
                 // Set image URL if available - Handle different image URL properties
                 if (initialValues.imageUrl) {
-                    console.log("Setting image URL:", initialValues.imageUrl);
                     setImageUrl(initialValues.imageUrl);
                 } else if (initialValues.imgUrl) {
-                    console.log(
-                        "Setting image URL from imgUrl:",
-                        initialValues.imgUrl
-                    );
                     setImageUrl(initialValues.imgUrl);
                 } else if (initialValues.img) {
-                    console.log(
-                        "Setting image URL from img:",
-                        initialValues.img
-                    );
                     setImageUrl(initialValues.img);
                 }
             }
@@ -88,7 +78,6 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-            console.log("Form values:", values);
 
             // Create FormData object for multipart/form-data
             const formData = new FormData();
@@ -148,21 +137,18 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
             }
 
             if (isEditMode) {
-                console.log("Updating user with data:", formData.values());
                 await api.updateUser(
                     initialValues.id || initialValues._id,
                     formData
                 );
                 message.success("User updated successfully");
             } else {
-                console.log("Creating new user with data:", formData.values());
                 await api.createUser(formData);
                 message.success("User created successfully");
             }
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
-            console.error("Form submission error:", error);
             message.error("There was an error processing your request.");
         }
     };

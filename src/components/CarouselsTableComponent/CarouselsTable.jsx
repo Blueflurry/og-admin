@@ -219,27 +219,13 @@ const CarouselsTable = ({
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format carousel data for CSV export
             const formatCarouselData = (carousels) => {
-                console.log(
-                    "🔄 Formatting",
-                    carousels.length,
-                    "carousels for CSV"
-                );
-
                 return carousels.map((carousel, index) => {
                     try {
                         const formattedCarousel = {
@@ -293,20 +279,10 @@ const CarouselsTable = ({
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted carousel:",
-                                formattedCarousel
-                            );
                         }
 
                         return formattedCarousel;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting carousel at index",
-                            index,
-                            ":",
-                            formatError
-                        );
                         return {
                             "Carousel ID":
                                 carousel.id || carousel._id || "Unknown",
@@ -333,7 +309,6 @@ const CarouselsTable = ({
 
             // Create fetch function for download
             const fetchCarouselsForDownload = async () => {
-                console.log("📡 Fetching carousels for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getCarousels(
@@ -343,11 +318,8 @@ const CarouselsTable = ({
                     { ...activeFilters, type: 2 } // Ensure type=2 for carousels
                 );
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchCarouselsForDownload,
@@ -356,14 +328,10 @@ const CarouselsTable = ({
                 activeFilters,
                 pagination.sort || ""
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -451,7 +419,6 @@ const CarouselsTable = ({
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

@@ -56,7 +56,6 @@ const ManageEmployees = () => {
                 }
             }
         } catch (error) {
-            console.error("Error fetching employees:", error);
             message.error("Failed to load employees");
         }
     };

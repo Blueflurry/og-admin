@@ -203,27 +203,13 @@ const JobApplicationsTable = ({
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format job application data for CSV export
             const formatJobApplicationData = (applications) => {
-                console.log(
-                    "🔄 Formatting",
-                    applications.length,
-                    "job applications for CSV"
-                );
-
                 return applications.map((app, index) => {
                     try {
                         // Handle different possible data structures
@@ -295,21 +281,10 @@ const JobApplicationsTable = ({
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted application:",
-                                formattedApplication
-                            );
                         }
 
                         return formattedApplication;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting application at index",
-                            index,
-                            ":",
-                            formatError
-                        );
-                        console.error("❌ Problematic application data:", app);
                         // Return a basic format to prevent the whole process from failing
                         return {
                             "Application ID": app.id || app._id || "Unknown",
@@ -334,7 +309,6 @@ const JobApplicationsTable = ({
 
             // Create fetch function for download - Note: This will need the jobId
             const fetchApplicationsForDownload = async () => {
-                console.log("📡 Fetching job applications for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 // Get jobId from jobDetails or from the current context
@@ -353,11 +327,8 @@ const JobApplicationsTable = ({
                     activeFilters
                 );
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchApplicationsForDownload,
@@ -366,14 +337,10 @@ const JobApplicationsTable = ({
                 activeFilters,
                 pagination.sort || ""
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -483,7 +450,6 @@ const JobApplicationsTable = ({
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

@@ -109,8 +109,6 @@ const Dashboard = () => {
             registrationTrend: 0,
         };
 
-        console.log("🔍 Raw metrics response:", metricsResponse);
-
         if (!metricsResponse || !metricsResponse.data) {
             console.warn("❌ No metrics response or data received");
             message.warning("No dashboard metrics data received from server");
@@ -118,7 +116,6 @@ const Dashboard = () => {
         }
 
         const data = metricsResponse.data;
-        console.log("🔍 Extracted metrics data:", data);
 
         // Process the new API structure
         const processedMetrics = {
@@ -147,19 +144,6 @@ const Dashboard = () => {
             registrationTrend: data.registrationTrend || data.trend || 0,
         };
 
-        console.log("✅ Processed metrics:", processedMetrics);
-        console.log("📊 Card values that will be displayed:", {
-            totalUsers: processedMetrics.totalUsers,
-            activeUsers: processedMetrics.activeUsers,
-            inactiveUsers: processedMetrics.inactiveUsers,
-            totalJobs: processedMetrics.totalJobs,
-            activeJobs: processedMetrics.activeJobs,
-            inactiveJobs: processedMetrics.inactiveJobs,
-            jobApplications: processedMetrics.jobApplications,
-            activeCourses: processedMetrics.activeCourses,
-            activeWebinars: processedMetrics.activeWebinars,
-        });
-
         return processedMetrics;
     };
 
@@ -170,7 +154,6 @@ const Dashboard = () => {
                 from: dayjs().subtract(6, "day").format("YYYY-MM-DD"),
                 to: dayjs().format("YYYY-MM-DD"),
             };
-            console.log("Using fallback date range for API:", fallback);
             return fallback;
         }
 
@@ -182,14 +165,11 @@ const Dashboard = () => {
             to: endDate.format("YYYY-MM-DD"),
         };
 
-        console.log("📅 Date range formatted for API:", apiFormat);
         return apiFormat;
     };
 
     // Process job applications chart data
     const processJobApplicationsData = (jobAppResponse) => {
-        console.log("🔍 Raw job applications response:", jobAppResponse);
-
         if (
             !jobAppResponse ||
             !jobAppResponse.data ||
@@ -208,13 +188,10 @@ const Dashboard = () => {
     // Main data fetching function
     const fetchDashboardData = async () => {
         try {
-            console.log("🔄 Starting dashboard data fetch...");
             setRefreshing(true);
 
             // Fetch metrics data (no time range needed)
-            console.log("📡 Fetching dashboard metrics...");
             const metricsResponse = await api.getDashboardMetrics();
-            console.log("✅ Metrics response received:", metricsResponse);
 
             // Process metrics data
             const processedMetrics = processMetricsData(metricsResponse);
@@ -248,11 +225,6 @@ const Dashboard = () => {
                         }),
                 ]);
 
-            console.log("📊 Chart responses:", {
-                userGrowthResponse,
-                jobApplicationsResponse,
-            });
-
             // Process chart data
             const processedJobApplicationsData = processJobApplicationsData(
                 jobApplicationsResponse
@@ -268,26 +240,16 @@ const Dashboard = () => {
                 jobApplicationsData: processedJobApplicationsData,
             };
 
-            console.log("🎯 Final combined dashboard data:", combinedData);
             setDashboardData(combinedData);
 
             message.success("Dashboard data loaded successfully");
         } catch (error) {
-            console.error("❌ Error fetching dashboard data:", error);
-
             // Show specific error message
             const errorMessage =
                 error.response?.data?.message ||
                 error.message ||
                 "Unknown error";
             message.error(`Failed to load dashboard data: ${errorMessage}`);
-
-            // Log the full error for debugging
-            console.error("Full error details:", {
-                error,
-                response: error.response,
-                data: error.response?.data,
-            });
         } finally {
             setRefreshing(false);
         }
@@ -304,8 +266,6 @@ const Dashboard = () => {
                 console.error("Invalid date range provided to updateChartData");
                 return;
             }
-
-            console.log(`🔄 Updating ${chartType} chart data...`);
 
             setChartLoading((prev) => ({
                 ...prev,
@@ -337,7 +297,6 @@ const Dashboard = () => {
 
             message.success(`${chartType} chart updated successfully`);
         } catch (error) {
-            console.error(`❌ Error updating ${chartType} chart:`, error);
             message.error(`Failed to update ${chartType} chart`);
         } finally {
             setChartLoading((prev) => ({
@@ -375,11 +334,6 @@ const Dashboard = () => {
                 throw new Error("Invalid dayjs objects");
             }
 
-            console.log(`📅 ${chartType} date range changed:`, {
-                from: validatedRange[0].format("YYYY-MM-DD"),
-                to: validatedRange[1].format("YYYY-MM-DD"),
-            });
-
             setChartDateRanges((prev) => ({
                 ...prev,
                 [chartType]: validatedRange,
@@ -387,7 +341,6 @@ const Dashboard = () => {
 
             updateChartData(chartType, validatedRange);
         } catch (error) {
-            console.error("Error handling chart date range change:", error);
             message.error("Invalid date range selected");
         }
     };
@@ -414,7 +367,6 @@ const Dashboard = () => {
 
             message.success(`${filename} CSV downloaded successfully!`);
         } catch (error) {
-            console.error("Error downloading CSV:", error);
             message.error("Failed to download CSV");
         }
     };

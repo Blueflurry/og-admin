@@ -148,7 +148,6 @@ const ManageCompaniesTable = ({
                     setUpdateRecords((prev) => ({ ...prev }));
                 }
             } catch (error) {
-                console.error("Error deleting company:", error);
                 message.error("Failed to delete company");
             }
         }
@@ -176,27 +175,13 @@ const ManageCompaniesTable = ({
     // ========================================
 
     const handleBulkDownload = () => {
-        console.log("🔄 Opening bulk download modal");
         setBulkDownloadModalOpen(true);
     };
 
     const handleDownloadConfirm = async (limit, filename) => {
-        console.log(
-            "🔄 Download confirmed with limit:",
-            limit,
-            "filename:",
-            filename
-        );
-
         try {
             // Format company data for CSV export
             const formatCompanyData = (companies) => {
-                console.log(
-                    "🔄 Formatting",
-                    companies.length,
-                    "companies for CSV"
-                );
-
                 return companies.map((company, index) => {
                     try {
                         const companyData = company.data || {};
@@ -251,20 +236,10 @@ const ManageCompaniesTable = ({
                         };
 
                         if (index === 0) {
-                            console.log(
-                                "📄 Sample formatted company:",
-                                formattedCompany
-                            );
                         }
 
                         return formattedCompany;
                     } catch (formatError) {
-                        console.error(
-                            "❌ Error formatting company at index",
-                            index,
-                            ":",
-                            formatError
-                        );
                         return {
                             "Company ID":
                                 company.id || company._id || "Unknown",
@@ -277,7 +252,6 @@ const ManageCompaniesTable = ({
 
             // Create fetch function for download
             const fetchCompaniesForDownload = async () => {
-                console.log("📡 Fetching companies for download...");
                 const downloadLimit = limit === "all" ? -1 : limit;
 
                 const response = await api.getManageCompanies({
@@ -287,11 +261,8 @@ const ManageCompaniesTable = ({
                     filters: activeFilters,
                 });
 
-                console.log("📡 Fetch response for download:", response);
                 return response;
             };
-
-            console.log("🔄 Starting CSV download with filename:", filename);
 
             await downloadCSV(
                 fetchCompaniesForDownload,
@@ -300,14 +271,10 @@ const ManageCompaniesTable = ({
                 activeFilters,
                 pagination.sort || ""
             );
-
-            console.log("✅ Download process completed");
         } catch (downloadError) {
-            console.error("❌ Error in handleDownloadConfirm:", downloadError);
             message.error(`Download failed: ${downloadError.message}`);
         } finally {
             // Always close the modal, even if there was an error
-            console.log("🔄 Closing download modal");
             setBulkDownloadModalOpen(false);
         }
     };
@@ -396,7 +363,6 @@ const ManageCompaniesTable = ({
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
                 onClose={() => {
-                    console.log("🔄 Manual close of download modal");
                     setBulkDownloadModalOpen(false);
                 }}
                 onDownload={handleDownloadConfirm}

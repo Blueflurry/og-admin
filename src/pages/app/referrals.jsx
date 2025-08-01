@@ -44,7 +44,6 @@ const Referrals = () => {
                 ...data.data,
             });
         } catch (err) {
-            console.error("Error fetching referrals:", err);
             message.error("Failed to fetch referrals");
         }
     };
@@ -72,7 +71,6 @@ const Referrals = () => {
             message.success("Referral deleted successfully");
             fetchReferrals();
         } catch (error) {
-            console.error("Error deleting referral:", error);
             message.error("Failed to delete referral");
         }
     };

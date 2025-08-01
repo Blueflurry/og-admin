@@ -15,16 +15,12 @@ export const useBulkDownload = () => {
         currentSort = ""
     ) => {
         try {
-            console.log("🔄 Starting download process...");
             setDownloading(true);
 
             // Call the fetch function with the provided parameters
-            console.log("📡 Calling fetch function...");
             const response = await fetchFunction();
-            console.log("📡 API Response:", response);
 
             if (!response || !response.data) {
-                console.error("❌ No data received from server");
                 throw new Error("No data received from server");
             }
 
@@ -32,20 +28,9 @@ export const useBulkDownload = () => {
             let dataArray = [];
             if (response.data.docs) {
                 dataArray = response.data.docs;
-                console.log(
-                    "📄 Found docs array with",
-                    dataArray.length,
-                    "items"
-                );
             } else if (Array.isArray(response.data)) {
                 dataArray = response.data;
-                console.log(
-                    "📄 Found direct array with",
-                    dataArray.length,
-                    "items"
-                );
             } else {
-                console.error("❌ Invalid data format:", response.data);
                 throw new Error("Invalid data format received");
             }
 
@@ -56,20 +41,15 @@ export const useBulkDownload = () => {
             // }
 
             // Format the data using the provided formatter
-            console.log("🔄 Formatting data...");
             const formattedData = dataFormatter(dataArray);
-            console.log("✅ Formatted data sample:", formattedData.slice(0, 2)); // Log first 2 items
 
             // Convert to CSV using Papa Parse
-            console.log("🔄 Converting to CSV...");
             const csv = Papa.unparse(formattedData, {
                 header: true,
                 skipEmptyLines: true,
             });
-            console.log("✅ CSV generated, length:", csv.length);
 
             // Create and trigger download
-            console.log("🔄 Creating download...");
             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
             const link = document.createElement("a");
 
@@ -84,8 +64,6 @@ export const useBulkDownload = () => {
 
                 // Clean up the URL
                 setTimeout(() => URL.revokeObjectURL(url), 100);
-
-                console.log("✅ Download triggered successfully");
             } else {
                 throw new Error("Browser does not support file downloads");
             }
@@ -109,9 +87,6 @@ export const useBulkDownload = () => {
                 placement: "topRight",
             });
         } catch (error) {
-            console.error("❌ Download error:", error);
-            console.error("❌ Error stack:", error.stack);
-
             // Show enhanced error notification
             notification.error({
                 message: "Download Failed",
@@ -130,7 +105,6 @@ export const useBulkDownload = () => {
                 placement: "topRight",
             });
         } finally {
-            console.log("🔄 Cleaning up...");
             setDownloading(false);
         }
     };

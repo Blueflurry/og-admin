@@ -51,19 +51,15 @@ const UserTable = ({
 
     // Create column handlers with explicit parameters
     const onView = (record) => {
-        // console.log("View clicked for record:", record);
         if (handleView) handleView(record);
     };
 
     const onEdit = (record) => {
-        // console.log("Edit clicked for record:", record);
         if (handleEdit) handleEdit(record);
     };
 
     const onDelete = (record) => {
-        // console.log("Delete clicked for record:", record);
         if (handleDelete) {
-            // console.log("Calling handleDelete from UserTable");
             handleDelete(record);
         } else {
             console.error("handleDelete is not provided to UserTable");

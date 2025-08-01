@@ -63,7 +63,6 @@ const Institutes = () => {
                 }
             }
         } catch (error) {
-            console.error("Error fetching institutes:", error);
             message.error("Failed to load institutes");
         }
     };
@@ -83,7 +82,6 @@ const Institutes = () => {
             message.success("Institute deleted successfully");
             fetchInstitutes();
         } catch (error) {
-            console.error("Error deleting institute:", error);
             message.error("Failed to delete institute");
         }
         //     },
