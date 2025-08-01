@@ -27,7 +27,7 @@ const getJobApplicationsTableColumns = ({
             title: "Applicant",
             key: "applicant",
             align: "left",
-            width: 250,
+            width: 340,
             render: (_, record) => {
                 // Use 'user' instead of 'applicant' from actual API
                 const user = record.user || {};
@@ -61,7 +61,7 @@ const getJobApplicationsTableColumns = ({
             title: "Contact Info",
             key: "contact",
             align: "left",
-            width: 200,
+            width: 280,
             render: (_, record) => {
                 const user = record.user || {};
                 const userData = user.data || user;

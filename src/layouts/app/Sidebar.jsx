@@ -111,7 +111,7 @@ const Sidebar = ({ collapsed }) => {
             [paths.categories]: { module: "categories", action: "view" },
             [paths.jobs]: { module: "jobs", action: "view" },
             [paths.allJobApplications]: {
-                module: "allJobApplications",
+                module: "jobApplications",
                 action: "view",
             },
             [paths.courses]: { module: "courses", action: "view" },
