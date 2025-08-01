@@ -149,7 +149,7 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
                     .filter(Boolean) // Remove empty/undefined values
                     .join(", ");
 
-                const streetParts = address.street.split(",");
+                const streetParts = address?.street?.split(",");
 
                 const part1 = address.city
                     ? address.city
