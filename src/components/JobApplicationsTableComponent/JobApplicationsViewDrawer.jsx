@@ -217,7 +217,7 @@ const JobApplicationsViewDrawer = ({
 
                         <div>
                             <strong>Min Experience:</strong>{" "}
-                            {jobDetails.experience?.min} years
+                            {jobDetails.minExperience} years
                         </div>
                     </Card>
                 </>

@@ -206,44 +206,90 @@ const JobApplicationsTable = ({
         setBulkDownloadModalOpen(true);
     };
 
+    const calculateTotalExperience = (experienceData) => {
+        if (!experienceData || !Array.isArray(experienceData)) return 0;
+
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
+
+        let totalMonths = 0;
+
+        experienceData.forEach((job) => {
+            // Parse start date
+            const [startMonth, startYear] = job.startYear
+                .split("/")
+                .map(Number);
+
+            let endMonth, endYear;
+
+            if (job.isCurrent) {
+                // For current job, use current date
+                endMonth = currentMonth;
+                endYear = currentYear;
+            } else {
+                // Parse end date
+                [endMonth, endYear] = job.endYear.split("/").map(Number);
+            }
+
+            // Calculate months for this job
+            const monthsInJob =
+                (endYear - startYear) * 12 + (endMonth - startMonth);
+            totalMonths += monthsInJob;
+        });
+
+        // Convert total months to years and months
+        const totalYears = Math.floor(totalMonths / 12);
+
+        // Return only years as number
+        return totalYears;
+    };
+
+    const getCurrentCompany = (experienceData) => {
+        if (!experienceData || !Array.isArray(experienceData)) return null;
+        const currentJob = experienceData.find((job) => job.isCurrent === true);
+        return currentJob ? currentJob.companyName : null;
+    };
+
     const handleDownloadConfirm = async (limit, filename) => {
         try {
             // Format job application data for CSV export
             const formatJobApplicationData = (applications) => {
                 return applications.map((app, index) => {
                     try {
-                        // Handle different possible data structures
-                        const applicant =
-                            app.applicant || app.user?.data || app.user || {};
-                        const applicantName = applicant.name || {};
+                        // Correct data structure: user is at app.user, experience is at app.user.data.experience
+                        const applicant = app.user || app.user?.data || {};
+                        const applicantName = applicant.data.name || {};
+                        const address =
+                            applicant.address || applicant?.data?.address || {};
+                        const experience = app.user?.data?.experience || [];
 
                         const formattedApplication = {
                             "Application ID": app.id || app._id || "",
                             "Job ID":
-                                app.jobId || app.job?.id || app.job?._id || "",
-                            "Job Title":
-                                app.job?.title || jobDetails?.title || "",
+                                app.job?._id || app.jobId || app.job?.id || "",
+                            "Job Title": app.job?.title || "",
                             Company:
+                                app.job?.company?.data?.name ||
                                 app.job?.company?.name ||
-                                jobDetails?.company?.data?.name ||
                                 "",
-                            "Applicant First Name":
-                                applicantName.first ||
-                                applicant.firstName ||
-                                "",
-                            "Applicant Last Name":
-                                applicantName.last || applicant.lastName || "",
-                            "Applicant Full Name":
-                                `${applicantName.first || ""} ${
-                                    applicantName.last || ""
-                                }`.trim() ||
-                                `${applicant.firstName || ""} ${
-                                    applicant.lastName || ""
-                                }`.trim(),
-                            Email: applicant.email || "",
-                            Phone: applicant.phone1 || applicant.phone || "",
-                            "Secondary Phone": applicant.phone2 || "",
-                            Status:
+                            "User ID": applicant.id || applicant._id || "",
+                            "First Name": applicantName.first || "",
+                            "Last Name": applicantName.last || "",
+                            // "Full Name": `${applicantName.data.first || ""} ${
+                            //     applicantName.data.last || ""
+                            // }`.trim(),
+                            Email: applicant.data.email || "",
+                            Phone: applicant.data.phone1 || "",
+                            "Secondary Phone": applicant.data.phone2 || "",
+                            "Date of Birth": applicant.data.dob
+                                ? moment(applicant.data.dob).format(
+                                      "DD/MM/YYYY"
+                                  )
+                                : "",
+                            // Role: applicant.role || "",
+                            // "User App Role": applicant.userAppRole || "",
+                            "Application Status":
                                 app.status === 0
                                     ? "Applied"
                                     : app.status === 1
@@ -255,13 +301,27 @@ const JobApplicationsTable = ({
                                     : app.status === 4
                                     ? "Hired"
                                     : "Unknown",
-                            "Experience Years": app.experience || "",
-                            "Expected Salary": app.expectedSalary || "",
-                            "Notice Period": app.noticePeriod || "",
-                            "Current Company": app.currentCompany || "",
-                            "Resume URL": app.resumeUrl || app.resume || "",
-                            "Cover Letter": app.coverLetter || "",
-                            Notes: app.notes || "",
+                            "Total Experience (Years)":
+                                experience.length > 0
+                                    ? calculateTotalExperience(experience)
+                                    : 0,
+                            "Current Company":
+                                experience.length > 0
+                                    ? getCurrentCompany(experience)
+                                    : "",
+                            "Street Address": address.street || "",
+                            City: address.city || "",
+                            State: address.state || "",
+                            Pincode: address.pincode || "",
+                            Country: address.country || "",
+                            "Profile Image URL":
+                                app.user?.data?.imageUrl ||
+                                app.user?.data?.imgUrl ||
+                                "",
+                            "Resume URL":
+                                app.user?.data?.resume?.resumeUrl || "",
+                            // "Cover Letter": app.coverLetter || "",
+                            // Notes: app.notes || "",
                             "Applied Date":
                                 app.createdAt || app.appliedDate
                                     ? moment(
@@ -273,22 +333,110 @@ const JobApplicationsTable = ({
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
-                            "Street Address": applicant.address?.street || "",
-                            City: applicant.address?.city || "",
-                            State: applicant.address?.state || "",
-                            Pincode: applicant.address?.pincode || "",
-                            Country: applicant.address?.country || "",
+
+                            // Experience Details (flattened)
+                            "Experience Count": experience.length,
+                            "Experience Details": experience
+                                .map(
+                                    (exp, idx) =>
+                                        `${idx + 1}. ${exp.title} at ${
+                                            exp.companyName
+                                        } (${exp.startYear} - ${
+                                            exp.isCurrent
+                                                ? "Current"
+                                                : exp.endYear
+                                        })`
+                                )
+                                .join(" | "),
+
+                            // Current Job Details
+                            "Current Job Title": (() => {
+                                const currentJob = experience.find(
+                                    (job) => job.isCurrent
+                                );
+                                return currentJob ? currentJob.title : "";
+                            })(),
+                            "Current Job Start Date": (() => {
+                                const currentJob = experience.find(
+                                    (job) => job.isCurrent
+                                );
+                                return currentJob ? currentJob.startYear : "";
+                            })(),
+                            "Current Job Employment Type": (() => {
+                                const currentJob = experience.find(
+                                    (job) => job.isCurrent
+                                );
+                                return currentJob
+                                    ? currentJob.employmentType
+                                    : "";
+                            })(),
+
+                            // Previous Job Details (most recent non-current)
+                            "Previous Job Title": (() => {
+                                const previousJobs = experience.filter(
+                                    (job) => !job.isCurrent
+                                );
+                                return previousJobs.length > 0
+                                    ? previousJobs[previousJobs.length - 1]
+                                          .title
+                                    : "";
+                            })(),
+                            "Previous Company": (() => {
+                                const previousJobs = experience.filter(
+                                    (job) => !job.isCurrent
+                                );
+                                return previousJobs.length > 0
+                                    ? previousJobs[previousJobs.length - 1]
+                                          .companyName
+                                    : "";
+                            })(),
+                            "Previous Job Duration": (() => {
+                                const previousJobs = experience.filter(
+                                    (job) => !job.isCurrent
+                                );
+                                if (previousJobs.length > 0) {
+                                    const prevJob =
+                                        previousJobs[previousJobs.length - 1];
+                                    return `${prevJob.startYear} - ${prevJob.endYear}`;
+                                }
+                                return "";
+                            })(),
                         };
 
+                        // Debug log for first record to check structure
                         if (index === 0) {
+                            console.log(
+                                "First formatted application:",
+                                formattedApplication
+                            );
+                            console.log("Original app data:", app);
+                            console.log("User data:", app.user);
+                            console.log(
+                                "Experience data:",
+                                app.user?.data?.experience
+                            );
                         }
 
                         return formattedApplication;
                     } catch (formatError) {
+                        console.error(
+                            "Error formatting application:",
+                            formatError
+                        );
                         // Return a basic format to prevent the whole process from failing
                         return {
                             "Application ID": app.id || app._id || "Unknown",
-                            Status:
+                            Email:
+                                app.user?.data?.email || app.user?.email || "",
+                            "First Name":
+                                app.user?.data?.name?.first ||
+                                app.user?.name?.first ||
+                                "",
+                            Phone:
+                                app.user?.data?.phone1 ||
+                                app.user?.phone1 ||
+                                "",
+                            "Application Status":
                                 app.status !== undefined
                                     ? app.status === 0
                                         ? "Applied"
@@ -302,29 +450,20 @@ const JobApplicationsTable = ({
                                         ? "Hired"
                                         : "Unknown"
                                     : "Error formatting",
+                            Error: "Error formatting data - check console for details",
                         };
                     }
                 });
             };
 
-            // Create fetch function for download - Note: This will need the jobId
+            // Create fetch function for download
             const fetchApplicationsForDownload = async () => {
                 const downloadLimit = limit === "all" ? -1 : limit;
 
-                // Get jobId from jobDetails or from the current context
-                const jobId = jobDetails?.id || jobDetails?._id;
-                if (!jobId) {
-                    throw new Error(
-                        "Job ID not found for downloading applications"
-                    );
-                }
-
-                const response = await api.getJobApplications(
-                    jobId,
+                const response = await api.getAllJobApplications(
                     1, // Always start from page 1 for downloads
                     downloadLimit,
-                    pagination.sort || "",
-                    activeFilters
+                    pagination.sort || ""
                 );
 
                 return response;
