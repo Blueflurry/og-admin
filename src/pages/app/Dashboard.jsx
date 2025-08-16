@@ -66,6 +66,7 @@ const Dashboard = () => {
         totalUsers: 0,
         activeUsers: 0,
         inactiveUsers: 0,
+        activeAlumni: 0,
         totalJobs: 0,
         activeJobs: 0,
         inactiveJobs: 0,
@@ -110,7 +111,7 @@ const Dashboard = () => {
         };
 
         if (!metricsResponse || !metricsResponse.data) {
-            console.warn("❌ No metrics response or data received");
+            console.warn("No metrics response or data received");
             message.warning("No dashboard metrics data received from server");
             return defaultMetrics;
         }
@@ -122,9 +123,20 @@ const Dashboard = () => {
             ...defaultMetrics,
 
             // Users data from new structure
-            totalUsers: data.users?.total || 0,
-            activeUsers: data.users?.Active || 0,
-            inactiveUsers: data.users?.Unauthorized || 0,
+            totalUsers:
+                data.users?.user?.active +
+                    data.users?.user?.unauthorized +
+                    data.users?.user?.disabled +
+                    data.users?.alumni?.active +
+                    data.users?.alumni?.unauthorized +
+                    data.users?.alumni?.disabled || 0,
+            activeUsers: data.users?.user?.active || 0,
+            activeAlumni: data.users?.alumni?.active || 0,
+            inactiveUsers:
+                data.users?.user?.unauthorized +
+                    data.users?.user?.disabled +
+                    data.users?.alumni?.unauthorized +
+                    data.users?.alumni?.disabled || 0,
 
             // Jobs data from new structure
             totalJobs: data.jobs?.total || 0,
@@ -175,7 +187,7 @@ const Dashboard = () => {
             !jobAppResponse.data ||
             !Array.isArray(jobAppResponse.data)
         ) {
-            console.warn("❌ Invalid job applications data structure");
+            console.warn("Invalid job applications data structure");
             return [];
         }
 
@@ -205,7 +217,7 @@ const Dashboard = () => {
                         )
                         .catch((err) => {
                             console.warn(
-                                "⚠️ User growth chart data fetch failed:",
+                                "User growth chart data fetch failed:",
                                 err
                             );
                             return { data: [] };
@@ -218,7 +230,7 @@ const Dashboard = () => {
                         )
                         .catch((err) => {
                             console.warn(
-                                "⚠️ Job applications chart data fetch failed:",
+                                "Job applications chart data fetch failed:",
                                 err
                             );
                             return { data: [] };
@@ -675,12 +687,17 @@ const Dashboard = () => {
             bgColor: "#f0f4ff",
             stats: [
                 {
-                    label: "Active",
-                    value: dashboardData.activeUsers,
+                    label: "Alumni",
+                    value: dashboardData.activeAlumni,
                     color: "#52c41a",
                 },
                 {
-                    label: "Unauthorized",
+                    label: "New User",
+                    value: dashboardData.activeUsers,
+                    color: "#04248c",
+                },
+                {
+                    label: "Disabled",
                     value: dashboardData.inactiveUsers,
                     color: "#ff4d4f",
                 },

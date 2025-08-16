@@ -39,17 +39,19 @@ export class API {
     }
 
     // USERS
-    getUsers(page = 1, limit = 10, sort = "", filters = {}) {
+    getUsers(page = 1, limit = 10, sort = "-createdAt", filters = {}) {
+        const filteredParams = filters
+            ? { ...filters, appUserRole: { $in: [1, 4] } }
+            : {
+                  appUserRole: { $in: [1, 4] },
+              };
+
         // Always use POST with filters in the body
         return this.request(() =>
-            filters
-                ? this.client.post(
-                      `/auth/search?page=${page}&limit=${limit}&sort=${sort}`,
-                      filters
-                  )
-                : this.client.post(
-                      `/auth/search?page=${page}&limit=${limit}&sort=${sort}`
-                  )
+            this.client.post(
+                `/auth/search?page=${page}&limit=${limit}&sort=${sort}`,
+                filteredParams
+            )
         );
     }
 
@@ -74,7 +76,7 @@ export class API {
     }
 
     // JOBS
-    getJobs(page = 1, limit = 10, sort = "", filters = {}) {
+    getJobs(page = 1, limit = 10, sort = "-createdAt", filters = {}) {
         return this.request(() =>
             this.client.post(
                 `/jobs/search/admin?page=${page}&limit=${limit}&sort=${sort}`,
@@ -109,7 +111,7 @@ export class API {
                 `/auth/company/search`,
                 {},
                 {
-                    params: { page: 1, limit: -1 },
+                    params: { page: 1, limit: -1, sort: "-createdAt" },
                 }
             )
         );
@@ -123,7 +125,7 @@ export class API {
     }
 
     // Updated API methods for Courses with filter support
-    getCourses(page = 1, limit = 10, sort = "", filters = {}) {
+    getCourses(page = 1, limit = 10, sort = "-createdAt", filters = {}) {
         // Start with pagination parameters
         let queryParams = `page=${page}&limit=${limit}`;
 
@@ -175,7 +177,7 @@ export class API {
     }
 
     // For webinars, just call the same API but with status=0
-    getWebinars(page = 1, limit = 10, sort = "", filters = {}) {
+    getWebinars(page = 1, limit = 10, sort = "-createdAt", filters = {}) {
         // Ensure we set status=0 for webinars
         const webinarFilters = { ...filters, status: 0 };
         // Remove any conflicting status value that might have been set
@@ -252,7 +254,7 @@ export class API {
 
         return this.request(() =>
             this.client.post("/auth/company/search/admin", filters, {
-                params: { page, limit, sort },
+                params: { page: page, limit: limit, sort: sort },
             })
         );
     }
@@ -416,7 +418,7 @@ export class API {
     }
 
     // REFERRALS
-    getReferrals(page = 1, limit = 10, sort = "", filters = {}) {
+    getReferrals(page = 1, limit = 10, sort = "-createdAt", filters = {}) {
         // Start with pagination parameters
         let queryParams = `page=${page}&limit=${limit}`;
         // &populate=user
@@ -567,7 +569,7 @@ export class API {
     }
 
     // Carousels API methods (type=2)
-    getCarousels(page = 1, limit = 10, sort = "", filters = {}) {
+    getCarousels(page = 1, limit = 10, sort = "-createdAt", filters = {}) {
         // Start with pagination parameters
         let queryParams = `page=${page}&limit=${limit}`;
 
@@ -802,88 +804,6 @@ export class API {
     getDashboardMetrics() {
         return this.request(() => this.client.get(`/auth/dashboard-stats`));
     }
-
-    // Get user status statistics (for pie chart) - FIXED for DD/MM/YYYY format
-    // getUserStatusStats(dateRange) {
-    //     // Handle both old string format and new object format
-    //     let from, to;
-
-    //     if (typeof dateRange === "string") {
-    //         // Legacy format: "7days", "30days", etc.
-    //         const formatted = this.formatDateForAPI(dateRange);
-    //         from = formatted.from;
-    //         to = formatted.to;
-    //     } else if (
-    //         dateRange &&
-    //         typeof dateRange === "object" &&
-    //         dateRange.from &&
-    //         dateRange.to
-    //     ) {
-    //         // SPECIAL CASE: User Status API expects DD/MM/YYYY format
-    //         // Convert from YYYY-MM-DD to DD/MM/YYYY
-    //         const convertToUserStatusFormat = (dateStr) => {
-    //             if (dateStr.includes("-")) {
-    //                 // Convert YYYY-MM-DD to DD/MM/YYYY
-    //                 const [year, month, day] = dateStr.split("-");
-    //                 return `${day}/${month}/${year}`;
-    //             }
-    //             return dateStr; // Already in correct format
-    //         };
-
-    //         from = convertToUserStatusFormat(dateRange.from);
-    //         to = convertToUserStatusFormat(dateRange.to);
-    //     } else {
-    //         // Fallback to last 7 days in DD/MM/YYYY format
-    //         const today = new Date();
-    //         const fromDate = new Date(today);
-    //         fromDate.setDate(today.getDate() - 7);
-
-    //         const formatForUserStatus = (date) => {
-    //             const day = String(date.getDate()).padStart(2, "0");
-    //             const month = String(date.getMonth() + 1).padStart(2, "0");
-    //             const year = date.getFullYear();
-    //             return `${day}/${month}/${year}`;
-    //         };
-
-    //         from = formatForUserStatus(fromDate);
-    //         to = formatForUserStatus(today);
-    //     }
-
-    //     return this.request(() =>
-    //         this.client.get(`/auth/user/metrics?from=${from}&to=${to}`)
-    //     );
-    // }
-
-    // Get job category statistics with time range
-    // getJobCategoryStats(dateRange) {
-    //     // Handle both old string format and new object format
-    //     let from, to;
-
-    //     if (typeof dateRange === "string") {
-    //         // Legacy format: "7days", "30days", etc.
-    //         const formatted = this.formatDateForAPI(dateRange);
-    //         from = formatted.from;
-    //         to = formatted.to;
-    //     } else if (
-    //         dateRange &&
-    //         typeof dateRange === "object" &&
-    //         dateRange.from &&
-    //         dateRange.to
-    //     ) {
-    //         // New format: {from: "YYYY-MM-DD", to: "YYYY-MM-DD"}
-    //         from = dateRange.from;
-    //         to = dateRange.to;
-    //     } else {
-    //         // Fallback to last 7 days
-    //         const fallback = this.formatDateForAPI("7days");
-    //         from = fallback.from;
-    //         to = fallback.to;
-    //     }
-
-    //     return this.request(() =>
-    //         this.client.get(`/jobs/stats?from=${from}&to=${to}`)
-    //     );
-    // }
 
     getDashboardChart(dateRange) {
         // Handle both old string format and new object format

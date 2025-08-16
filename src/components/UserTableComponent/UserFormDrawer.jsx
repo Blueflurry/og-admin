@@ -395,7 +395,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         >
                             <Select placeholder="Select user status">
                                 <Option value={1}>Active</Option>
-                                <Option value={0}>Unauthorized</Option>
+                                {/* <Option value={0}>Unauthorized</Option> */}
                                 <Option value={-1}>Disabled</Option>
                             </Select>
                         </Form.Item>
