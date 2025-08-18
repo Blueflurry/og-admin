@@ -63,6 +63,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                     description: initialValues.description || "",
                     isRemote: initialValues.isRemote || false,
                     salaryRange: initialValues.salaryRange || "",
+                    maxExperience: initialValues.maxExperience || 0,
                     minExperience: initialValues.minExperience || 0,
                     street: initialValues.location?.street || "",
                     city: initialValues.location?.city || "",
@@ -153,6 +154,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                 description: values.description,
                 isRemote: values.isRemote || false,
                 salaryRange: values.salaryRange,
+                maxExperience: values.maxExperience,
                 minExperience: values.minExperience,
                 location: {
                     street: values.street,
@@ -397,7 +399,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                 </Row>
 
                 <Row gutter={16}>
-                    <Col span={12}>
+                    <Col span={24}>
                         <Form.Item
                             name="type"
                             label="Job Type"
@@ -428,6 +430,24 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                                     </Option>,
                                 ]}
                             </Select>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            name="maxExperience"
+                            label="Maximum Experience (years)"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter maximum experience",
+                                },
+                            ]}
+                        >
+                            <InputNumber
+                                style={{ width: "100%" }}
+                                min={0}
+                                placeholder="Maximum experience"
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={12}>

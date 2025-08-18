@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Table, message, Modal } from "antd";
 import { createStyles } from "antd-style";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
@@ -20,7 +20,10 @@ import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
 import moment from "moment";
 
-const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
+// Create styles hook outside component to avoid calling hooks inside other hooks
+const useComponentStyles = createStyles(({ css, token }) =>
+    tableStyles(css, token)
+);
 
 // Define static configs outside component
 const DEFAULT_FILTER_CONFIG = {
@@ -45,6 +48,103 @@ const DEFAULT_SORT_OPTIONS = [
     { label: "Oldest First", value: "createdAt" },
 ];
 
+// Helper function moved outside component
+const getStatusLabel = (status) => {
+    switch (status) {
+        case 1:
+            return "Active";
+        case 0:
+            return "Inactive";
+        case -1:
+            return "Disabled";
+        default:
+            return "Unknown";
+    }
+};
+
+// Format institute data function outside component
+const formatInstituteDataForCSV = (institutes) => {
+    return institutes.map((institute, index) => {
+        try {
+            const location = institute.location || {};
+
+            return {
+                "Institute ID": institute.id || institute._id || "",
+                "Institute Name": institute.title || "",
+                Description: institute.description || "",
+                Type: institute.type || "",
+                Status: getStatusLabel(institute.status),
+
+                // Contact Information
+                Email: institute.email || "",
+                Phone: institute.phone || "",
+                Website: institute.website || "",
+
+                // Location Information
+                "Address Street": location.street || "",
+                "Address City": location.city || "",
+                "Address State": location.state || "",
+                "Address Pincode": location.pincode || "",
+                "Address Country": location.country || "",
+                "Full Address": institute.fullAddress || "",
+
+                // Additional Information
+                "Logo URL": institute.imageUrl || "",
+                "Establishment Year": institute.establishmentYear || "",
+                Affiliation: institute.affiliation || "",
+                Accreditation: institute.accreditation || "",
+                "Institute Category": institute.category || "",
+                "Student Capacity": institute.studentCapacity || "",
+                "Faculty Count": institute.facultyCount || "",
+
+                // Academic Information
+                "Academic Calendar": institute.academicCalendar || "",
+                "Courses Offered": institute.coursesOffered
+                    ? institute.coursesOffered.join(", ")
+                    : "",
+                "Admission Process": institute.admissionProcess || "",
+                "Fee Structure": institute.feeStructure || "",
+
+                // Rankings and Recognition
+                "NIRF Ranking": institute.nirfRanking || "",
+                "International Ranking": institute.internationalRanking || "",
+                Awards: institute.awards ? institute.awards.join(", ") : "",
+
+                // Facilities
+                Facilities: institute.facilities
+                    ? institute.facilities.join(", ")
+                    : "",
+                "Library Details": institute.libraryDetails || "",
+                "Lab Details": institute.labDetails || "",
+                "Hostel Facility": institute.hostelFacility ? "Yes" : "No",
+                "Sports Facility": institute.sportsFacility ? "Yes" : "No",
+
+                // Social Media and Links
+                "LinkedIn URL": institute.linkedinUrl || "",
+                "Facebook URL": institute.facebookUrl || "",
+                "Twitter URL": institute.twitterUrl || "",
+                "Instagram URL": institute.instagramUrl || "",
+                "YouTube URL": institute.youtubeUrl || "",
+
+                // Timestamps
+                "Created At": institute.createdAt
+                    ? moment(institute.createdAt).format("DD/MM/YYYY HH:mm")
+                    : "",
+                "Updated At": institute.updatedAt
+                    ? moment(institute.updatedAt).format("DD/MM/YYYY HH:mm")
+                    : "",
+            };
+        } catch (formatError) {
+            console.error("Error formatting institute data:", formatError);
+            return {
+                "Institute ID": institute.id || institute._id || "Unknown",
+                "Institute Name": institute.title || "Unknown",
+                Status: "Error formatting",
+            };
+        }
+    });
+};
+
 const ManageInstitutesTable = ({
     instituteData = [],
     pagination = {},
@@ -54,302 +154,204 @@ const ManageInstitutesTable = ({
     handleDelete,
     ...props
 }) => {
-    // All hooks at the top
-    const { styles } = useStyle();
+    // All hooks must be at the top level - no conditional hooks
+    const { styles } = useComponentStyles();
     const { api } = useAPI();
     const { can } = useUserPermission();
     const { selectionType, handleChange, clearFilters } = useTableConfig();
     const { downloadCSV, downloading } = useBulkDownload();
 
-    // State for the form drawer
+    // State hooks - all at the top
     const [formDrawerOpen, setFormDrawerOpen] = useState(false);
     const [editingInstitute, setEditingInstitute] = useState(null);
-
-    // State for the view drawer
     const [viewDrawerOpen, setViewDrawerOpen] = useState(false);
     const [viewingInstitute, setViewingInstitute] = useState(null);
-
-    // State for search and filter drawer
     const [searchFilterDrawerOpen, setSearchFilterDrawerOpen] = useState(false);
     const [activeFilters, setActiveFilters] = useState({});
-
-    // State for bulk download
     const [bulkDownloadModalOpen, setBulkDownloadModalOpen] = useState(false);
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-    // Use static configs
+    // Static configs
     const filterConfig = DEFAULT_FILTER_CONFIG;
     const sortOptions = DEFAULT_SORT_OPTIONS;
 
-    const openDrawerForCreate = () => {
+    // Handler functions with useCallback
+    const openDrawerForCreate = useCallback(() => {
         setEditingInstitute(null);
         setFormDrawerOpen(true);
-    };
+    }, []);
 
-    const openSearchFilterDrawer = () => {
+    const openSearchFilterDrawer = useCallback(() => {
         setSearchFilterDrawerOpen(true);
-    };
+    }, []);
 
-    const closeSearchFilterDrawer = () => {
+    const closeSearchFilterDrawer = useCallback(() => {
         setSearchFilterDrawerOpen(false);
-    };
+    }, []);
 
-    const handleApplyFilters = (filters) => {
-        // Extract sort value if present
-        const sortValue = filters.sort || "";
-        delete filters.sort;
+    const handleApplyFilters = useCallback(
+        (filters) => {
+            // Extract sort value if present
+            const sortValue = filters.sort || "";
+            const filtersWithoutSort = { ...filters };
+            delete filtersWithoutSort.sort;
 
-        // Save applied filters for future reference
-        setActiveFilters(filters);
+            // Save applied filters for future reference
+            setActiveFilters(filtersWithoutSort);
 
-        // Update records with new filters and trigger data fetch
-        if (setUpdateRecords) {
-            setUpdateRecords({
-                page: 1, // Reset to first page when filters change
-                limit: pagination.limit || 10,
-                sort: sortValue,
-                filters: filters,
-            });
-        }
-
-        message.success("Filters applied successfully");
-    };
-
-    const onChangePagination = (page, pageSize) => {
-        // Update records with new page and limit values while preserving filters
-        if (setUpdateRecords) {
-            setUpdateRecords({
-                page: page,
-                limit: pageSize,
-                sort: pagination.sort || "",
-                filters: activeFilters,
-            });
-        }
-    };
-
-    const localHandleView = (record) => {
-        if (handleView) {
-            handleView(record);
-        } else {
-            setViewingInstitute(record);
-            setViewDrawerOpen(true);
-        }
-    };
-
-    const localHandleEdit = (record) => {
-        if (handleEdit) {
-            handleEdit(record);
-        } else {
-            setEditingInstitute(record);
-            setFormDrawerOpen(true);
-        }
-    };
-
-    const localHandleDelete = async (record) => {
-        if (handleDelete) {
-            handleDelete(record);
-        } else {
-            try {
-                await api.deleteInstitute(record.id || record._id);
-                message.success("Institute deleted successfully");
-
-                // Refresh data
-                if (setUpdateRecords) {
-                    setUpdateRecords((prev) => ({ ...prev }));
-                }
-            } catch (error) {
-                message.error("Failed to delete institute");
+            // Update records with new filters and trigger data fetch
+            if (setUpdateRecords) {
+                setUpdateRecords({
+                    page: 1, // Reset to first page when filters change
+                    limit: pagination.pageSize || pagination.limit || 10,
+                    sort: sortValue,
+                    filters: filtersWithoutSort,
+                });
             }
-        }
-    };
 
-    const closeFormDrawer = () => {
+            message.success("Filters applied successfully");
+        },
+        [setUpdateRecords, pagination.pageSize, pagination.limit]
+    );
+
+    // Fixed pagination handler
+    const onChangePagination = useCallback(
+        (page, pageSize) => {
+            if (setUpdateRecords) {
+                setUpdateRecords({
+                    page: page,
+                    limit: pageSize,
+                    sort: pagination.sort || "",
+                    filters: activeFilters,
+                });
+            }
+        },
+        [setUpdateRecords, pagination.sort, activeFilters]
+    );
+
+    const localHandleView = useCallback(
+        (record) => {
+            if (handleView) {
+                handleView(record);
+            } else {
+                setViewingInstitute(record);
+                setViewDrawerOpen(true);
+            }
+        },
+        [handleView]
+    );
+
+    const localHandleEdit = useCallback(
+        (record) => {
+            if (handleEdit) {
+                handleEdit(record);
+            } else {
+                setEditingInstitute(record);
+                setFormDrawerOpen(true);
+            }
+        },
+        [handleEdit]
+    );
+
+    const localHandleDelete = useCallback(
+        async (record) => {
+            if (handleDelete) {
+                handleDelete(record);
+            } else {
+                try {
+                    await api.deleteInstitute(record.id || record._id);
+                    message.success("Institute deleted successfully");
+
+                    // Refresh data
+                    if (setUpdateRecords) {
+                        setUpdateRecords((prev) => ({ ...prev }));
+                    }
+                } catch (error) {
+                    console.error("Delete error:", error);
+                    message.error("Failed to delete institute");
+                }
+            }
+        },
+        [handleDelete, api, setUpdateRecords]
+    );
+
+    const closeFormDrawer = useCallback(() => {
         setFormDrawerOpen(false);
         setEditingInstitute(null);
-    };
+    }, []);
 
-    const closeViewDrawer = () => {
+    const closeViewDrawer = useCallback(() => {
         setViewDrawerOpen(false);
         setViewingInstitute(null);
-    };
+    }, []);
 
-    const handleFormSuccess = () => {
-        // Refresh the table data
+    const handleFormSuccess = useCallback(() => {
         if (setUpdateRecords) {
             setUpdateRecords((prev) => ({ ...prev }));
         }
-    };
+    }, [setUpdateRecords]);
 
-    // ========================================
-    // BULK DOWNLOAD FUNCTIONALITY
-    // ========================================
-
-    const handleBulkDownload = () => {
+    const handleBulkDownload = useCallback(() => {
         setBulkDownloadModalOpen(true);
-    };
+    }, []);
 
-    const handleDownloadConfirm = async (limit, filename) => {
-        try {
-            // Format institute data for CSV export
-            const formatInstituteData = (institutes) => {
-                return institutes.map((institute, index) => {
-                    try {
-                        const location = institute.location || {};
+    const handleDownloadConfirm = useCallback(
+        async (limit, filename) => {
+            try {
+                // Create fetch function for download
+                const fetchInstitutesForDownload = async () => {
+                    const downloadLimit = limit === "all" ? -1 : limit;
+                    const instituteFilters = { ...activeFilters, type: 1 };
 
-                        const formattedInstitute = {
-                            "Institute ID": institute.id || institute._id || "",
-                            "Institute Name": institute.title || "",
-                            Description: institute.description || "",
-                            Type: institute.type || "",
-                            Status: getStatusLabel(institute.status),
+                    const response = await api.getInstitutes({
+                        page: 1,
+                        limit: downloadLimit,
+                        sort: pagination.sort || "",
+                        filters: instituteFilters,
+                    });
 
-                            // Contact Information
-                            Email: institute.email || "",
-                            Phone: institute.phone || "",
-                            Website: institute.website || "",
+                    return response;
+                };
 
-                            // Location Information
-                            "Address Street": location.street || "",
-                            "Address City": location.city || "",
-                            "Address State": location.state || "",
-                            "Address Pincode": location.pincode || "",
-                            "Address Country": location.country || "",
-                            "Full Address": institute.fullAddress || "",
+                await downloadCSV(
+                    fetchInstitutesForDownload,
+                    filename,
+                    formatInstituteDataForCSV,
+                    activeFilters,
+                    pagination.sort || ""
+                );
+            } catch (downloadError) {
+                console.error("Download error:", downloadError);
+                message.error(`Download failed: ${downloadError.message}`);
+            } finally {
+                setBulkDownloadModalOpen(false);
+            }
+        },
+        [activeFilters, pagination.sort, api, downloadCSV]
+    );
 
-                            // Additional Information
-                            "Logo URL": institute.imageUrl,
-                            "Establishment Year":
-                                institute.establishmentYear || "",
-                            Affiliation: institute.affiliation || "",
-                            Accreditation: institute.accreditation || "",
-                            "Institute Category": institute.category || "",
-                            "Student Capacity": institute.studentCapacity || "",
-                            "Faculty Count": institute.facultyCount || "",
+    // Get user permissions - moved outside of useMemo to avoid calling hooks inside hooks
+    const canView = can("institutes", "view");
+    const canEdit = can("institutes", "edit");
+    const canDelete = can("institutes", "delete");
 
-                            // Academic Information
-                            "Academic Calendar":
-                                institute.academicCalendar || "",
-                            "Courses Offered": institute.coursesOffered
-                                ? institute.coursesOffered.join(", ")
-                                : "",
-                            "Admission Process":
-                                institute.admissionProcess || "",
-                            "Fee Structure": institute.feeStructure || "",
-
-                            // Rankings and Recognition
-                            "NIRF Ranking": institute.nirfRanking || "",
-                            "International Ranking":
-                                institute.internationalRanking || "",
-                            Awards: institute.awards
-                                ? institute.awards.join(", ")
-                                : "",
-
-                            // Facilities
-                            Facilities: institute.facilities
-                                ? institute.facilities.join(", ")
-                                : "",
-                            "Library Details": institute.libraryDetails || "",
-                            "Lab Details": institute.labDetails || "",
-                            "Hostel Facility": institute.hostelFacility
-                                ? "Yes"
-                                : "No",
-                            "Sports Facility": institute.sportsFacility
-                                ? "Yes"
-                                : "No",
-
-                            // Social Media and Links
-                            "LinkedIn URL": institute.linkedinUrl || "",
-                            "Facebook URL": institute.facebookUrl || "",
-                            "Twitter URL": institute.twitterUrl || "",
-                            "Instagram URL": institute.instagramUrl || "",
-                            "YouTube URL": institute.youtubeUrl || "",
-
-                            // Timestamps
-                            "Created At": institute.createdAt
-                                ? moment(institute.createdAt).format(
-                                      "DD/MM/YYYY HH:mm"
-                                  )
-                                : "",
-                            "Updated At": institute.updatedAt
-                                ? moment(institute.updatedAt).format(
-                                      "DD/MM/YYYY HH:mm"
-                                  )
-                                : "",
-                        };
-
-                        if (index === 0) {
-                        }
-
-                        return formattedInstitute;
-                    } catch (formatError) {
-                        return {
-                            "Institute ID":
-                                institute.id || institute._id || "Unknown",
-                            "Institute Name": institute.title || "Unknown",
-                            Status: "Error formatting",
-                        };
-                    }
-                });
-            };
-
-            // Helper function to get status label
-            const getStatusLabel = (status) => {
-                switch (status) {
-                    case 1:
-                        return "Active";
-                    case 0:
-                        return "Inactive";
-                    case -1:
-                        return "Disabled";
-                    default:
-                        return "Unknown";
-                }
-            };
-
-            // Create fetch function for download
-            const fetchInstitutesForDownload = async () => {
-                const downloadLimit = limit === "all" ? -1 : limit;
-
-                // Ensure type=1 for institutes
-                const instituteFilters = { ...activeFilters, type: 1 };
-
-                const response = await api.getInstitutes({
-                    page: 1, // Always start from page 1 for downloads
-                    limit: downloadLimit,
-                    sort: pagination.sort || "",
-                    filters: instituteFilters,
-                });
-
-                return response;
-            };
-
-            await downloadCSV(
-                fetchInstitutesForDownload,
-                filename,
-                formatInstituteData,
-                activeFilters,
-                pagination.sort || ""
-            );
-        } catch (downloadError) {
-            message.error(`Download failed: ${downloadError.message}`);
-        } finally {
-            // Always close the modal, even if there was an error
-            setBulkDownloadModalOpen(false);
-        }
-    };
-
-    // Memoize columns with dependencies
+    // Memoize columns with stable dependencies
     const columns = useMemo(() => {
         return getManageInstitutesTableColumns({
-            handleView: can("institutes", "view") ? localHandleView : null,
-            handleEdit: can("institutes", "edit") ? localHandleEdit : null,
-            handleDelete: can("institutes", "delete")
-                ? localHandleDelete
-                : null,
+            handleView: canView ? localHandleView : null,
+            handleEdit: canEdit ? localHandleEdit : null,
+            handleDelete: canDelete ? localHandleDelete : null,
         });
-    }, [can, localHandleView, localHandleEdit, localHandleDelete]);
+    }, [
+        canView,
+        canEdit,
+        canDelete,
+        localHandleView,
+        localHandleEdit,
+        localHandleDelete,
+    ]);
 
-    // Prepare data source with useMemo
+    // Prepare data source
     const dataSource = useMemo(() => {
         if (!Array.isArray(instituteData)) return [];
 
@@ -359,7 +361,24 @@ const ManageInstitutesTable = ({
         }));
     }, [instituteData]);
 
-    // Create a stable table props object
+    // Create pagination configuration
+    const paginationConfig = useMemo(() => {
+        return getPaginationConfig({
+            pagination: {
+                current: pagination.current || pagination.page || 1,
+                pageSize: pagination.pageSize || pagination.limit || 10,
+                total: pagination.total || 0,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) =>
+                    `${range[0]}-${range[1]} of ${total} items`,
+                pageSizeOptions: ["10", "20", "50", "100"],
+            },
+            onChangePagination,
+        });
+    }, [pagination, onChangePagination]);
+
+    // Table configuration
     const tableProps = useMemo(() => {
         return {
             className: styles.customTable,
@@ -367,19 +386,25 @@ const ManageInstitutesTable = ({
             scroll: { x: "max-content" },
             columns,
             dataSource,
-            onChange: handleChange,
-            pagination: getPaginationConfig({
-                pagination,
-                onChangePagination,
-            }),
+            onChange: (pag, filters, sorter, extra) => {
+                // Handle table change events
+                if (extra.action === "paginate") {
+                    onChangePagination(pag.current, pag.pageSize);
+                } else if (handleChange) {
+                    handleChange(pag, filters, sorter, extra);
+                }
+            },
+            pagination: paginationConfig,
+            loading: props.loading || false,
         };
     }, [
         styles.customTable,
         columns,
         dataSource,
-        handleChange,
-        pagination,
+        paginationConfig,
         onChangePagination,
+        handleChange,
+        props.loading,
     ]);
 
     return (
@@ -419,12 +444,10 @@ const ManageInstitutesTable = ({
                 initialValues={{ ...activeFilters, sort: pagination.sort }}
             />
 
-            {/* Enhanced Bulk download modal */}
+            {/* Bulk download modal */}
             <BulkDownloadModal
                 open={bulkDownloadModalOpen}
-                onClose={() => {
-                    setBulkDownloadModalOpen(false);
-                }}
+                onClose={() => setBulkDownloadModalOpen(false)}
                 onDownload={handleDownloadConfirm}
                 loading={downloading}
                 entityName="Institutes"

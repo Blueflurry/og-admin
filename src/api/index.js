@@ -291,10 +291,6 @@ export class API {
 
     // Institutes API methods (type=1)
     getInstitutes(params = {}) {
-        if (params.sort == "") {
-            params.sort = "-createdAt";
-        }
-
         const {
             page = 1,
             limit = 10,
@@ -649,13 +645,48 @@ export class API {
         return this.request(() => this.client.delete(`/content/${id}`));
     }
 
-    getAllJobApplications(page = 1, limit = 10, sort = "-createdAt") {
+    getAllJobApplications(
+        page = 1,
+        limit = 10,
+        sort = "-createdAt",
+        filters = {}
+    ) {
         // Start with pagination parameters
         let queryParams = `page=${page}&limit=${limit}`;
 
         // Add sort if provided
         if (sort) {
             queryParams += `&sort=${sort}`;
+        }
+
+        // Process filters and add them to the query string
+        if (filters && Object.keys(filters).length > 0) {
+            Object.entries(filters).forEach(([key, value]) => {
+                if (typeof value === "object") {
+                    // Handle MongoDB operators ($regex, $in, $gte, $lte, etc.)
+                    Object.entries(value).forEach(([operator, opValue]) => {
+                        // Keep MongoDB operators intact
+                        const paramOperator = operator;
+
+                        if (Array.isArray(opValue) && operator === "$in") {
+                            // Handle $in operator with array values
+                            opValue.forEach((item) => {
+                                queryParams += `&${key}[${paramOperator}][]=${encodeURIComponent(
+                                    item
+                                )}`;
+                            });
+                        } else {
+                            // Handle other operators
+                            queryParams += `&${key}[${paramOperator}]=${encodeURIComponent(
+                                opValue
+                            )}`;
+                        }
+                    });
+                } else {
+                    // Handle simple values
+                    queryParams += `&${key}=${encodeURIComponent(value)}`;
+                }
+            });
         }
 
         // Make the request with all query parameters
