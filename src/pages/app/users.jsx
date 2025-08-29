@@ -149,6 +149,7 @@ const Users = () => {
                             "Full Name": `${user.name?.first || ""} ${
                                 user.name?.middle || ""
                             } ${user.name?.last || ""}`.trim(),
+                            "User Role": user.role || "",
                             Email: user.email || "",
                             "Primary Phone": user.phone1 || "",
                             "Secondary Phone": user.phone2 || "",
@@ -167,15 +168,11 @@ const Users = () => {
                                     ? "Unauthorized"
                                     : "Disabled",
                             "Created At": user.createdAt
-                                ? moment(user.createdAt).format(
-                                      "DD/MM/YYYY HH:mm"
-                                  )
+                                ? moment(user.createdAt).format("DD/MM/YYYY")
                                 : "",
-                            "Updated At": user.updatedAt
-                                ? moment(user.updatedAt).format(
-                                      "DD/MM/YYYY HH:mm"
-                                  )
-                                : "",
+                            // "Updated At": user.updatedAt
+                            //     ? moment(user.updatedAt).format("DD/MM/YYYY")
+                            //     : "",
                         };
 
                         if (index === 0) {
