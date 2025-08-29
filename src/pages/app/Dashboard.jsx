@@ -65,7 +65,9 @@ const Dashboard = () => {
     const [dashboardData, setDashboardData] = useState({
         totalUsers: 0,
         activeUsers: 0,
-        inactiveUsers: 0,
+        unauthorisedFreeUsers: 0,
+        unauthorisedAlumniUsers: 0,
+        disabledUsers: 0,
         activeAlumni: 0,
         totalJobs: 0,
         activeJobs: 0,
@@ -99,7 +101,10 @@ const Dashboard = () => {
         const defaultMetrics = {
             totalUsers: 0,
             activeUsers: 0,
-            inactiveUsers: 0,
+            unauthorisedAlumniUsers: 0,
+            unauthorisedFreeUsers: 0,
+            activeAlumni: 0,
+            disabledUsers: 0,
             totalJobs: 0,
             activeJobs: 0,
             inactiveJobs: 0,
@@ -132,11 +137,10 @@ const Dashboard = () => {
                     data.users?.alumni?.disabled || 0,
             activeUsers: data.users?.user?.active || 0,
             activeAlumni: data.users?.alumni?.active || 0,
-            inactiveUsers:
-                data.users?.user?.unauthorized +
-                    data.users?.user?.disabled +
-                    data.users?.alumni?.unauthorized +
-                    data.users?.alumni?.disabled || 0,
+            unauthorisedFreeUsers: data.users?.user?.unauthorized || 0,
+            unauthorisedAlumniUsers: data.users?.alumni?.unauthorized || 0,
+            disabledUsers:
+                data.users?.user?.disabled + data.users?.alumni?.disabled || 0,
 
             // Jobs data from new structure
             totalJobs: data.jobs?.total || 0,
@@ -692,13 +696,23 @@ const Dashboard = () => {
                     color: "#52c41a",
                 },
                 {
-                    label: "New User",
+                    label: "Free Users",
                     value: dashboardData.activeUsers,
                     color: "#04248c",
                 },
                 {
+                    label: "Unauthorised Free Users",
+                    value: dashboardData.unauthorisedFreeUsers,
+                    color: "#fa8c16",
+                },
+                {
+                    label: "Unauthorised Alumni",
+                    value: dashboardData.unauthorisedAlumniUsers,
+                    color: "#fa8c16",
+                },
+                {
                     label: "Disabled",
-                    value: dashboardData.inactiveUsers,
+                    value: dashboardData.disabledUsers,
                     color: "#ff4d4f",
                 },
             ],
