@@ -162,9 +162,9 @@ const Users = () => {
                             Pincode: user.address?.pincode || "",
                             Country: user.address?.country || "",
                             Status:
-                                user.status === 1
+                                user.status == 1
                                     ? "Active"
-                                    : user.status === 0
+                                    : user.status == 0
                                     ? "Unauthorized"
                                     : "Disabled",
                             "Created At": user.createdAt
