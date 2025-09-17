@@ -681,91 +681,6 @@ const Dashboard = () => {
         </div>
     );
 
-    // Statistics cards with new structure
-    const statisticCards = [
-        {
-            title: "Users",
-            value: dashboardData.totalUsers,
-            icon: <UserOutlined />,
-            color: "#04248c",
-            bgColor: "#f0f4ff",
-            stats: [
-                {
-                    label: "Alumni",
-                    value: dashboardData.activeAlumni,
-                    color: "#52c41a",
-                },
-                {
-                    label: "Free Users",
-                    value: dashboardData.activeUsers,
-                    color: "#04248c",
-                },
-                {
-                    label: "Unauthorised Free Users",
-                    value: dashboardData.unauthorisedFreeUsers,
-                    color: "#fa8c16",
-                },
-                {
-                    label: "Unauthorised Alumni",
-                    value: dashboardData.unauthorisedAlumniUsers,
-                    color: "#fa8c16",
-                },
-                {
-                    label: "Disabled",
-                    value: dashboardData.disabledUsers,
-                    color: "#ff4d4f",
-                },
-            ],
-        },
-        {
-            title: "Jobs",
-            value: dashboardData.totalJobs,
-            icon: <InboxOutlined />,
-            color: "#52c41a",
-            bgColor: "#f6ffed",
-            stats: [
-                {
-                    label: "Active",
-                    value: dashboardData.activeJobs,
-                    color: "#52c41a",
-                },
-                {
-                    label: "Inactive",
-                    value: dashboardData.inactiveJobs,
-                    color: "#ff4d4f",
-                },
-            ],
-        },
-        {
-            title: "Content",
-            value: dashboardData.activeWebinars + dashboardData.activeCourses,
-            icon: <VideoCameraOutlined />,
-            color: "#722ed1",
-            bgColor: "#f9f0ff",
-            stats: [
-                {
-                    label: "Webinars",
-                    value: dashboardData.activeWebinars,
-                    color: "#722ed1",
-                },
-                {
-                    label: "Courses",
-                    value: dashboardData.activeCourses,
-                    color: "#722ed1",
-                },
-            ],
-        },
-        {
-            title: "Applications",
-            value: dashboardData.jobApplications,
-            icon: <FileTextOutlined />,
-            color: "#fa8c16",
-            bgColor: "#fff7e6",
-            subtitle: "Total Received",
-            stats: [],
-        },
-    ];
-
     return (
         <div
             style={{
@@ -798,169 +713,288 @@ const Dashboard = () => {
                 </Col>
             </Row>
 
-            {/* Statistics Cards */}
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: 20,
-                    marginBottom: 32,
-                }}
-            >
-                {statisticCards.map((stat, index) => (
+            {/* Dashboard Statistics */}
+            <div style={{ marginBottom: "32px" }}>
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(4, 1fr)",
+                        gap: 20,
+                    }}
+                >
+                    {/* Active Users */}
                     <Card
-                        key={index}
-                        hoverable
-                        className="dashboard-stat-card"
                         style={{
-                            borderRadius: 12,
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                            border: "none",
-                            overflow: "hidden",
-                            position: "relative",
+                            borderRadius: 16,
+                            border: "2px solid #e8f4fd",
+                            background:
+                                "linear-gradient(135deg, #f8fbff 0%, #ffffff 100%)",
                         }}
-                        bodyStyle={{ padding: 0 }}
                     >
-                        <div style={{ padding: "24px" }}>
-                            {/* Header with icon and title */}
+                        <div style={{ textAlign: "center", padding: "20px 0" }}>
                             <div
                                 style={{
+                                    width: "60px",
+                                    height: "60px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#e8f4fd",
                                     display: "flex",
                                     alignItems: "center",
-                                    justifyContent: "space-between",
-                                    marginBottom: "16px",
+                                    justifyContent: "center",
+                                    margin: "0 auto 16px",
+                                    fontSize: "24px",
+                                    color: "#2c5aa0",
                                 }}
                             >
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "12px",
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            width: "40px",
-                                            height: "40px",
-                                            borderRadius: "10px",
-                                            backgroundColor: stat.bgColor,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            fontSize: "18px",
-                                            color: stat.color,
-                                        }}
-                                    >
-                                        {stat.icon}
-                                    </div>
-                                    <div>
-                                        <div
-                                            style={{
-                                                fontSize: "14px",
-                                                fontWeight: 500,
-                                                color: "#262626",
-                                                marginBottom: "2px",
-                                            }}
-                                        >
-                                            {stat.title}
-                                        </div>
-                                        {stat.subtitle && (
-                                            <div
-                                                style={{
-                                                    fontSize: "12px",
-                                                    color: "#8c8c8c",
-                                                }}
-                                            >
-                                                {stat.subtitle}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                                <UserOutlined />
                             </div>
-
-                            {/* Main value */}
                             <div
                                 style={{
-                                    fontSize: "32px",
+                                    fontSize: "28px",
                                     fontWeight: 700,
-                                    color: stat.color,
-                                    lineHeight: 1,
-                                    marginBottom: "16px",
+                                    color: "#2c5aa0",
+                                    marginBottom: "8px",
                                 }}
                             >
-                                {stat.value.toLocaleString()}
+                                {(
+                                    dashboardData.activeUsers +
+                                    dashboardData.activeAlumni
+                                ).toLocaleString()}
                             </div>
+                            <div
+                                style={{
+                                    fontSize: "16px",
+                                    fontWeight: 600,
+                                    color: "#262626",
+                                    marginBottom: "12px",
+                                }}
+                            >
+                                Active Users
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: "14px",
+                                    color: "#333",
+                                    lineHeight: 1.5,
+                                    fontWeight: 500,
+                                }}
+                            >
+                                <div>Alumni: {dashboardData.activeAlumni}</div>
+                                <div>
+                                    Free Users: {dashboardData.activeUsers}
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
 
-                            {/* Stats breakdown */}
-                            {stat.stats && stat.stats.length > 0 && (
+                    {/* Inactive Users */}
+                    <Card
+                        style={{
+                            borderRadius: 16,
+                            border: "2px solid #fdeaea",
+                            background:
+                                "linear-gradient(135deg, #fff8f8 0%, #ffffff 100%)",
+                        }}
+                    >
+                        <div style={{ textAlign: "center", padding: "20px 0" }}>
+                            <div
+                                style={{
+                                    width: "60px",
+                                    height: "60px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#fdeaea",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    margin: "0 auto 16px",
+                                    fontSize: "24px",
+                                    color: "#dc3545",
+                                }}
+                            >
+                                <UserOutlined />
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: "28px",
+                                    fontWeight: 700,
+                                    color: "#dc3545",
+                                    marginBottom: "8px",
+                                }}
+                            >
+                                {(
+                                    dashboardData.unauthorisedFreeUsers +
+                                    dashboardData.unauthorisedAlumniUsers +
+                                    dashboardData.disabledUsers
+                                ).toLocaleString()}
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: "16px",
+                                    fontWeight: 600,
+                                    color: "#262626",
+                                    marginBottom: "12px",
+                                }}
+                            >
+                                Inactive Users
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: "14px",
+                                    color: "#333",
+                                    lineHeight: 1.5,
+                                    fontWeight: 500,
+                                }}
+                            >
+                                <div>
+                                    Disabled:{" "}
+                                    {dashboardData.disabledUsers +
+                                        dashboardData.unauthorisedFreeUsers +
+                                        dashboardData.unauthorisedAlumniUsers}
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+
+                    {/* Jobs */}
+                    <Card
+                        style={{
+                            borderRadius: 16,
+                            border: "2px solid #e8f5e8",
+                            background:
+                                "linear-gradient(135deg, #f8fff8 0%, #ffffff 100%)",
+                        }}
+                    >
+                        <div style={{ textAlign: "center", padding: "20px 0" }}>
+                            <div
+                                style={{
+                                    width: "60px",
+                                    height: "60px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#e8f5e8",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    margin: "0 auto 16px",
+                                    fontSize: "24px",
+                                    color: "#155724",
+                                }}
+                            >
+                                <InboxOutlined />
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: "28px",
+                                    fontWeight: 700,
+                                    color: "#155724",
+                                    marginBottom: "8px",
+                                }}
+                            >
+                                {dashboardData.totalJobs.toLocaleString()}
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: "16px",
+                                    fontWeight: 600,
+                                    color: "#262626",
+                                    marginBottom: "12px",
+                                }}
+                            >
+                                Jobs
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: "14px",
+                                    color: "#333",
+                                    lineHeight: 1.5,
+                                    fontWeight: 500,
+                                }}
+                            >
+                                <div>Active: {dashboardData.activeJobs}</div>
+                                <div>
+                                    Inactive: {dashboardData.inactiveJobs}
+                                </div>
                                 <div
                                     style={{
-                                        display: "flex",
-                                        gap: "16px",
-                                        flexWrap: "wrap",
+                                        marginTop: "6px",
+                                        fontWeight: 600,
+                                        color: "#155724",
+                                        fontSize: "15px",
                                     }}
                                 >
-                                    {stat.stats.map((subStat, subIndex) => (
-                                        <div
-                                            key={subIndex}
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "6px",
-                                                padding: "6px 12px",
-                                                backgroundColor: "#fafafa",
-                                                borderRadius: "6px",
-                                                border: `1px solid ${subStat.color}20`,
-                                            }}
-                                        >
-                                            <div
-                                                style={{
-                                                    width: "8px",
-                                                    height: "8px",
-                                                    borderRadius: "50%",
-                                                    backgroundColor:
-                                                        subStat.color,
-                                                }}
-                                            ></div>
-                                            <span
-                                                style={{
-                                                    fontSize: "12px",
-                                                    color: "#595959",
-                                                    marginRight: "4px",
-                                                }}
-                                            >
-                                                {subStat.label}:
-                                            </span>
-                                            <span
-                                                style={{
-                                                    fontSize: "12px",
-                                                    fontWeight: 600,
-                                                    color: subStat.color,
-                                                }}
-                                            >
-                                                {subStat.value.toLocaleString()}
-                                            </span>
-                                        </div>
-                                    ))}
+                                    Job Applications:{" "}
+                                    {dashboardData.jobApplications}
                                 </div>
-                            )}
+                            </div>
                         </div>
-
-                        {/* Decorative element */}
-                        <div
-                            style={{
-                                position: "absolute",
-                                top: 0,
-                                right: 0,
-                                width: "60px",
-                                height: "60px",
-                                background: `linear-gradient(135deg, ${stat.color}15, ${stat.color}05)`,
-                                borderBottomLeft: "60px solid transparent",
-                                borderTop: `60px solid ${stat.color}10`,
-                            }}
-                        ></div>
                     </Card>
-                ))}
+
+                    {/* Content */}
+                    <Card
+                        style={{
+                            borderRadius: 16,
+                            border: "2px solid #f3e8ff",
+                            background:
+                                "linear-gradient(135deg, #faf8ff 0%, #ffffff 100%)",
+                        }}
+                    >
+                        <div style={{ textAlign: "center", padding: "20px 0" }}>
+                            <div
+                                style={{
+                                    width: "60px",
+                                    height: "60px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#f3e8ff",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    margin: "0 auto 16px",
+                                    fontSize: "24px",
+                                    color: "#6f42c1",
+                                }}
+                            >
+                                <VideoCameraOutlined />
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: "28px",
+                                    fontWeight: 700,
+                                    color: "#6f42c1",
+                                    marginBottom: "8px",
+                                }}
+                            >
+                                {(
+                                    dashboardData.activeWebinars +
+                                    dashboardData.activeCourses
+                                ).toLocaleString()}
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: "16px",
+                                    fontWeight: 600,
+                                    color: "#262626",
+                                    marginBottom: "12px",
+                                }}
+                            >
+                                Content
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: "14px",
+                                    color: "#333",
+                                    lineHeight: 1.5,
+                                    fontWeight: 500,
+                                }}
+                            >
+                                <div>
+                                    Webinars: {dashboardData.activeWebinars}
+                                </div>
+                                <div>
+                                    Courses: {dashboardData.activeCourses}
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
             </div>
 
             <Divider />
