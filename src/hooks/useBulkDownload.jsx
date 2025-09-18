@@ -34,12 +34,6 @@ export const useBulkDownload = () => {
                 throw new Error("Invalid data format received");
             }
 
-            // if (dataArray.length === 0) {
-            //     console.warn("⚠️ No data found to download");
-            //     message.warning("No data found to download");
-            //     return;
-            // }
-
             // Format the data using the provided formatter
             const formattedData = dataFormatter(dataArray);
 

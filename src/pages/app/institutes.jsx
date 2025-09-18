@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, message, Modal } from "antd";
+import { Card, message, Modal, Spin } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 import ManageInstitutesTable from "../../components/ManageInstitutesTableComponent/ManageInstitutesTable";
@@ -23,6 +23,9 @@ const Institutes = () => {
         filters: { type: 1 }, // Default to filter for institutes (type=1)
     });
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     // Fetch institutes on component mount and when updateRecords changes
     useEffect(() => {
         fetchInstitutes();
@@ -30,6 +33,7 @@ const Institutes = () => {
 
     const fetchInstitutes = async () => {
         try {
+            setRefreshing(true);
             const { page, limit, sort, filters } = updateRecords;
 
             // Always ensure type=1 is in the filters for institutes
@@ -64,6 +68,8 @@ const Institutes = () => {
             }
         } catch (error) {
             message.error("Failed to load institutes");
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -108,6 +114,26 @@ const Institutes = () => {
                     setUpdateRecords={handleUpdateRecords}
                     handleDelete={handleDelete}
                 />
+
+                {/* Global Loading Overlay */}
+                {refreshing && (
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: "rgba(255, 255, 255, 0.8)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 999,
+                        }}
+                    >
+                        <Spin size="large" tip="Loading institutes data..." />
+                    </div>
+                )}
             </Card>
         </div>
     );

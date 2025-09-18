@@ -16,6 +16,7 @@ import {
     Divider,
     Button,
     Tooltip,
+    Spin,
 } from "antd";
 import {
     HomeOutlined,
@@ -60,6 +61,9 @@ const JobApplications = () => {
     const [viewDrawerOpen, setViewDrawerOpen] = useState(false);
     const [selectedApplication, setSelectedApplication] = useState(null);
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     useEffect(() => {
         if (jobId) {
             fetchJobDetails();
@@ -78,6 +82,8 @@ const JobApplications = () => {
 
     const fetchApplications = async () => {
         try {
+            setRefreshing(true);
+
             const { page, limit, sort, filters = {} } = updateRecords;
 
             const data = await api.getJobApplications(
@@ -102,6 +108,8 @@ const JobApplications = () => {
             });
         } catch (err) {
             message.error("Failed to fetch job applications");
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -556,6 +564,26 @@ const JobApplications = () => {
                     applicationData={selectedApplication}
                     jobDetails={jobDetails}
                 />
+
+                {/* Global Loading Overlay */}
+                {refreshing && (
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: "rgba(255, 255, 255, 0.8)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 999,
+                        }}
+                    >
+                        <Spin size="large" tip="Loading job applications..." />
+                    </div>
+                )}
             </Card>
         </div>
     );

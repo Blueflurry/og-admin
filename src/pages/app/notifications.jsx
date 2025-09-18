@@ -1,7 +1,7 @@
 // src/pages/app/notifications.jsx
 import { useEffect, useState } from "react";
 import { useAPI } from "../../hooks/useAPI";
-import { Card, message } from "antd";
+import { Card, message, Spin } from "antd";
 import NotificationsTable from "../../components/NotificationsTableComponent/NotificationsTable";
 import NotificationsFormDrawer from "../../components/NotificationsTableComponent/NotificationsFormDrawer";
 import NotificationsViewDrawer from "../../components/NotificationsTableComponent/NotificationsViewDrawer";
@@ -26,8 +26,12 @@ const Notifications = () => {
     const [viewDrawerOpen, setViewDrawerOpen] = useState(false);
     const [selectedNotification, setSelectedNotification] = useState(null);
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     const fetchNotifications = async () => {
         try {
+            setRefreshing(true);
             const { page, limit, sort, filters = {} } = updateRecords;
 
             const data = await api.getNotifications(page, limit, sort, filters);
@@ -41,6 +45,8 @@ const Notifications = () => {
             });
         } catch (err) {
             message.error("Failed to fetch notifications");
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -119,6 +125,26 @@ const Notifications = () => {
                 onClose={() => setViewDrawerOpen(false)}
                 notificationData={selectedNotification}
             />
+
+            {/* Global Loading Overlay */}
+            {refreshing && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 999,
+                    }}
+                >
+                    <Spin size="large" tip="Loading notifications data..." />
+                </div>
+            )}
         </Card>
     );
 };

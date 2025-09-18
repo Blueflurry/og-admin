@@ -99,6 +99,8 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             align: "center",
             width: 100,
             // sorter: true,
+            render: (userRole) =>
+                userRole === "user" ? `free user` : "alumni",
         },
         {
             title: "Primary Phone",
@@ -165,8 +167,6 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
 
                 let part2,
                     part3 = null;
-                console.log(part1, streetParts);
-                console.log(address);
 
                 if (part1 && part1?.length && part1?.length < 20) {
                     part2 = address.state

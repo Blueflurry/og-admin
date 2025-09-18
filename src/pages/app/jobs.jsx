@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAPI } from "../../hooks/useAPI";
 import JobTable from "../../components/JobTableComponent/JobTable";
-import { Card } from "antd";
+import { Card, Spin } from "antd";
 
 const Jobs = () => {
     const { api, isLoading, error, resetError } = useAPI();
@@ -18,12 +18,17 @@ const Jobs = () => {
         filters: {},
     });
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     useEffect(() => {
         fetchJobs();
     }, [updateRecords]);
 
     const fetchJobs = async () => {
         try {
+            setRefreshing(true);
+
             // Extract filters and sort from updateRecords
             const { page, limit, sort, filters = {} } = updateRecords;
 
@@ -41,6 +46,8 @@ const Jobs = () => {
             });
         } catch (err) {
             console.error("Error fetching jobs:", err);
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -62,6 +69,26 @@ const Jobs = () => {
                 pagination={pagination}
                 setUpdateRecords={handleUpdateRecords}
             />
+
+            {/* Global Loading Overlay */}
+            {refreshing && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 999,
+                    }}
+                >
+                    <Spin size="large" tip="Loading jobs data..." />
+                </div>
+            )}
         </Card>
     );
 };

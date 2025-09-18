@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAPI } from "../../hooks/useAPI";
-import { Card, message } from "antd";
+import { Card, message, Spin } from "antd";
 
 import CarouselsTable from "../../components/CarouselsTableComponent/CarouselsTable";
 import CarouselsFormDrawer from "../../components/CarouselsTableComponent/CarouselsFormDrawer";
@@ -26,12 +26,17 @@ const Carousels = () => {
     const [viewDrawerOpen, setViewDrawerOpen] = useState(false);
     const [selectedCarousel, setSelectedCarousel] = useState(null);
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     useEffect(() => {
         fetchCarousels();
     }, [updateRecords]);
 
     const fetchCarousels = async () => {
         try {
+            setRefreshing(true);
+
             // Extract filters and sort from updateRecords
             const { page, limit, sort, filters = {} } = updateRecords;
 
@@ -61,6 +66,8 @@ const Carousels = () => {
             }
         } catch (err) {
             message.error("Failed to fetch carousels");
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -137,6 +144,26 @@ const Carousels = () => {
                 onClose={() => setViewDrawerOpen(false)}
                 carouselData={selectedCarousel}
             />
+
+            {/* Global Loading Overlay */}
+            {refreshing && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 999,
+                    }}
+                >
+                    <Spin size="large" tip="Loading carousels data..." />
+                </div>
+            )}
         </Card>
     );
 };

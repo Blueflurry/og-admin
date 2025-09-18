@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAPI } from "../../hooks/useAPI";
-import { Card, message, Modal } from "antd";
+import { Card, message, Modal, Spin } from "antd";
 
 import CoursesTable from "../../components/CoursesTableComponent/CoursesTable";
 import CoursesFormDrawer from "../../components/CoursesTableComponent/CoursesFormDrawer";
@@ -30,12 +30,17 @@ const Courses = () => {
     const [searchDrawerOpen, setSearchDrawerOpen] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     useEffect(() => {
         fetchCourses();
     }, [updateRecords]);
 
     const fetchCourses = async () => {
         try {
+            setRefreshing(true);
+
             // Extract filters and sort from updateRecords
             const { page, limit, sort, filters = {} } = updateRecords;
 
@@ -58,6 +63,8 @@ const Courses = () => {
             });
         } catch (err) {
             message.error("Failed to fetch courses");
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -132,6 +139,26 @@ const Courses = () => {
                 onClose={() => setViewDrawerOpen(false)}
                 courseData={selectedCourse}
             />
+
+            {/* Global Loading Overlay */}
+            {refreshing && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 999,
+                    }}
+                >
+                    <Spin size="large" tip="Loading courses data..." />
+                </div>
+            )}
         </Card>
     );
 };

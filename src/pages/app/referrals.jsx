@@ -1,7 +1,7 @@
 // src/pages/app/referrals.jsx
 import { useEffect, useState } from "react";
 import { useAPI } from "../../hooks/useAPI";
-import { Card, message } from "antd";
+import { Card, message, Spin } from "antd";
 import ReferralsTable from "../../components/ReferralsTableComponent/ReferralsTable";
 import ReferralsFormDrawer from "../../components/ReferralsTableComponent/ReferralsFormDrawer";
 import ReferralsViewDrawer from "../../components/ReferralsTableComponent/ReferralsViewDrawer";
@@ -26,12 +26,16 @@ const Referrals = () => {
     const [viewDrawerOpen, setViewDrawerOpen] = useState(false);
     const [selectedReferral, setSelectedReferral] = useState(null);
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     useEffect(() => {
         fetchReferrals();
     }, [updateRecords]);
 
     const fetchReferrals = async () => {
         try {
+            setRefreshing(true);
             const { page, limit, sort, filters = {} } = updateRecords;
 
             const data = await api.getReferrals(page, limit, sort, filters);
@@ -45,6 +49,8 @@ const Referrals = () => {
             });
         } catch (err) {
             message.error("Failed to fetch referrals");
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -107,6 +113,26 @@ const Referrals = () => {
                 onClose={() => setViewDrawerOpen(false)}
                 referralData={selectedReferral}
             />
+
+            {/* Global Loading Overlay */}
+            {refreshing && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 999,
+                    }}
+                >
+                    <Spin size="large" tip="Loading referrals data..." />
+                </div>
+            )}
         </Card>
     );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, message, Modal } from "antd";
+import { Card, message, Modal, Spin } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 import ManageOptinsTable from "../../components/ManageOptinsTableComponent/ManageOptinsTable";
@@ -23,6 +23,9 @@ const ManageOptins = () => {
         filters: { type: 0 }, // Default to filter for optins (type=0)
     });
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     // Fetch optins on component mount and when updateRecords changes
     useEffect(() => {
         fetchOptins();
@@ -30,6 +33,7 @@ const ManageOptins = () => {
 
     const fetchOptins = async () => {
         try {
+            setRefreshing(true);
             const { page, limit, sort, filters } = updateRecords;
 
             // Always ensure type=0 is in the filters for optins
@@ -64,6 +68,8 @@ const ManageOptins = () => {
             }
         } catch (error) {
             message.error("Failed to load optins");
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -108,6 +114,26 @@ const ManageOptins = () => {
                     setUpdateRecords={handleUpdateRecords}
                     handleDelete={handleDelete}
                 />
+
+                {/* Global Loading Overlay */}
+                {refreshing && (
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: "rgba(255, 255, 255, 0.8)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 999,
+                        }}
+                    >
+                        <Spin size="large" tip="Loading optins data..." />
+                    </div>
+                )}
             </Card>
         </div>
     );

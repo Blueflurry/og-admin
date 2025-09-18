@@ -89,6 +89,12 @@ const UserSearchFilterDrawer = ({
             // Skip the sort key as it's already been processed
             if (key === "sort") return;
 
+            // Handle role filter directly (it's a simple string value)
+            if (key === "role") {
+                formattedValues[key] = value;
+                return;
+            }
+
             // Skip non-object values or null values
             if (!value || typeof value !== "object") {
                 formattedValues[key] = value;
@@ -226,6 +232,11 @@ const UserSearchFilterDrawer = ({
 
         if (values.phone1 && !filters.phone1) {
             filters.phone1 = { $regex: values.phone1, $options: "i" };
+        }
+
+        // Handle role filter - include it in filters for handleSearch
+        if (values.role) {
+            filters.role = values.role;
         }
 
         return filters;
@@ -474,6 +485,22 @@ const UserSearchFilterDrawer = ({
                                     </div>
                                 );
                             })}
+
+                            {sectionKey === "selectFilters" && (
+                                <Form.Item name="role" label="Role">
+                                    <Select
+                                        placeholder="Select user role"
+                                        style={{ width: "100%" }}
+                                        allowClear
+                                    >
+                                        <Option value="both">Both</Option>
+                                        <Option value="free user">
+                                            Free User
+                                        </Option>
+                                        <Option value="alumni">Alumni</Option>
+                                    </Select>
+                                </Form.Item>
+                            )}
 
                             <Divider />
                         </div>

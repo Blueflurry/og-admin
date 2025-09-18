@@ -39,11 +39,17 @@ export class API {
     }
 
     // USERS
-    getUsers(page = 1, limit = 10, sort = "-createdAt", filters = {}) {
+    getUsers(
+        page = 1,
+        limit = 10,
+        sort = "-createdAt",
+        userRoles = [1, 4],
+        filters = {}
+    ) {
         const filteredParams = filters
-            ? { ...filters, appUserRole: { $in: [1, 4] } }
+            ? { ...filters, appUserRole: { $in: [...userRoles] } }
             : {
-                  appUserRole: { $in: [1, 4] },
+                  appUserRole: { $in: [...userRoles] },
               };
 
         // Always use POST with filters in the body

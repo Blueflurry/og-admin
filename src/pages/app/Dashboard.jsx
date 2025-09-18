@@ -846,10 +846,13 @@ const Dashboard = () => {
                                 }}
                             >
                                 <div>
-                                    Disabled:{" "}
+                                    Free Users:{" "}
                                     {dashboardData.disabledUsers +
-                                        dashboardData.unauthorisedFreeUsers +
-                                        dashboardData.unauthorisedAlumniUsers}
+                                        dashboardData.unauthorisedFreeUsers}
+                                </div>
+                                <div>
+                                    Alumni:{" "}
+                                    {dashboardData.unauthorisedAlumniUsers}
                                 </div>
                             </div>
                         </div>

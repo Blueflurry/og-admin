@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, message, Modal } from "antd";
+import { Card, message, Modal, Spin } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 import ManageCompaniesTable from "../../components/ManageCompaniesTableComponent/ManageCompaniesTable";
@@ -18,6 +18,9 @@ const ManageCompanies = () => {
     });
     const [filters, setFilters] = useState({});
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     // Fetch companies on component mount and when pagination/filters change
     useEffect(() => {
         fetchCompanies();
@@ -25,6 +28,7 @@ const ManageCompanies = () => {
 
     const fetchCompanies = async (params = {}) => {
         try {
+            setRefreshing(true);
             const {
                 page = pagination.page,
                 limit = pagination.limit,
@@ -64,6 +68,8 @@ const ManageCompanies = () => {
             }
         } catch (error) {
             message.error("Failed to load companies");
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -110,6 +116,26 @@ const ManageCompanies = () => {
                     setUpdateRecords={handleUpdateRecords}
                     handleDelete={handleDelete}
                 />
+
+                {/* Global Loading Overlay */}
+                {refreshing && (
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: "rgba(255, 255, 255, 0.8)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 999,
+                        }}
+                    >
+                        <Spin size="large" tip="Loading companies data..." />
+                    </div>
+                )}
             </Card>
         </div>
     );

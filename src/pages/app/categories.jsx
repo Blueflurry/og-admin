@@ -1,6 +1,6 @@
 // src/pages/app/categories.jsx
 import React, { useState, useEffect } from "react";
-import { Card, message } from "antd";
+import { Card, message, Spin } from "antd";
 import { useAPI } from "../../hooks/useAPI";
 import CategoriesTable from "../../components/CategoriesTableComponent/CategoriesTable";
 
@@ -20,6 +20,9 @@ const Categories = () => {
         filters: { type: 3 }, // Default to filter for categories (type=3)
     });
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     // Fetch categories on component mount and when updateRecords changes
     useEffect(() => {
         fetchCategories();
@@ -27,6 +30,8 @@ const Categories = () => {
 
     const fetchCategories = async () => {
         try {
+            setRefreshing(true);
+
             const { page, limit, sort, filters } = updateRecords;
 
             // Always ensure type=3 is in the filters for categories
@@ -61,6 +66,8 @@ const Categories = () => {
             }
         } catch (error) {
             message.error("Failed to load categories");
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -95,6 +102,26 @@ const Categories = () => {
                     setUpdateRecords={handleUpdateRecords}
                     handleDelete={handleDelete}
                 />
+
+                {/* Global Loading Overlay */}
+                {refreshing && (
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: "rgba(255, 255, 255, 0.8)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 999,
+                        }}
+                    >
+                        <Spin size="large" tip="Loading categories data..." />
+                    </div>
+                )}
             </Card>
         </div>
     );

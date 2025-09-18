@@ -1,6 +1,6 @@
 // manageEmployees.jsx
 import React, { useState, useEffect } from "react";
-import { Card, message } from "antd";
+import { Card, message, Spin } from "antd";
 import { useAPI } from "../../hooks/useAPI";
 import ManageEmployeesTable from "../../components/ManageEmployeesTableComponent/ManageEmployeesTable";
 
@@ -20,12 +20,16 @@ const ManageEmployees = () => {
         filters: {},
     });
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     useEffect(() => {
         fetchEmployees();
     }, [updateRecords]);
 
     const fetchEmployees = async () => {
         try {
+            setRefreshing(true);
             const { page, limit, sort, filters = {} } = updateRecords;
 
             const response = await api.getManageEmployees(
@@ -57,6 +61,8 @@ const ManageEmployees = () => {
             }
         } catch (error) {
             message.error("Failed to load employees");
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -71,6 +77,26 @@ const ManageEmployees = () => {
                 pagination={pagination}
                 setUpdateRecords={setUpdateRecords}
             />
+
+            {/* Global Loading Overlay */}
+            {refreshing && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 999,
+                    }}
+                >
+                    <Spin size="large" tip="Loading employees data..." />
+                </div>
+            )}
         </Card>
     );
 };

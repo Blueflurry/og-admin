@@ -1,7 +1,7 @@
 // Complete Users.jsx component with enhanced bulk download
 import { useEffect, useState } from "react";
 import { useAPI } from "../../hooks/useAPI";
-import { Card, message } from "antd";
+import { Card, message, Spin } from "antd";
 import UserTable from "../../components/UserTableComponent/UserTable";
 import UserSearchFilterDrawer from "../../components/UserTableComponent/UserSearchFilterDrawer";
 import UserFormDrawer from "../../components/UserTableComponent/UserFormDrawer";
@@ -33,6 +33,9 @@ const Users = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [bulkDownloadModalOpen, setBulkDownloadModalOpen] = useState(false);
 
+    // Dashboard-like loading state
+    const [refreshing, setRefreshing] = useState(false);
+
     // Bulk download hook
     const { downloadCSV, downloading } = useBulkDownload();
 
@@ -46,11 +49,29 @@ const Users = () => {
 
     const fetchUsers = async () => {
         try {
+            setRefreshing(true);
+
+            // Determine userRoles based on role filter
+            let userRoles = [1, 4]; // Default: both free users and alumni
+            if (updateRecords.filters.role) {
+                if (updateRecords.filters.role === "alumni") {
+                    userRoles = [4];
+                } else if (updateRecords.filters.role === "free user") {
+                    userRoles = [1];
+                } else if (updateRecords.filters.role === "both") {
+                    userRoles = [1, 4];
+                }
+            }
+
+            // Remove role from filters before sending to API (only appUserRole should be sent)
+            const { role, ...apiFilters } = updateRecords.filters;
+
             const data = await api.getUsers(
                 updateRecords.page,
                 updateRecords.limit,
                 updateRecords.sort,
-                updateRecords.filters
+                userRoles,
+                apiFilters
             );
 
             setUsers(data.data.docs);
@@ -62,6 +83,8 @@ const Users = () => {
             });
         } catch (err) {
             message.error("Failed to fetch users");
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -194,11 +217,27 @@ const Users = () => {
             const fetchUsersForDownload = async () => {
                 const downloadLimit = limit === "all" ? -1 : limit;
 
+                // Determine userRoles based on role filter
+                let userRoles = [1, 4]; // Default: both free users and alumni
+                if (updateRecords.filters.role) {
+                    if (updateRecords.filters.role === "alumni") {
+                        userRoles = [4];
+                    } else if (updateRecords.filters.role === "free user") {
+                        userRoles = [1];
+                    } else if (updateRecords.filters.role === "both") {
+                        userRoles = [1, 4];
+                    }
+                }
+
+                // Remove role from filters before sending to API (only appUserRole should be sent)
+                const { role, ...apiFilters } = updateRecords.filters;
+
                 const response = await api.getUsers(
                     1, // Always start from page 1 for downloads
                     downloadLimit,
                     updateRecords.sort,
-                    updateRecords.filters
+                    userRoles,
+                    apiFilters
                 );
 
                 return response;
@@ -279,6 +318,26 @@ const Users = () => {
                 loading={downloading}
                 entityName="Users"
             />
+
+            {/* Global Loading Overlay */}
+            {refreshing && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 999,
+                    }}
+                >
+                    <Spin size="large" tip="Loading users data..." />
+                </div>
+            )}
         </Card>
     );
 };

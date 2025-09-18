@@ -403,20 +403,6 @@ const JobApplicationsTable = ({
                             })(),
                         };
 
-                        // Debug log for first record to check structure
-                        if (index === 0) {
-                            console.log(
-                                "First formatted application:",
-                                formattedApplication
-                            );
-                            console.log("Original app data:", app);
-                            console.log("User data:", app.user);
-                            console.log(
-                                "Experience data:",
-                                app.user?.data?.experience
-                            );
-                        }
-
                         return formattedApplication;
                     } catch (formatError) {
                         console.error(
