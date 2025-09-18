@@ -32,7 +32,9 @@ const getJobApplicationsTableColumns = ({
                 // Use 'user' instead of 'applicant' from actual API
                 const user = record.user || {};
                 const userData = user.data || user;
-                const name = userData.name
+                const name = userData?.fullName
+                    ? userData?.fullName
+                    : userData.name
                     ? `${userData.name.first || ""} ${userData.name.last || ""}`
                     : "Unknown Applicant";
 

@@ -258,7 +258,7 @@ const JobApplicationsTable = ({
                 return applications.map((app, index) => {
                     try {
                         // Correct data structure: user is at app.user, experience is at app.user.data.experience
-                        const applicant = app.user || app.user?.data || {};
+                        const applicant = app.user || {};
                         const applicantName = applicant.data.name || {};
                         const address =
                             applicant.address || applicant?.data?.address || {};
@@ -276,9 +276,7 @@ const JobApplicationsTable = ({
                             "User ID": applicant.id || applicant._id || "",
                             "First Name": applicantName.first || "",
                             "Last Name": applicantName.last || "",
-                            // "Full Name": `${applicantName.data.first || ""} ${
-                            //     applicantName.data.last || ""
-                            // }`.trim(),
+                            "Full Name": applicant.data.fullName || "",
                             Email: applicant.data.email || "",
                             Phone: applicant.data.phone1 || "",
                             "Secondary Phone": applicant.data.phone2 || "",
