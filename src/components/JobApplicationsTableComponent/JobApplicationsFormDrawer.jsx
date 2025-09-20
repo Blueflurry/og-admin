@@ -86,7 +86,9 @@ const JobApplicationsFormDrawer = ({
     // Get applicant information for display using actual API structure
     const user = initialValues?.user || {};
     const userData = user.data || user;
-    const applicantName = userData.name
+    const applicantName = userData.fullName
+        ? userData.fullName
+        : userData.name
         ? `${userData.name.first || ""} ${userData.name.last || ""}`
         : "Unknown Applicant";
 

@@ -41,7 +41,9 @@ const JobApplicationsViewDrawer = ({
     // Use actual API structure
     const user = applicationData.user || {};
     const userData = user.data || user;
-    const applicantName = userData.name
+    const applicantName = userData.fullName
+        ? userData.fullName
+        : userData.name
         ? `${userData.name.first || ""} ${userData.name.last || ""}`
         : "Unknown Applicant";
 
