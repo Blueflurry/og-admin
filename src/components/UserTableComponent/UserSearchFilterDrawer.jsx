@@ -493,7 +493,7 @@ const UserSearchFilterDrawer = ({
                                         style={{ width: "100%" }}
                                         allowClear
                                     >
-                                        <Option value="both">Both</Option>
+                                        {/* <Option value="both">Both</Option> */}
                                         <Option value="free user">
                                             Free User
                                         </Option>

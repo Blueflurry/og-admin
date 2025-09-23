@@ -58,9 +58,10 @@ const Users = () => {
                     userRoles = [4];
                 } else if (updateRecords.filters.role === "free user") {
                     userRoles = [1];
-                } else if (updateRecords.filters.role === "both") {
-                    userRoles = [1, 4];
                 }
+                // else if (updateRecords.filters.role === "both") {
+                //     userRoles = [1, 4];
+                // }
             }
 
             // Remove role from filters before sending to API (only appUserRole should be sent)
@@ -224,9 +225,10 @@ const Users = () => {
                         userRoles = [4];
                     } else if (updateRecords.filters.role === "free user") {
                         userRoles = [1];
-                    } else if (updateRecords.filters.role === "both") {
-                        userRoles = [1, 4];
                     }
+                    // else if (updateRecords.filters.role === "both") {
+                    //     userRoles = [1, 4];
+                    // }
                 }
 
                 // Remove role from filters before sending to API (only appUserRole should be sent)

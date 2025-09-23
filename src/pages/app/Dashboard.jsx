@@ -835,7 +835,7 @@ const Dashboard = () => {
                                     marginBottom: "12px",
                                 }}
                             >
-                                Inactive Users
+                                Disabled Users
                             </div>
                             <div
                                 style={{
