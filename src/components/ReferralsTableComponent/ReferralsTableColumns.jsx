@@ -66,7 +66,9 @@ const getReferralsTableColumns = ({
             const referrer = record.user;
             if (!referrer) return "Unknown";
 
-            const name = referrer.data?.name
+            const name = referrer?.data?.fullName
+                ? referrer?.data?.fullName
+                : referrer.data?.name
                 ? `${referrer.data.name.first || ""} ${
                       referrer.data.name.last || ""
                   }`

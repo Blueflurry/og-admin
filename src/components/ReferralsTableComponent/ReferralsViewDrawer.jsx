@@ -63,7 +63,9 @@ const ReferralsViewDrawer = ({ open, onClose, referralData = null }) => {
 
     // User information (referrer)
     const user = referralData.user || {};
-    const userName = user.data?.name
+    const userName = user?.data?.fullName
+        ? user?.data?.fullName
+        : user.data?.name
         ? `${user.data.name.first || ""} ${user.data.name.last || ""}`
         : "Unknown";
 

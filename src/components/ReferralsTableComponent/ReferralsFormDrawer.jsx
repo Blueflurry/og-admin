@@ -70,7 +70,9 @@ const ReferralsFormDrawer = ({
                 // Show user/referrer info in edit mode if available
                 if (initialValues.user) {
                     const user = initialValues.user;
-                    const userName = user.data?.name
+                    const userName = user?.data?.fullName
+                        ? user?.data?.fullName
+                        : user.data?.name
                         ? `${user.data.name.first || ""} ${
                               user.data.name.last || ""
                           }`
