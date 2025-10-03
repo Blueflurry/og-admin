@@ -112,9 +112,9 @@ const theme = {
 };
 
 createRoot(document.getElementById("root")).render(
-    <StrictMode>
-        <ConfigProvider theme={theme}>
-            <App />
-        </ConfigProvider>
-    </StrictMode>
+    // <StrictMode>
+    <ConfigProvider theme={theme}>
+        <App />
+    </ConfigProvider>
+    // </StrictMode>
 );

@@ -134,26 +134,26 @@ const getJobTableColumns = ({
         },
     },
     // Add Applications column
-    {
-        title: "Applications",
-        key: "applications",
-        align: "center",
-        fixed: "right",
-        width: 120,
-        render: (_, record) => (
-            <Button
-                type="link"
-                icon={<TeamOutlined />}
-                onClick={() => {
-                    // if (onViewApplications) {
-                    onViewApplications(record.id || record._id);
-                    // }
-                }}
-            >
-                View Applications
-            </Button>
-        ),
-    },
+    // {
+    //     title: "Applications",
+    //     key: "applications",
+    //     align: "center",
+    //     fixed: "right",
+    //     width: 120,
+    //     render: (_, record) => (
+    //         <Button
+    //             type="link"
+    //             icon={<TeamOutlined />}
+    //             onClick={() => {
+    //                 // if (onViewApplications) {
+    //                 onViewApplications(record.id || record._id);
+    //                 // }
+    //             }}
+    //         >
+    //             View Applications
+    //         </Button>
+    //     ),
+    // },
     {
         title: "Actions",
         key: "actions",
