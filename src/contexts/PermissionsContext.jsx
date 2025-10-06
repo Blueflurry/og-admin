@@ -94,6 +94,13 @@ const staticPermissions = {
             delete: true,
             bulkdownload: true,
         },
+        referralCourses: {
+            view: true,
+            create: true,
+            edit: true,
+            delete: true,
+            bulkdownload: true,
+        },
     },
     manager: {
         users: {
@@ -188,6 +195,13 @@ const staticPermissions = {
             delete: false,
             bulkdownload: true,
         },
+        referralCourses: {
+            view: true,
+            create: true,
+            edit: true,
+            delete: false,
+            bulkdownload: true,
+        },
     },
     employee: {
         users: {
@@ -275,6 +289,13 @@ const staticPermissions = {
             bulkdownload: false,
         },
         jobApplications: {
+            view: false,
+            create: false,
+            edit: false,
+            delete: false,
+            bulkdownload: false,
+        },
+        referralCourses: {
             view: false,
             create: false,
             edit: false,

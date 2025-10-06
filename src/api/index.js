@@ -478,6 +478,90 @@ export class API {
         return this.request(() => this.client.delete(`/referral/${id}`));
     }
 
+    // REFERRAL COURSES API methods (type=4)
+    getReferralCourses(
+        page = 1,
+        limit = 10,
+        sort = "-createdAt",
+        filters = {}
+    ) {
+        // Start with pagination parameters
+        let queryParams = `page=${page}&limit=${limit}`;
+
+        // Add sort if provided
+        if (sort) {
+            queryParams += `&sort=${sort}`;
+        }
+
+        // Get status from filters or don't set default (show all statuses)
+        if (filters && filters.status !== undefined) {
+            queryParams += `&status=${filters.status}`;
+        }
+
+        // Always ensure type=4 for referral courses
+        queryParams += `&type=4`;
+
+        // Process remaining filters and add them to the query string
+        if (filters && Object.keys(filters).length > 0) {
+            Object.entries(filters).forEach(([key, value]) => {
+                // Skip status and type as they're already processed
+                if (key === "status" || key === "type") return;
+
+                if (typeof value === "object") {
+                    // Handle MongoDB operators ($regex, $in, $gte, $lte, etc.)
+                    Object.entries(value).forEach(([operator, opValue]) => {
+                        if (Array.isArray(opValue) && operator === "$in") {
+                            // Handle $in operator with array values
+                            opValue.forEach((item) => {
+                                queryParams += `&${key}[${operator}][]=${encodeURIComponent(
+                                    item
+                                )}`;
+                            });
+                        } else {
+                            // Handle other operators
+                            queryParams += `&${key}[${operator}]=${encodeURIComponent(
+                                opValue
+                            )}`;
+                        }
+                    });
+                } else {
+                    // Handle simple values
+                    queryParams += `&${key}=${encodeURIComponent(value)}`;
+                }
+            });
+        }
+
+        return this.request(() => this.client.get(`/content?${queryParams}`));
+    }
+
+    getReferralCourse(id) {
+        return this.request(() => this.client.get(`/content/${id}`));
+    }
+
+    createReferralCourse(data) {
+        return this.request(() =>
+            this.client.post("/content", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    updateReferralCourse(id, data) {
+        return this.request(() =>
+            this.client.patch(`/content/${id}`, data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        );
+    }
+
+    deleteReferralCourse(id) {
+        return this.request(() => this.client.delete(`/content/${id}`));
+    }
+
     // Employees API methods
     getManageEmployees(params = {}) {
         const {

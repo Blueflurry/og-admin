@@ -44,6 +44,11 @@ const items = [
     },
     { key: paths.referrals, label: "Referrals", icon: <ShareAltOutlined /> },
     {
+        key: paths.referralCourses,
+        label: "Referral Courses",
+        icon: <BookOutlined />,
+    },
+    {
         key: paths.manageOptins,
         label: "Manage Optins",
         icon: <CheckSquareOutlined />,
@@ -118,6 +123,10 @@ const Sidebar = ({ collapsed }) => {
             [paths.webinars]: { module: "webinars", action: "view" },
             [paths.notifications]: { module: "notifications", action: "view" },
             [paths.referrals]: { module: "referrals", action: "view" },
+            [paths.referralCourses]: {
+                module: "referralCourses",
+                action: "view",
+            },
             [paths.manageOptins]: { module: "optins", action: "view" },
             [paths.manageEmployess]: { module: "employees", action: "view" },
             [paths.manageCompanies]: { module: "companies", action: "view" },

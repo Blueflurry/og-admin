@@ -15,6 +15,7 @@ import Institutes from "./pages/app/institutes";
 import ManageOptins from "./pages/app/manageOptins";
 import Notifications from "./pages/app/notifications";
 import Referrals from "./pages/app/referrals";
+import ReferralCourses from "./pages/app/referralCourses";
 // import ManageEmployees from "./pages/app/manageEmployees";
 import Dashboard from "./pages/app/Dashboard";
 import JobApplications from "./pages/app/jobApplications";
@@ -108,6 +109,14 @@ const appRoutes = [
                 element: (
                     <PrivateRoute module="referrals" action="view">
                         <Referrals />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: paths.referralCourses,
+                element: (
+                    <PrivateRoute module="referralCourses" action="view">
+                        <ReferralCourses />
                     </PrivateRoute>
                 ),
             },
