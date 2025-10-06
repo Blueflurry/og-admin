@@ -49,7 +49,6 @@ const CoursesFormDrawer = ({
             fetchCategories();
 
             if (initialValues) {
-                s; // Format the data for the form
                 const formattedValues = {
                     title: initialValues.title || "",
                     description: initialValues.description || "",
