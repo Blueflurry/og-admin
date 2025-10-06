@@ -18,7 +18,7 @@ import { useAPI } from "../../hooks/useAPI";
 import { useUserPermission } from "../../hooks/useUserPermission";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
-import moment from "moment";
+import dayjs from "dayjs";
 
 // Create styles hook outside component to avoid calling hooks inside other hooks
 const useComponentStyles = createStyles(({ css, token }) =>
@@ -128,10 +128,10 @@ const formatInstituteDataForCSV = (institutes) => {
 
                 // Timestamps
                 "Created At": institute.createdAt
-                    ? moment(institute.createdAt).format("DD/MM/YYYY HH:mm")
+                    ? dayjs(institute.createdAt).format("DD/MM/YYYY HH:mm")
                     : "",
                 "Updated At": institute.updatedAt
-                    ? moment(institute.updatedAt).format("DD/MM/YYYY HH:mm")
+                    ? dayjs(institute.updatedAt).format("DD/MM/YYYY HH:mm")
                     : "",
             };
         } catch (formatError) {

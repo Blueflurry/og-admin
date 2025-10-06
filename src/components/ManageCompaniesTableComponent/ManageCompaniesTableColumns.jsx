@@ -8,7 +8,7 @@ import {
     HomeOutlined,
     BuildOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const getManageCompaniesTableColumns = ({
     handleView,
@@ -119,7 +119,7 @@ const getManageCompaniesTableColumns = ({
             key: "createdAt",
             align: "center",
             width: 120,
-            render: (date) => moment(date).format("DD MMM, YYYY"),
+            render: (date) => dayjs(date).format("DD MMM, YYYY"),
         },
         {
             title: "Updated At",
@@ -127,7 +127,7 @@ const getManageCompaniesTableColumns = ({
             key: "updatedAt",
             align: "center",
             width: 120,
-            render: (date) => moment(date).format("DD MMM, YYYY"),
+            render: (date) => dayjs(date).format("DD MMM, YYYY"),
         },
         {
             title: "Actions",

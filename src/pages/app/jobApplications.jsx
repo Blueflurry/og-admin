@@ -34,7 +34,7 @@ import JobApplicationsTable from "../../components/JobApplicationsTableComponent
 import JobApplicationsFormDrawer from "../../components/JobApplicationsTableComponent/JobApplicationsFormDrawer";
 import JobApplicationsViewDrawer from "../../components/JobApplicationsTableComponent/JobApplicationsViewDrawer";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 
@@ -377,7 +377,7 @@ const JobApplications = () => {
                                             style={{ borderRadius: 12 }}
                                         >
                                             Posted{" "}
-                                            {moment(
+                                            {dayjs(
                                                 jobDetails.createdAt
                                             ).format("MMM DD, YYYY")}
                                         </Tag>

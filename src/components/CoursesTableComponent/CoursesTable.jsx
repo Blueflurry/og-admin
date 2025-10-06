@@ -16,7 +16,7 @@ import {
 import { useAPI } from "../../hooks/useAPI";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -167,10 +167,10 @@ const CoursesTable = ({
                             Status: course.status === 1 ? "Active" : "Inactive",
                             "Duration (minutes)": course.duration || "",
                             "Start Date": course.startDate
-                                ? moment(course.startDate).format("DD/MM/YYYY")
+                                ? dayjs(course.startDate).format("DD/MM/YYYY")
                                 : "",
                             "End Date": course.endDate
-                                ? moment(course.endDate).format("DD/MM/YYYY")
+                                ? dayjs(course.endDate).format("DD/MM/YYYY")
                                 : "",
                             "Start Time": course.startTime || "",
                             "End Time": course.endTime || "",
@@ -199,12 +199,12 @@ const CoursesTable = ({
                                 ? course.tags.join(", ")
                                 : course.tags || "",
                             "Created At": course.createdAt
-                                ? moment(course.createdAt).format(
+                                ? dayjs(course.createdAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Updated At": course.updatedAt
-                                ? moment(course.updatedAt).format(
+                                ? dayjs(course.updatedAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",

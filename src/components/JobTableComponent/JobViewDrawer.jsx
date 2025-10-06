@@ -16,7 +16,7 @@ import {
     EnvironmentOutlined,
     TagOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 import ReactMarkdown from "react-markdown";
 
 const { Text, Title } = Typography;
@@ -138,10 +138,10 @@ const JobViewDrawer = ({ open, onClose, jobData = null }) => {
                     {jobData.minExperience === 1 ? " year" : " years"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Posted Date" span={1}>
-                    {moment(jobData.createdAt).format("DD MMM, YYYY")}
+                    {dayjs(jobData.createdAt).format("DD MMM, YYYY")}
                 </Descriptions.Item>
                 <Descriptions.Item label="Last Updated" span={1}>
-                    {moment(jobData.updatedAt).format("DD MMM, YYYY")}
+                    {dayjs(jobData.updatedAt).format("DD MMM, YYYY")}
                 </Descriptions.Item>
             </Descriptions>
 

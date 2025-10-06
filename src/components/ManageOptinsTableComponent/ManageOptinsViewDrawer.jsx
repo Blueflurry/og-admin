@@ -11,7 +11,7 @@ import {
     Image,
 } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -132,14 +132,14 @@ const ManageOptinsViewDrawer = ({ open, onClose, optinData = null }) => {
             >
                 <Descriptions.Item label="Created At" span={1}>
                     {optinData.createdAt
-                        ? moment(optinData.createdAt).format(
+                        ? dayjs(optinData.createdAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Updated At" span={1}>
                     {optinData.updatedAt
-                        ? moment(optinData.updatedAt).format(
+                        ? dayjs(optinData.updatedAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}

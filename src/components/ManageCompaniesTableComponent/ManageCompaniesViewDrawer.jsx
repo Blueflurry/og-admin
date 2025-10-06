@@ -12,7 +12,7 @@ import {
     Image,
 } from "antd";
 import { HomeOutlined, GlobalOutlined } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -130,14 +130,14 @@ const ManageCompaniesViewDrawer = ({ open, onClose, companyData = null }) => {
             >
                 <Descriptions.Item label="Created At" span={1}>
                     {companyData.createdAt
-                        ? moment(companyData.createdAt).format(
+                        ? dayjs(companyData.createdAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Updated At" span={1}>
                     {companyData.updatedAt
-                        ? moment(companyData.updatedAt).format(
+                        ? dayjs(companyData.updatedAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}

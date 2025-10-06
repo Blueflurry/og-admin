@@ -16,7 +16,8 @@ import {
 import { useAPI } from "../../hooks/useAPI";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
-import moment from "moment";
+import dayjs from "dayjs";
+import { useUserPermission } from "../../hooks/useUserPermission";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -46,6 +47,7 @@ const CarouselsTable = ({
     const { api } = useAPI();
     const { selectionType, handleChange, clearFilters } = useTableConfig();
     const { downloadCSV, downloading } = useBulkDownload();
+    const { can } = useUserPermission();
 
     // State for the form drawer
     const [formDrawerOpen, setFormDrawerOpen] = useState(false);
@@ -257,22 +259,22 @@ const CarouselsTable = ({
                                       ).toFixed(2)
                                     : "",
                             "Start Date": carousel.startDate
-                                ? moment(carousel.startDate).format(
+                                ? dayjs(carousel.startDate).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "End Date": carousel.endDate
-                                ? moment(carousel.endDate).format(
+                                ? dayjs(carousel.endDate).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Created At": carousel.createdAt
-                                ? moment(carousel.createdAt).format(
+                                ? dayjs(carousel.createdAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Updated At": carousel.updatedAt
-                                ? moment(carousel.updatedAt).format(
+                                ? dayjs(carousel.updatedAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
@@ -342,8 +344,9 @@ const CarouselsTable = ({
             handleView: localHandleView,
             handleEdit: localHandleEdit,
             handleDelete,
+            can,
         });
-    }, [localHandleView, localHandleEdit, handleDelete]);
+    }, [localHandleView, localHandleEdit, handleDelete, can]);
 
     // Prepare data source with useMemo
     const dataSource = useMemo(() => {

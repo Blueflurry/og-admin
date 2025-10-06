@@ -10,7 +10,7 @@ import {
     TagOutlined,
     LinkOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useUserPermission } from "../../hooks/useUserPermission";
 
 const getCategoriesTableColumns = ({
@@ -90,7 +90,7 @@ const getCategoriesTableColumns = ({
         key: "createdAt",
         align: "center",
         width: 120,
-        render: (date) => (date ? moment(date).format("DD MMM, YYYY") : "N/A"),
+        render: (date) => (date ? dayjs(date).format("DD MMM, YYYY") : "N/A"),
     },
     {
         title: "Updated At",
@@ -98,7 +98,7 @@ const getCategoriesTableColumns = ({
         key: "updatedAt",
         align: "center",
         width: 120,
-        render: (date) => (date ? moment(date).format("DD MMM, YYYY") : "N/A"),
+        render: (date) => (date ? dayjs(date).format("DD MMM, YYYY") : "N/A"),
     },
     {
         title: "Actions",

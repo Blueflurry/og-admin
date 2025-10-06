@@ -23,7 +23,7 @@ import {
     PlusOutlined,
 } from "@ant-design/icons";
 import { useAPI } from "../../hooks/useAPI";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -61,7 +61,7 @@ const ManageEmployeesFormDrawer = ({
                     lastName: initialValues.name?.last || "",
                     email: initialValues.email || "",
                     phone1: initialValues.phone1 || "",
-                    dob: initialValues.dob ? moment(initialValues.dob) : null,
+                    dob: initialValues.dob ? dayjs(initialValues.dob) : null,
                     role: initialValues.role || "employee",
                     status: initialValues.status === 1,
                     street: initialValues.address?.street || "",

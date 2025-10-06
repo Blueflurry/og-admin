@@ -10,10 +10,14 @@ import {
     LinkOutlined,
     VideoCameraOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
-import { useUserPermission } from "../../hooks/useUserPermission";
+import dayjs from "dayjs";
 
-const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
+const getWebinarsTableColumns = ({
+    handleView,
+    handleEdit,
+    handleDelete,
+    can,
+}) => [
     {
         title: "Webinar Information",
         key: "webinarInfo",
@@ -73,7 +77,7 @@ const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         render: (date) => (
             <Space>
                 <CalendarOutlined />
-                {moment(date).format("DD MMM, YYYY")}
+                {dayjs(date).format("DD MMM, YYYY")}
             </Space>
         ),
     },
@@ -83,7 +87,7 @@ const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         key: "endDate",
         align: "center",
         width: 120,
-        render: (date) => moment(date).format("DD MMM, YYYY"),
+        render: (date) => dayjs(date).format("DD MMM, YYYY"),
     },
     {
         title: "Links",
@@ -164,7 +168,7 @@ const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         key: "createdAt",
         align: "center",
         width: 120,
-        render: (date) => moment(date).format("DD MMM, YYYY"),
+        render: (date) => dayjs(date).format("DD MMM, YYYY"),
     },
     {
         title: "Actions",
@@ -173,7 +177,6 @@ const getWebinarsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         width: 100,
         align: "center",
         render: (_, record) => {
-            const { can } = useUserPermission();
             const items = [];
 
             // Create menu items array for dropdown

@@ -12,7 +12,7 @@ import {
     DollarOutlined,
     TrophyOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useUserPermission } from "../../hooks/useUserPermission";
 
 const getJobApplicationsTableColumns = ({
@@ -170,7 +170,7 @@ const getJobApplicationsTableColumns = ({
             key: "updatedAt",
             align: "center",
             width: 130,
-            render: (date) => moment(date).format("DD MMM, YYYY"),
+            render: (date) => dayjs(date).format("DD MMM, YYYY"),
         },
         {
             title: "Resume",

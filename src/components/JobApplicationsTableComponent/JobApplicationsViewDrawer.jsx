@@ -24,7 +24,7 @@ import {
     CalendarOutlined,
     BankOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -103,7 +103,7 @@ const JobApplicationsViewDrawer = ({
                     <Space>
                          
                         {applicationData.createdAt
-                            ? moment(applicationData.createdAt).format(
+                            ? dayjs(applicationData.createdAt).format(
                                   "DD MMM, YYYY HH:mm"
                               )
                             : "N/A"}
@@ -112,7 +112,7 @@ const JobApplicationsViewDrawer = ({
                 <Descriptions.Item label="Applied Date" span={2}>
                     <Space>
                         {applicationData.updatedAt
-                            ? moment(applicationData.updatedAt).format(
+                            ? dayjs(applicationData.updatedAt).format(
                                   "DD MMM, YYYY HH:mm"
                               )
                             : "N/A"}
@@ -257,7 +257,7 @@ const JobApplicationsViewDrawer = ({
                     <Descriptions.Item label="Date of Birth" span={1}>
                         <Space>
                             <CalendarOutlined />
-                            {moment(userData.dob).format("DD MMM, YYYY")}
+                            {dayjs(userData.dob).format("DD MMM, YYYY")}
                         </Space>
                     </Descriptions.Item>
                 )}

@@ -12,7 +12,7 @@ import {
     Card,
 } from "antd";
 import { BellOutlined, LinkOutlined, SyncOutlined } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -68,7 +68,7 @@ const NotificationsViewDrawer = ({
                 <Descriptions.Item label="Scheduled Date" span={1}>
                     <Space>
                         {notificationData.date
-                            ? moment(notificationData.date).format(
+                            ? dayjs(notificationData.date).format(
                                   "DD MMM, YYYY HH:mm"
                               )
                             : "N/A"}
@@ -107,7 +107,7 @@ const NotificationsViewDrawer = ({
                 <Descriptions.Item label="Created At" span={1}>
                     <Space>
                         {notificationData.createdAt
-                            ? moment(notificationData.createdAt).format(
+                            ? dayjs(notificationData.createdAt).format(
                                   "DD MMM, YYYY HH:mm"
                               )
                             : "N/A"}

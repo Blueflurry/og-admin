@@ -10,8 +10,7 @@ import {
     HomeOutlined,
     TeamOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
-import { useUserPermission } from "../../hooks/useUserPermission";
+import dayjs from "dayjs";
 
 // Move the navigate function to be passed as a prop instead of using the hook inside render
 const getJobTableColumns = ({
@@ -19,6 +18,7 @@ const getJobTableColumns = ({
     handleEdit,
     handleDelete,
     onViewApplications,
+    can,
 }) => [
     {
         title: "Job Title",
@@ -87,7 +87,7 @@ const getJobTableColumns = ({
         key: "createdDate",
         align: "center",
         width: 120,
-        render: (date) => moment(date).format("DD MMM, YYYY"),
+        render: (date) => dayjs(date).format("DD MMM, YYYY"),
     },
     {
         title: "Remote",
@@ -161,7 +161,6 @@ const getJobTableColumns = ({
         width: 100,
         align: "center",
         render: (_, record) => {
-            const { can } = useUserPermission();
             const items = [];
 
             if (can("jobs", "view")) {

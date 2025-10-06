@@ -16,7 +16,7 @@ import {
 } from "antd";
 import { PlusOutlined, LoadingOutlined, SwapOutlined } from "@ant-design/icons";
 import { useAPI } from "../../hooks/useAPI";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -62,10 +62,10 @@ const WebinarsFormDrawer = ({
                     courseUrl: initialValues.courseUrl || "",
                     inviteUrl: initialValues.inviteUrl || "",
                     startDate: initialValues.startDate
-                        ? moment(initialValues.startDate)
+                        ? dayjs(initialValues.startDate)
                         : null,
                     endDate: initialValues.endDate
-                        ? moment(initialValues.endDate)
+                        ? dayjs(initialValues.endDate)
                         : null,
                     duration: initialValues.duration || null,
                     category:

@@ -19,7 +19,6 @@ import {
     FilterOutlined,
     ClearOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
 
 const { Title, Text } = Typography;
 const { Option } = Select;

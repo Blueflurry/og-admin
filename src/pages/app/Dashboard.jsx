@@ -96,6 +96,9 @@ const Dashboard = () => {
     const userGrowthChartRef = useRef(null);
     const jobApplicationsChartRef = useRef(null);
 
+    // message API scoped to this component
+    const [messageApi, contextHolder] = message.useMessage();
+
     // Process metrics data with new API structure
     const processMetricsData = (metricsResponse) => {
         const defaultMetrics = {
@@ -117,7 +120,9 @@ const Dashboard = () => {
 
         if (!metricsResponse || !metricsResponse.data) {
             console.warn("No metrics response or data received");
-            message.warning("No dashboard metrics data received from server");
+            messageApi.warning(
+                "No dashboard metrics data received from server"
+            );
             return defaultMetrics;
         }
 
@@ -258,14 +263,14 @@ const Dashboard = () => {
 
             setDashboardData(combinedData);
 
-            message.success("Dashboard data loaded successfully");
+            // messageApi.success("Dashboard data loaded successfully");
         } catch (error) {
             // Show specific error message
             const errorMessage =
                 error.response?.data?.message ||
                 error.message ||
                 "Unknown error";
-            message.error(`Failed to load dashboard data: ${errorMessage}`);
+            messageApi.error(`Failed to load dashboard data: ${errorMessage}`);
         } finally {
             setRefreshing(false);
         }
@@ -311,9 +316,9 @@ const Dashboard = () => {
                 ...updatedData,
             }));
 
-            message.success(`${chartType} chart updated successfully`);
+            messageApi.success(`${chartType} chart updated successfully`);
         } catch (error) {
-            message.error(`Failed to update ${chartType} chart`);
+            messageApi.error(`Failed to update ${chartType} chart`);
         } finally {
             setChartLoading((prev) => ({
                 ...prev,
@@ -357,7 +362,7 @@ const Dashboard = () => {
 
             updateChartData(chartType, validatedRange);
         } catch (error) {
-            message.error("Invalid date range selected");
+            messageApi.error("Invalid date range selected");
         }
     };
 
@@ -381,9 +386,9 @@ const Dashboard = () => {
                 document.body.removeChild(link);
             }
 
-            message.success(`${filename} CSV downloaded successfully!`);
+            messageApi.success(`${filename} CSV downloaded successfully!`);
         } catch (error) {
-            message.error("Failed to download CSV");
+            messageApi.error("Failed to download CSV");
         }
     };
 
@@ -598,7 +603,7 @@ const Dashboard = () => {
 
         return (
             <Dropdown
-                dropdownRender={() => dropdownContent}
+                popupRender={() => dropdownContent}
                 trigger={["click"]}
                 open={dropdownVisible}
                 onOpenChange={setDropdownVisible}
@@ -674,7 +679,10 @@ const Dashboard = () => {
                         zIndex: 10,
                     }}
                 >
-                    <Spin size="large" tip="Updating chart..." />
+                    <Space align="center" size={12}>
+                        <Spin size="large" />
+                        <Text>Updating chart...</Text>
+                    </Space>
                 </div>
             )}
             {children}
@@ -689,6 +697,7 @@ const Dashboard = () => {
                 minHeight: "100vh",
             }}
         >
+            {contextHolder}
             {/* Header */}
             <Row gutter={[16, 16]} align="middle" style={{ marginBottom: 24 }}>
                 <Col flex="auto">
@@ -1122,7 +1131,10 @@ const Dashboard = () => {
                         zIndex: 999,
                     }}
                 >
-                    <Spin size="large" tip="Loading dashboard data..." />
+                    <Space align="center" size={12}>
+                        <Spin size="large" />
+                        <Text>Loading dashboard data...</Text>
+                    </Space>
                 </div>
             )}
         </div>

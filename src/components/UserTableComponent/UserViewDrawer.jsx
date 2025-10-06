@@ -11,7 +11,7 @@ import {
     Descriptions,
     Typography,
 } from "antd";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -69,7 +69,7 @@ const UserViewDrawer = ({ open, onClose, userData = null }) => {
                 </Descriptions.Item>
                 <Descriptions.Item label="Date of Birth" span={1}>
                     {userData.dob
-                        ? moment(userData.dob).format("DD MMM, YYYY")
+                        ? dayjs(userData.dob).format("DD MMM, YYYY")
                         : "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Role" span={1}>

@@ -14,7 +14,7 @@ import {
     BookOutlined,
     LinkOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const getReferralsTableColumns = ({
     handleView,
@@ -149,7 +149,7 @@ const getReferralsTableColumns = ({
         key: "createdAt",
         align: "center",
         width: 130,
-        render: (date) => <Space>{moment(date).format("DD MMM, YYYY")}</Space>,
+        render: (date) => <Space>{dayjs(date).format("DD MMM, YYYY")}</Space>,
     },
     {
         title: "Actions",

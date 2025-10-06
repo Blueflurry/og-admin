@@ -16,7 +16,8 @@ import {
 import { useAPI } from "../../hooks/useAPI";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
-import moment from "moment";
+import dayjs from "dayjs";
+import { useUserPermission } from "../../hooks/useUserPermission";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -32,6 +33,7 @@ const WebinarsTable = ({
 }) => {
     const { styles } = useStyle();
     const { api } = useAPI();
+    const { can } = useUserPermission();
     const { selectionType, handleChange, clearFilters } = useTableConfig();
 
     // State for the form drawer
@@ -177,10 +179,10 @@ const WebinarsTable = ({
                                 webinar.status === 1 ? "Active" : "Inactive",
                             "Duration (minutes)": webinar.duration || "",
                             "Start Date": webinar.startDate
-                                ? moment(webinar.startDate).format("DD/MM/YYYY")
+                                ? dayjs(webinar.startDate).format("DD/MM/YYYY")
                                 : "",
                             "End Date": webinar.endDate
-                                ? moment(webinar.endDate).format("DD/MM/YYYY")
+                                ? dayjs(webinar.endDate).format("DD/MM/YYYY")
                                 : "",
                             "Start Time": webinar.startTime || "",
                             "End Time": webinar.endTime || "",
@@ -232,12 +234,12 @@ const WebinarsTable = ({
                                 ? webinar.tags.join(", ")
                                 : webinar.tags || "",
                             "Created At": webinar.createdAt
-                                ? moment(webinar.createdAt).format(
+                                ? dayjs(webinar.createdAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Updated At": webinar.updatedAt
-                                ? moment(webinar.updatedAt).format(
+                                ? dayjs(webinar.updatedAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
@@ -292,9 +294,10 @@ const WebinarsTable = ({
     };
 
     const columns = getWebinarsTableColumns({
-        handleView: localHandleView,
-        handleEdit: localHandleEdit,
-        handleDelete,
+        handleView: can("webinars", "view") ? localHandleView : null,
+        handleEdit: can("webinars", "edit") ? localHandleEdit : null,
+        handleDelete: can("webinars", "delete") ? handleDelete : null,
+        can,
     });
 
     const dataSource = Array.isArray(webinarData)

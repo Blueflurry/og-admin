@@ -11,7 +11,7 @@ import {
     Image,
 } from "antd";
 import { TagOutlined, LinkOutlined } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -122,14 +122,14 @@ const CategoriesViewDrawer = ({ open, onClose, categoryData = null }) => {
             >
                 <Descriptions.Item label="Created At" span={1}>
                     {categoryData.createdAt
-                        ? moment(categoryData.createdAt).format(
+                        ? dayjs(categoryData.createdAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Updated At" span={1}>
                     {categoryData.updatedAt
-                        ? moment(categoryData.updatedAt).format(
+                        ? dayjs(categoryData.updatedAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}

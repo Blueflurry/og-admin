@@ -17,7 +17,7 @@ import { useAPI } from "../../hooks/useAPI";
 import { useUserPermission } from "../../hooks/useUserPermission";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -224,12 +224,12 @@ const ManageCompaniesTable = ({
 
                             // Timestamps
                             "Created At": company.createdAt
-                                ? moment(company.createdAt).format(
+                                ? dayjs(company.createdAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Updated At": company.updatedAt
-                                ? moment(company.updatedAt).format(
+                                ? dayjs(company.updatedAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",

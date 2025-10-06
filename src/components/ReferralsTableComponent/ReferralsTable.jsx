@@ -14,7 +14,7 @@ import { useUserPermission } from "../../hooks/useUserPermission";
 import { useAPI } from "../../hooks/useAPI";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -175,7 +175,7 @@ const ReferralsTable = ({
                                 courseDetails.courseDuration || "",
                             "Course Fee": courseDetails.courseFee || "",
                             "Course Start Date": courseDetails.courseStartDate
-                                ? moment(courseDetails.courseStartDate).format(
+                                ? dayjs(courseDetails.courseStartDate).format(
                                       "DD/MM/YYYY"
                                   )
                                 : "",
@@ -194,7 +194,7 @@ const ReferralsTable = ({
                             "Reward Currency": referral.rewardCurrency || "",
                             "Reward Status": referral.rewardStatus || "",
                             "Reward Given Date": referral.rewardGivenDate
-                                ? moment(referral.rewardGivenDate).format(
+                                ? dayjs(referral.rewardGivenDate).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
@@ -202,7 +202,7 @@ const ReferralsTable = ({
                             // Conversion Information
                             "Is Converted": referral.isConverted ? "Yes" : "No",
                             "Conversion Date": referral.conversionDate
-                                ? moment(referral.conversionDate).format(
+                                ? dayjs(referral.conversionDate).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
@@ -214,13 +214,13 @@ const ReferralsTable = ({
                                 ? "Yes"
                                 : "No",
                             "Follow-up Date": referral.followupDate
-                                ? moment(referral.followupDate).format(
+                                ? dayjs(referral.followupDate).format(
                                       "DD/MM/YYYY"
                                   )
                                 : "",
                             "Follow-up Notes": referral.followupNotes || "",
                             "Last Contact Date": referral.lastContactDate
-                                ? moment(referral.lastContactDate).format(
+                                ? dayjs(referral.lastContactDate).format(
                                       "DD/MM/YYYY"
                                   )
                                 : "",
@@ -246,12 +246,12 @@ const ReferralsTable = ({
 
                             // Timestamps
                             "Created At": referral.createdAt
-                                ? moment(referral.createdAt).format(
+                                ? dayjs(referral.createdAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Updated At": referral.updatedAt
-                                ? moment(referral.updatedAt).format(
+                                ? dayjs(referral.updatedAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",

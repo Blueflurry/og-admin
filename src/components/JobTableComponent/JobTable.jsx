@@ -19,7 +19,7 @@ import { useAPI } from "../../hooks/useAPI";
 import { useUserPermission } from "../../hooks/useUserPermission";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -168,6 +168,7 @@ const JobTable = ({
         handleEdit,
         handleDelete,
         onViewApplications: handleViewApplications, // Pass the navigation function
+        can,
     });
 
     const dataSource = Array.isArray(jobData)
@@ -225,12 +226,12 @@ const JobTable = ({
                             Country: job.location?.country || "",
                             Description: job.description || "",
                             "Created At": job.createdAt
-                                ? moment(job.createdAt).format(
+                                ? dayjs(job.createdAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Updated At": job.updatedAt
-                                ? moment(job.updatedAt).format(
+                                ? dayjs(job.updatedAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",

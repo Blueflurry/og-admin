@@ -12,7 +12,7 @@ import {
     LockOutlined,
     CalendarOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useUserPermission } from "../../hooks/useUserPermission";
 
 const getManageEmployeesTableColumns = ({
@@ -89,7 +89,7 @@ const getManageEmployeesTableColumns = ({
         //     render: (dob) => (
         //         <Space>
         //             <CalendarOutlined />
-        //             {dob ? moment(dob).format("DD MMM, YYYY") : "N/A"}
+        //             {dob ? dayjs(dob).format("DD MMM, YYYY") : "N/A"}
         //         </Space>
         //     ),
         // },
@@ -123,7 +123,7 @@ const getManageEmployeesTableColumns = ({
             key: "createdAt",
             align: "center",
             width: 120,
-            render: (date) => moment(date).format("DD MMM, YYYY"),
+            render: (date) => dayjs(date).format("DD MMM, YYYY"),
         },
         {
             title: "Actions",

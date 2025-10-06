@@ -17,7 +17,7 @@ import {
     Switch,
     Card,
 } from "antd";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useAPI } from "../../hooks/useAPI";
 const { Option } = Select;
 
@@ -53,7 +53,7 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                     email: initialValues.email || "",
                     primaryPhone: initialValues.phone1 || "",
                     secondaryPhone: initialValues.phone2 || "",
-                    dob: initialValues.dob ? moment(initialValues.dob) : null,
+                    dob: initialValues.dob ? dayjs(initialValues.dob) : null,
                     streetAddress: initialValues.address?.street || "",
                     city: initialValues.address?.city || "",
                     state: initialValues.address?.state || "",

@@ -20,7 +20,7 @@ import {
     FilterOutlined,
     ClearOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -77,8 +77,8 @@ const JobSearchFilterDrawer = ({
                 case "date-range":
                     if (value.$gte && value.$lt) {
                         formattedValues[key] = [
-                            moment(value.$gte),
-                            moment(value.$lt),
+                            dayjs(value.$gte),
+                            dayjs(value.$lt),
                         ];
                     }
                     break;

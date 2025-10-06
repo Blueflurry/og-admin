@@ -8,10 +8,14 @@ import {
     PictureOutlined,
     LinkOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
-import { useUserPermission } from "../../hooks/useUserPermission";
+import dayjs from "dayjs";
 
-const getCarouselsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
+const getCarouselsTableColumns = ({
+    handleView,
+    handleEdit,
+    handleDelete,
+    can,
+}) => [
     {
         title: "Carousel Information",
         key: "carouselInfo",
@@ -84,7 +88,7 @@ const getCarouselsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         key: "createdAt",
         align: "center",
         width: 120,
-        render: (date) => (date ? moment(date).format("DD MMM, YYYY") : "N/A"),
+        render: (date) => (date ? dayjs(date).format("DD MMM, YYYY") : "N/A"),
     },
     {
         title: "Updated At",
@@ -92,7 +96,7 @@ const getCarouselsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         key: "updatedAt",
         align: "center",
         width: 120,
-        render: (date) => (date ? moment(date).format("DD MMM, YYYY") : "N/A"),
+        render: (date) => (date ? dayjs(date).format("DD MMM, YYYY") : "N/A"),
     },
     {
         title: "Actions",
@@ -101,7 +105,6 @@ const getCarouselsTableColumns = ({ handleView, handleEdit, handleDelete }) => [
         width: 100,
         align: "center",
         render: (_, record) => {
-            const { can } = useUserPermission();
             const items = [];
 
             // Only add "View" option if user has view permission

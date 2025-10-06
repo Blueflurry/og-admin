@@ -10,6 +10,7 @@ import {
     getPaginationConfig,
     tableStyles,
 } from "./UserTableConfig";
+import { useUserPermission } from "../../hooks/useUserPermission";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -24,6 +25,7 @@ const UserTable = ({
 }) => {
     const { styles } = useStyle();
     const { selectionType, handleChange, clearFilters } = useTableConfig();
+    const { can } = useUserPermission();
 
     const handleTableChange = (pagination, filters, sorter) => {
         const { handleChange: originalHandleChange } = handleChange(
@@ -70,6 +72,7 @@ const UserTable = ({
         handleView: onView,
         handleEdit: onEdit,
         handleDelete: onDelete,
+        can,
     });
 
     const dataSource = userData.map((user) => ({

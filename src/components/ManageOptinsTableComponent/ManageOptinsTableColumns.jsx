@@ -7,16 +7,13 @@ import {
     EyeOutlined,
     CheckCircleOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
-import { useUserPermission } from "../../hooks/useUserPermission";
+import dayjs from "dayjs";
 
 const getManageOptinsTableColumns = ({
     handleView,
     handleEdit,
     handleDelete,
 }) => {
-    const { can } = useUserPermission();
-
     return [
         {
             title: "Optin Information",
@@ -80,7 +77,7 @@ const getManageOptinsTableColumns = ({
             align: "center",
             width: 120,
             render: (date) =>
-                date ? moment(date).format("DD MMM, YYYY") : "N/A",
+                date ? dayjs(date).format("DD MMM, YYYY") : "N/A",
         },
         {
             title: "Updated At",
@@ -89,7 +86,7 @@ const getManageOptinsTableColumns = ({
             align: "center",
             width: 120,
             render: (date) =>
-                date ? moment(date).format("DD MMM, YYYY") : "N/A",
+                date ? dayjs(date).format("DD MMM, YYYY") : "N/A",
         },
         {
             title: "Actions",
@@ -101,8 +98,8 @@ const getManageOptinsTableColumns = ({
                 // Create menu items array for dropdown
                 const items = [];
 
-                // Only add "View" option if user has view permission
-                if (can("optins", "view")) {
+                // Only add if handler provided
+                if (handleView) {
                     items.push({
                         key: "view",
                         label: "View",
@@ -113,8 +110,8 @@ const getManageOptinsTableColumns = ({
                     });
                 }
 
-                // Only add "Edit" option if user has edit permission
-                if (can("optins", "edit")) {
+                // Only add if handler provided
+                if (handleEdit) {
                     items.push({
                         key: "edit",
                         label: "Edit",
@@ -125,8 +122,8 @@ const getManageOptinsTableColumns = ({
                     });
                 }
 
-                // Only add "Delete" option if user has delete permission and handleDelete exists
-                if (can("optins", "delete") && handleDelete) {
+                // Only add if handler provided
+                if (handleDelete) {
                     items.push({
                         key: "delete",
                         label: "Delete",

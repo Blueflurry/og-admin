@@ -9,7 +9,7 @@ import UserViewDrawer from "../../components/UserTableComponent/UserViewDrawer";
 import UserTableToolbar from "../../components/UserTableComponent/UserTableToolbar";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const Users = () => {
     const { api, isLoading, error, resetError } = useAPI();
@@ -178,7 +178,7 @@ const Users = () => {
                             "Primary Phone": user.phone1 || "",
                             "Secondary Phone": user.phone2 || "",
                             "Date of Birth": user.dob
-                                ? moment(user.dob).format("DD/MM/YYYY")
+                                ? dayjs(user.dob).format("DD/MM/YYYY")
                                 : "",
                             "Street Address": user.address?.street || "",
                             City: user.address?.city || "",
@@ -192,10 +192,10 @@ const Users = () => {
                                     ? "Unauthorized"
                                     : "Disabled",
                             "Created At": user.createdAt
-                                ? moment(user.createdAt).format("DD/MM/YYYY")
+                                ? dayjs(user.createdAt).format("DD/MM/YYYY")
                                 : "",
                             // "Updated At": user.updatedAt
-                            //     ? moment(user.updatedAt).format("DD/MM/YYYY")
+                            //     ? dayjs(user.updatedAt).format("DD/MM/YYYY")
                             //     : "",
                         };
 

@@ -22,7 +22,7 @@ import {
     SyncOutlined,
 } from "@ant-design/icons";
 import { useAPI } from "../../hooks/useAPI";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { TextArea } = Input;
 
@@ -52,7 +52,7 @@ const NotificationsFormDrawer = ({
                     text: initialValues.text || "",
                     link: initialValues.link || "",
                     date: initialValues.date
-                        ? moment(initialValues.date)
+                        ? dayjs(initialValues.date)
                         : null,
                     repeat: initialValues.repeat || false,
                     frequency: initialValues.frequency || 0,

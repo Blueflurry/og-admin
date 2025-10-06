@@ -10,7 +10,7 @@ import {
     Avatar,
 } from "antd";
 import { CalendarOutlined } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -65,7 +65,7 @@ const ReferralCoursesViewDrawer = ({ open, onClose, referralCourseData }) => {
                                         style={{ marginRight: 8 }}
                                     />
                                     {referralCourseData.createdAt
-                                        ? moment(
+                                        ? dayjs(
                                               referralCourseData.createdAt
                                           ).format("DD MMMM YYYY, h:mm A")
                                         : "N/A"}
@@ -80,7 +80,7 @@ const ReferralCoursesViewDrawer = ({ open, onClose, referralCourseData }) => {
                                         style={{ marginRight: 8 }}
                                     />
                                     {referralCourseData.updatedAt
-                                        ? moment(
+                                        ? dayjs(
                                               referralCourseData.updatedAt
                                           ).format("DD MMMM YYYY, h:mm A")
                                         : "N/A"}

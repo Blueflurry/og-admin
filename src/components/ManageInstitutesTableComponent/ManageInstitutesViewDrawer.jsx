@@ -11,7 +11,7 @@ import {
     Image,
 } from "antd";
 import { BankOutlined } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -136,14 +136,14 @@ const ManageInstitutesViewDrawer = ({
             >
                 <Descriptions.Item label="Created At" span={1}>
                     {instituteData.createdAt
-                        ? moment(instituteData.createdAt).format(
+                        ? dayjs(instituteData.createdAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Updated At" span={1}>
                     {instituteData.updatedAt
-                        ? moment(instituteData.updatedAt).format(
+                        ? dayjs(instituteData.updatedAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}

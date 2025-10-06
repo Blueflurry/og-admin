@@ -18,7 +18,7 @@ import {
 import { useAPI } from "../../hooks/useAPI";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { confirm } = Modal;
 const { Option } = Select;
@@ -281,7 +281,7 @@ const JobApplicationsTable = ({
                             Phone: applicant.data.phone1 || "",
                             "Secondary Phone": applicant.data.phone2 || "",
                             "Date of Birth": applicant.data.dob
-                                ? moment(applicant.data.dob).format(
+                                ? dayjs(applicant.data.dob).format(
                                       "DD/MM/YYYY"
                                   )
                                 : "",
@@ -322,12 +322,12 @@ const JobApplicationsTable = ({
                             // Notes: app.notes || "",
                             "Applied Date":
                                 app.createdAt || app.appliedDate
-                                    ? moment(
+                                    ? dayjs(
                                           app.createdAt || app.appliedDate
                                       ).format("DD/MM/YYYY HH:mm")
                                     : "",
                             "Last Updated": app.updatedAt
-                                ? moment(app.updatedAt).format(
+                                ? dayjs(app.updatedAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",

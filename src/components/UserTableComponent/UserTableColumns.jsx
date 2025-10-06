@@ -8,11 +8,11 @@ import {
     EyeOutlined,
     EnvironmentOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 // import PermissionGate from "../../components/PermissionGate";
-import { useUserPermission } from "../../hooks/useUserPermission";
+// Permission is injected from parent to avoid hooks inside render paths
 
-const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
+const getUserTableColumns = ({ handleView, handleEdit, handleDelete, can }) => {
     return [
         {
             title: "User Information",
@@ -119,7 +119,7 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             width: 150,
             // sorter: true,
             render: (createdAt) =>
-                createdAt ? moment(createdAt).format("DD MMM, YYYY") : "N/A",
+                createdAt ? dayjs(createdAt).format("DD MMM, YYYY") : "N/A",
         },
 
         {
@@ -128,7 +128,7 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             key: "dob",
             align: "center",
             width: 120,
-            render: (dob) => (dob ? moment(dob).format("DD MMM, YYYY") : "N/A"),
+            render: (dob) => (dob ? dayjs(dob).format("DD MMM, YYYY") : "N/A"),
         },
         {
             title: "Location",
@@ -218,7 +218,6 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete }) => {
             width: 120,
             align: "center",
             render: (_, record) => {
-                const { can } = useUserPermission();
                 const items = [];
 
                 // Create menu items array for dropdown

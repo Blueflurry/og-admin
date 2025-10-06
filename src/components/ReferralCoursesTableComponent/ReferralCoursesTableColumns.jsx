@@ -6,7 +6,7 @@ import {
     EditOutlined,
     EyeOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const getReferralCoursesTableColumns = ({
     handleView,
@@ -61,7 +61,7 @@ const getReferralCoursesTableColumns = ({
         key: "createdAt",
         align: "center",
         width: 130,
-        render: (date) => <Space>{moment(date).format("DD MMM, YYYY")}</Space>,
+        render: (date) => <Space>{dayjs(date).format("DD MMM, YYYY")}</Space>,
     },
     {
         title: "Actions",

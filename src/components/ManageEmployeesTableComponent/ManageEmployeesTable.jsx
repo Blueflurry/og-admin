@@ -16,7 +16,7 @@ import {
 import { useAPI } from "../../hooks/useAPI";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -190,7 +190,7 @@ const ManageEmployeesTable = ({
 
                             // Personal Information
                             "Date of Birth": employee.dob
-                                ? moment(employee.dob).format("DD/MM/YYYY")
+                                ? dayjs(employee.dob).format("DD/MM/YYYY")
                                 : "",
                             Gender: employee.gender || "",
                             "Marital Status": employee.maritalStatus || "",
@@ -201,7 +201,7 @@ const ManageEmployeesTable = ({
                             Department: employee.department || "",
                             Designation: employee.designation || "",
                             "Joining Date": employee.joiningDate
-                                ? moment(employee.joiningDate).format(
+                                ? dayjs(employee.joiningDate).format(
                                       "DD/MM/YYYY"
                                   )
                                 : "",
@@ -224,17 +224,17 @@ const ManageEmployeesTable = ({
 
                             // Timestamps
                             "Created At": employee.createdAt
-                                ? moment(employee.createdAt).format(
+                                ? dayjs(employee.createdAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Updated At": employee.updatedAt
-                                ? moment(employee.updatedAt).format(
+                                ? dayjs(employee.updatedAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Last Login": employee.lastLogin
-                                ? moment(employee.lastLogin).format(
+                                ? dayjs(employee.lastLogin).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",

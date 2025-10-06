@@ -19,7 +19,7 @@ import {
     FilterOutlined,
     ClearOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -74,7 +74,7 @@ const WebinarsSearchFilterDrawer = ({
             switch (config.type) {
                 case "date":
                     if (value.$gte) {
-                        formattedValues[key] = moment(value.$gte);
+                        formattedValues[key] = dayjs(value.$gte);
                     }
                     break;
 

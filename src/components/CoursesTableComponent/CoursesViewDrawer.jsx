@@ -17,7 +17,7 @@ import {
     TeamOutlined,
     LinkOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -129,13 +129,13 @@ const CoursesViewDrawer = ({ open, onClose, courseData = null }) => {
                 <Descriptions.Item label="Start Date" span={1}>
                     <Space>
                         <CalendarOutlined />
-                        {moment(courseData.startDate).format("DD MMM, YYYY")}
+                        {dayjs(courseData.startDate).format("DD MMM, YYYY")}
                     </Space>
                 </Descriptions.Item>
                 <Descriptions.Item label="End Date" span={1}>
                     <Space>
                         <CalendarOutlined />
-                        {moment(courseData.endDate).format("DD MMM, YYYY")}
+                        {dayjs(courseData.endDate).format("DD MMM, YYYY")}
                     </Space>
                 </Descriptions.Item>
                 <Descriptions.Item label="Category" span={1}>
@@ -214,10 +214,10 @@ const CoursesViewDrawer = ({ open, onClose, courseData = null }) => {
                 style={{ marginTop: 24 }}
             >
                 <Descriptions.Item label="Created At" span={1}>
-                    {moment(courseData.createdAt).format("DD MMM, YYYY HH:mm")}
+                    {dayjs(courseData.createdAt).format("DD MMM, YYYY HH:mm")}
                 </Descriptions.Item>
                 <Descriptions.Item label="Updated At" span={1}>
-                    {moment(courseData.updatedAt).format("DD MMM, YYYY HH:mm")}
+                    {dayjs(courseData.updatedAt).format("DD MMM, YYYY HH:mm")}
                 </Descriptions.Item>
             </Descriptions>
         </Drawer>

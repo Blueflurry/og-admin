@@ -20,7 +20,7 @@ import {
     HomeOutlined,
     SafetyCertificateOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -135,7 +135,7 @@ const ManageEmployeesViewDrawer = ({ open, onClose, employeeData = null }) => {
                     <Space>
                         <CalendarOutlined />
                         {employeeData.dob
-                            ? moment(employeeData.dob).format("DD MMM, YYYY")
+                            ? dayjs(employeeData.dob).format("DD MMM, YYYY")
                             : "N/A"}
                     </Space>
                 </Descriptions.Item> */}
@@ -167,7 +167,7 @@ const ManageEmployeesViewDrawer = ({ open, onClose, employeeData = null }) => {
             <Descriptions bordered column={2}>
                 <Descriptions.Item label="Created At" span={1}>
                     {employeeData.createdAt
-                        ? moment(employeeData.createdAt).format(
+                        ? dayjs(employeeData.createdAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}
@@ -175,7 +175,7 @@ const ManageEmployeesViewDrawer = ({ open, onClose, employeeData = null }) => {
 
                 <Descriptions.Item label="Last Updated" span={1}>
                     {employeeData.updatedAt
-                        ? moment(employeeData.updatedAt).format(
+                        ? dayjs(employeeData.updatedAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}

@@ -18,7 +18,7 @@ import { useAPI } from "../../hooks/useAPI";
 import { useUserPermission } from "../../hooks/useUserPermission";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -289,17 +289,17 @@ const ManageOptinsTable = ({
 
                             // Timestamps
                             "Created At": optin.createdAt
-                                ? moment(optin.createdAt).format(
+                                ? dayjs(optin.createdAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Updated At": optin.updatedAt
-                                ? moment(optin.updatedAt).format(
+                                ? dayjs(optin.updatedAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Last Used": optin.lastUsed
-                                ? moment(optin.lastUsed).format(
+                                ? dayjs(optin.lastUsed).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",

@@ -10,7 +10,7 @@ import {
     LinkOutlined,
     SyncOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useUserPermission } from "../../hooks/useUserPermission";
 
 const getNotificationsTableColumns = ({
@@ -63,7 +63,7 @@ const getNotificationsTableColumns = ({
         align: "center",
         width: 150,
         render: (date) => (
-            <Space>{moment(date).format("DD MMM, YYYY HH:mm")}</Space>
+            <Space>{dayjs(date).format("DD MMM, YYYY HH:mm")}</Space>
         ),
     },
     {
@@ -74,7 +74,7 @@ const getNotificationsTableColumns = ({
         width: 150,
         render: (date) => (
             <Space>
-                {date ? moment(date).format("DD MMM, YYYY HH:mm") : "NA"}
+                {date ? dayjs(date).format("DD MMM, YYYY HH:mm") : "NA"}
             </Space>
         ),
     },

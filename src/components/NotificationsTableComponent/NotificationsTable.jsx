@@ -16,7 +16,7 @@ import { useUserPermission } from "../../hooks/useUserPermission";
 import BulkDownloadModal from "../../components/common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
 import { useAPI } from "../../hooks/useAPI";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const useStyle = createStyles(({ css, token }) => tableStyles(css, token));
 
@@ -141,7 +141,7 @@ const NotificationsTable = ({
                             "Text/Message":
                                 notification.text || notification.message || "",
                             Date: notification.date
-                                ? moment(notification.date).format(
+                                ? dayjs(notification.date).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
@@ -162,17 +162,17 @@ const NotificationsTable = ({
                                 ? "Yes"
                                 : "No",
                             "Scheduled Date": notification.scheduledDate
-                                ? moment(notification.scheduledDate).format(
+                                ? dayjs(notification.scheduledDate).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Created At": notification.createdAt
-                                ? moment(notification.createdAt).format(
+                                ? dayjs(notification.createdAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Updated At": notification.updatedAt
-                                ? moment(notification.updatedAt).format(
+                                ? dayjs(notification.updatedAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",

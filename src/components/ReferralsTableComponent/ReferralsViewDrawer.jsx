@@ -26,7 +26,7 @@ import {
     HomeOutlined,
     CalendarOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -119,14 +119,14 @@ const ReferralsViewDrawer = ({ open, onClose, referralData = null }) => {
                 </Descriptions.Item>
                 <Descriptions.Item label="Created Date" span={1}>
                     {referralData.createdAt
-                        ? moment(referralData.createdAt).format(
+                        ? dayjs(referralData.createdAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Last Updated" span={2}>
                     {referralData.updatedAt
-                        ? moment(referralData.updatedAt).format(
+                        ? dayjs(referralData.updatedAt).format(
                               "DD MMM, YYYY HH:mm"
                           )
                         : "N/A"}
@@ -175,7 +175,7 @@ const ReferralsViewDrawer = ({ open, onClose, referralData = null }) => {
                         {user.data?.dob && (
                             <div style={{ marginTop: 4 }}>
                                 <CalendarOutlined style={{ marginRight: 8 }} />
-                                {moment(user.data.dob).format("DD MMM, YYYY")}
+                                {dayjs(user.data.dob).format("DD MMM, YYYY")}
                             </div>
                         )}
                     </div>

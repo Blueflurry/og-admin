@@ -7,7 +7,7 @@ import ReferralCoursesTableToolbar from "./ReferralCoursesTableToolbar";
 import BulkDownloadModal from "../common/BulkDownloadModal";
 import { useBulkDownload } from "../../hooks/useBulkDownload";
 import { useAPI } from "../../hooks/useAPI";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const ReferralCoursesTable = ({
     referralCourseData,
@@ -62,12 +62,12 @@ const ReferralCoursesTable = ({
                             "Course Name": referralCourse.title || "",
                             "University Name": referralCourse.description || "",
                             "Created At": referralCourse.createdAt
-                                ? moment(referralCourse.createdAt).format(
+                                ? dayjs(referralCourse.createdAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",
                             "Updated At": referralCourse.updatedAt
-                                ? moment(referralCourse.updatedAt).format(
+                                ? dayjs(referralCourse.updatedAt).format(
                                       "DD/MM/YYYY HH:mm"
                                   )
                                 : "",

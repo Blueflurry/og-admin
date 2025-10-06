@@ -14,7 +14,7 @@ import {
     FileExcelOutlined,
     EditOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -41,7 +41,7 @@ const BulkDownloadModal = ({
     // Generate default filename when modal opens
     useEffect(() => {
         if (open) {
-            const timestamp = moment().format("YYYY-MM-DD_HH-mm-ss");
+            const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss");
             const defaultFilename = `${entityName
                 .replaceAll(" ", "-")
                 .toLowerCase()}_export_${timestamp}`;
