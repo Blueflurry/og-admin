@@ -36,7 +36,10 @@ const UserViewDrawer = ({ open, onClose, userData = null }) => {
             <div style={{ marginBottom: 32, textAlign: "center" }}>
                 <Avatar
                     src={
-                        userData.imageUrl || "https://fakeimg.pl/400x400/33FFA1"
+                        userData.imageUrl ||
+                        `https://ui-avatars.com/api/?name=${
+                            userData.name?.first + "+" + userData.name?.last
+                        }&background=f5f5f5&color=757575&size=400`
                     }
                     size={100}
                     style={{ marginBottom: 16 }}

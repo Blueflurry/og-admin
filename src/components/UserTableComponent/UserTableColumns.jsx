@@ -27,7 +27,9 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete, can }) => {
                             record.imageUrl ||
                             record.imgUrl ||
                             record.img ||
-                            "https://fakeimg.pl/400x400/33FFA1"
+                            `https://ui-avatars.com/api/?name=${
+                                record.name?.first + "+" + record.name?.last
+                            }&background=f5f5f5&color=757575&size=400`
                         }
                         style={{
                             objectFit: "contain",
