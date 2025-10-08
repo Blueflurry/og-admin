@@ -69,11 +69,7 @@ const UserViewDrawer = ({ open, onClose, userData = null }) => {
                         }
                         style={{ fontSize: "14px", padding: "4px 12px" }}
                     >
-                        {userData.status == 1
-                            ? "Active"
-                            : userData.status == 0
-                            ? "Unauthorized"
-                            : "Disabled"}
+                        {userData.status == 1 ? "Active" : "Disabled"}
                     </Tag>
                 </div>
             </div>

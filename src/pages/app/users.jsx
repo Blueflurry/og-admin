@@ -165,6 +165,52 @@ const Users = () => {
             const formatUserData = (users) => {
                 return users.map((user, index) => {
                     try {
+                        // Get latest education
+                        let latestEducation = null;
+                        if (
+                            user.education &&
+                            Array.isArray(user.education) &&
+                            user.education.length > 0
+                        ) {
+                            latestEducation = user.education.reduce(
+                                (latest, current) => {
+                                    const latestDate = latest.startYear
+                                        ? new Date(latest.startYear)
+                                        : new Date(0);
+                                    const currentDate = current.startYear
+                                        ? new Date(current.startYear)
+                                        : new Date(0);
+                                    return currentDate > latestDate
+                                        ? current
+                                        : latest;
+                                },
+                                user.education[0]
+                            );
+                        }
+
+                        // Get latest experience
+                        let latestExperience = null;
+                        if (
+                            user.experience &&
+                            Array.isArray(user.experience) &&
+                            user.experience.length > 0
+                        ) {
+                            latestExperience = user.experience.reduce(
+                                (latest, current) => {
+                                    const latestDate = latest.startYear
+                                        ? new Date(latest.startYear)
+                                        : new Date(0);
+                                    const currentDate = current.startYear
+                                        ? new Date(current.startYear)
+                                        : new Date(0);
+                                    return currentDate > latestDate
+                                        ? current
+                                        : latest;
+                                },
+                                user.experience[0]
+                            );
+                        }
+
                         const formattedUser = {
                             "User ID": user.id || user._id || "",
                             "First Name": user.name?.first || "",
@@ -185,12 +231,25 @@ const Users = () => {
                             State: user.address?.state || "",
                             Pincode: user.address?.pincode || "",
                             Country: user.address?.country || "",
-                            Status:
-                                user.status == 1
-                                    ? "Active"
-                                    : user.status == 0
-                                    ? "Unauthorized"
-                                    : "Disabled",
+                            "Education Course": latestEducation?.name || "",
+                            "Education Institution":
+                                latestEducation?.institution || "",
+                            "Education Start Year": latestEducation?.startYear
+                                ? dayjs(latestEducation.startYear).format(
+                                      "DD/MM/YYYY"
+                                  )
+                                : "",
+                            "Experience Title": latestExperience?.title || "",
+                            "Experience Company":
+                                latestExperience?.companyName || "",
+                            "Experience Employment Type":
+                                latestExperience?.employmentType || "",
+                            "Experience Start Year": latestExperience?.startYear
+                                ? dayjs(latestExperience.startYear).format(
+                                      "DD/MM/YYYY"
+                                  )
+                                : "",
+                            Status: user.status == 1 ? "Active" : "Disabled",
                             "Created At": user.createdAt
                                 ? dayjs(user.createdAt).format("DD/MM/YYYY")
                                 : "",

@@ -303,14 +303,27 @@ const UserSearchFilterDrawer = ({
                             style={{ width: "100%" }}
                         >
                             {options &&
-                                options.map((option) => (
-                                    <Option
-                                        key={option.value}
-                                        value={option.value}
-                                    >
-                                        {option.label}
-                                    </Option>
-                                ))}
+                                options
+                                    .filter((option) => {
+                                        // Filter out "unauthorized" status
+                                        if (key === "status") {
+                                            return (
+                                                option.value !== 0 &&
+                                                option.value !== "0" &&
+                                                option.label?.toLowerCase() !==
+                                                    "unauthorized"
+                                            );
+                                        }
+                                        return true;
+                                    })
+                                    .map((option) => (
+                                        <Option
+                                            key={option.value}
+                                            value={option.value}
+                                        >
+                                            {option.label}
+                                        </Option>
+                                    ))}
                         </Select>
                     </Form.Item>
                 );
