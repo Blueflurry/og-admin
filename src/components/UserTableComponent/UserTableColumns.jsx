@@ -110,7 +110,113 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete, can }) => {
             width: 150,
             render: (phone) => (phone ? `+91-${phone}` : "N/A"),
         },
+        {
+            title: "Education",
+            dataIndex: "education",
+            key: "education",
+            align: "left",
+            width: 250,
+            ellipsis: true,
+            render: (education) => {
+                if (
+                    !education ||
+                    !Array.isArray(education) ||
+                    education.length === 0
+                ) {
+                    return "N/A";
+                }
 
+                // Get the latest education based on startYear
+                const latestEducation = education.reduce((latest, current) => {
+                    const latestDate = latest.startYear
+                        ? new Date(latest.startYear)
+                        : new Date(0);
+                    const currentDate = current.startYear
+                        ? new Date(current.startYear)
+                        : new Date(0);
+                    return currentDate > latestDate ? current : latest;
+                }, education[0]);
+
+                const educationInfo = `${latestEducation.name || "N/A"} - ${
+                    latestEducation.institution || "N/A"
+                }`;
+
+                return (
+                    <Tooltip title={educationInfo}>
+                        <div
+                            style={{
+                                maxWidth: "230px",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                            }}
+                        >
+                            <div style={{ fontWeight: 500, fontSize: "13px" }}>
+                                {latestEducation.name || "N/A"}
+                            </div>
+                            <div style={{ fontSize: "12px", color: "#8c8c8c" }}>
+                                {latestEducation.institution || "N/A"}
+                            </div>
+                        </div>
+                    </Tooltip>
+                );
+            },
+        },
+        {
+            title: "Experience",
+            dataIndex: "experience",
+            key: "experience",
+            align: "left",
+            width: 250,
+            ellipsis: true,
+            render: (experience) => {
+                if (
+                    !experience ||
+                    !Array.isArray(experience) ||
+                    experience.length === 0
+                ) {
+                    return "N/A";
+                }
+
+                // Get the latest experience based on startYear
+                const latestExperience = experience.reduce(
+                    (latest, current) => {
+                        const latestDate = latest.startYear
+                            ? new Date(latest.startYear)
+                            : new Date(0);
+                        const currentDate = current.startYear
+                            ? new Date(current.startYear)
+                            : new Date(0);
+                        return currentDate > latestDate ? current : latest;
+                    },
+                    experience[0]
+                );
+
+                const experienceInfo = `${latestExperience.title || "N/A"} - ${
+                    latestExperience.companyName || "N/A"
+                }`;
+
+                return (
+                    <Tooltip title={experienceInfo}>
+                        <div
+                            style={{
+                                maxWidth: "230px",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                            }}
+                        >
+                            <div style={{ fontWeight: 500, fontSize: "13px" }}>
+                                {latestExperience.title || "N/A"}
+                            </div>
+                            <div style={{ fontSize: "12px", color: "#8c8c8c" }}>
+                                {latestExperience.companyName || "N/A"}
+                            </div>
+                        </div>
+                    </Tooltip>
+                );
+            },
+        },
         {
             title: "Created At",
             dataIndex: "createdAt",
@@ -140,71 +246,55 @@ const getUserTableColumns = ({ handleView, handleEdit, handleDelete, can }) => {
             render: (address) => {
                 if (!address) return "N/A";
 
-                // Create a complete address string with all details
-                const fullAddress = [
+                // Filter out empty values, "undefined" strings, and collect available fields
+                const addressParts = [
                     address.street,
                     address.city,
                     address.state,
                     address.pincode,
                     address.country,
-                ]
-                    .filter(Boolean) // Remove empty/undefined values
-                    .join(", ");
+                ].filter((part) => {
+                    if (!part || part.trim() === "") return false;
+                    // Filter out "undefined" as a string value
+                    if (
+                        part.trim().toLowerCase() === "undefined" ||
+                        part.trim() === "undefined, India"
+                    )
+                        return false;
+                    return true;
+                });
 
-                const streetParts = address?.street?.split(",");
-
-                const part1 = address.city
-                    ? address.city
-                    : streetParts && streetParts?.length > 3
-                    ? streetParts[streetParts?.length - 3]
-                    : streetParts && streetParts?.length > 2
-                    ? streetParts[streetParts?.length - 2]
-                    : streetParts && streetParts?.length > 1
-                    ? streetParts[1]
-                    : streetParts && streetParts?.length > 0
-                    ? streetParts[0]
-                    : "";
-
-                let part2,
-                    part3 = null;
-
-                if (part1 && part1?.length && part1?.length < 20) {
-                    part2 = address.state
-                        ? address.state
-                        : streetParts?.length > 3
-                        ? streetParts[streetParts?.length - 2]
-                        : streetParts?.length > 2
-                        ? streetParts[0]
-                        : null;
-
-                    part3 = address.country
-                        ? address.country
-                        : streetParts?.length > 3
-                        ? streetParts[1]
-                        : null;
+                // If only country is present and it's "India", show N/A
+                if (
+                    addressParts.length === 1 &&
+                    address.country?.trim() === "India"
+                ) {
+                    return "N/A";
                 }
 
-                // Create a truncated version for the table cell
-                const displayAddress = [part1, part2, part3]
-                    .filter(Boolean)
-                    .join(", ");
-                // Show a tooltip with the full address on hover
+                // If no valid parts, return N/A
+                if (addressParts.length === 0) {
+                    return "N/A";
+                }
+
+                const fullAddress = addressParts.join(", ");
+
                 return (
                     <Tooltip title={fullAddress}>
-                        <Space>
-                            <EnvironmentOutlined />
+                        <Space align="start">
+                            <EnvironmentOutlined style={{ marginTop: "4px" }} />
                             <span
                                 style={{
-                                    maxWidth: "120px",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
+                                    maxWidth: "160px",
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 3,
+                                    WebkitBoxOrient: "vertical",
+                                    textWrap: "auto",
                                     wordBreak: "break-word",
-                                    wordWrap: "break-word",
+                                    lineHeight: "1.4",
                                 }}
                             >
-                                {displayAddress || "N/A"}
-                                {/* {address.pincode ? ` - ${address.pincode}` : ""} */}
+                                {fullAddress}
                             </span>
                         </Space>
                     </Tooltip>

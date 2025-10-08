@@ -10,6 +10,7 @@ import {
     Avatar,
     Descriptions,
     Typography,
+    Tag,
 } from "antd";
 import dayjs from "dayjs";
 
@@ -40,12 +41,38 @@ const UserViewDrawer = ({ open, onClose, userData = null }) => {
                     size={100}
                     style={{ marginBottom: 16 }}
                 />
-                <Title level={4} style={{ margin: 0 }}>
+                <Title level={4} style={{ margin: 0, marginBottom: 8 }}>
                     {`${userData.name?.first || ""} ${
                         userData.name?.middle || ""
                     } ${userData.name?.last || ""}`}
                 </Title>
-                <Text type="secondary">{userData.email}</Text>
+                <Text type="secondary" style={{ fontSize: "12px" }}>
+                    ID: {userData.id || userData._id || "N/A"}
+                </Text>
+                {/* <Text
+                    type="secondary"
+                    style={{ display: "block", marginBottom: 12 }}
+                >
+                    {userData.email}
+                </Text> */}
+                <div style={{ marginBottom: 8, marginTop: 8 }}>
+                    <Tag
+                        color={
+                            userData.status == 1
+                                ? "green"
+                                : userData.status == 0
+                                ? "gold"
+                                : "red"
+                        }
+                        style={{ fontSize: "14px", padding: "4px 12px" }}
+                    >
+                        {userData.status == 1
+                            ? "Active"
+                            : userData.status == 0
+                            ? "Unauthorized"
+                            : "Disabled"}
+                    </Tag>
+                </div>
             </div>
 
             <Descriptions title="Basic Information" bordered column={2}>
@@ -101,24 +128,125 @@ const UserViewDrawer = ({ open, onClose, userData = null }) => {
             </Descriptions>
 
             <Descriptions
-                title="Account Information"
+                title="Education Information"
                 bordered
                 column={1}
                 style={{ marginTop: 24 }}
             >
-                <Descriptions.Item label="Status">
-                    <span
-                        style={{
-                            color: userData.status == 1 ? "#52c41a" : "#ff4d4f",
-                            fontWeight: "bold",
-                        }}
-                    >
-                        {userData.status == 1 ? "Active" : "Inactive"}
-                    </span>
-                </Descriptions.Item>
-                <Descriptions.Item label="User ID">
-                    {userData.id || userData._id || "N/A"}
-                </Descriptions.Item>
+                {userData.education &&
+                Array.isArray(userData.education) &&
+                userData.education.length > 0 ? (
+                    userData.education.map((edu, index) => (
+                        <Descriptions.Item
+                            key={edu._id || index}
+                            label={`Education ${index + 1}`}
+                            span={1}
+                        >
+                            <div
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "8px",
+                                }}
+                            >
+                                <div>
+                                    <Text strong>Course: </Text>
+                                    <Text>{edu.name || "N/A"}</Text>
+                                </div>
+                                <div>
+                                    <Text strong>Institution: </Text>
+                                    <Text>{edu.institution || "N/A"}</Text>
+                                </div>
+                                <div>
+                                    <Text strong>Start Year: </Text>
+                                    <Text>
+                                        {edu.startYear
+                                            ? dayjs(edu.startYear).format(
+                                                  "DD MMM, YYYY"
+                                              )
+                                            : "N/A"}
+                                    </Text>
+                                </div>
+                                {edu.logo && (
+                                    <div>
+                                        <Avatar
+                                            src={edu.logo}
+                                            size={40}
+                                            style={{ marginTop: 4 }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </Descriptions.Item>
+                    ))
+                ) : (
+                    <Descriptions.Item label="Education" span={1}>
+                        No education records available
+                    </Descriptions.Item>
+                )}
+            </Descriptions>
+
+            <Descriptions
+                title="Experience Information"
+                bordered
+                column={1}
+                style={{ marginTop: 24 }}
+            >
+                {userData.experience &&
+                Array.isArray(userData.experience) &&
+                userData.experience.length > 0 ? (
+                    userData.experience.map((exp, index) => (
+                        <Descriptions.Item
+                            key={exp._id || index}
+                            label={`Experience ${index + 1}`}
+                            span={1}
+                        >
+                            <div
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "8px",
+                                }}
+                            >
+                                <div>
+                                    <Text strong>Title: </Text>
+                                    <Text>{exp.title || "N/A"}</Text>
+                                </div>
+                                <div>
+                                    <Text strong>Company: </Text>
+                                    <Text>{exp.companyName || "N/A"}</Text>
+                                </div>
+                                <div>
+                                    <Text strong>Employment Type: </Text>
+                                    <Text>{exp.employmentType || "N/A"}</Text>
+                                </div>
+                                <div>
+                                    <Text strong>Start Year: </Text>
+                                    <Text>
+                                        {exp.startYear
+                                            ? dayjs(exp.startYear).format(
+                                                  "DD MMM, YYYY"
+                                              )
+                                            : "N/A"}
+                                    </Text>
+                                </div>
+                                {exp.logo && (
+                                    <div>
+                                        <Avatar
+                                            src={exp.logo}
+                                            size={40}
+                                            style={{ marginTop: 4 }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </Descriptions.Item>
+                    ))
+                ) : (
+                    <Descriptions.Item label="Experience" span={1}>
+                        No experience records available
+                    </Descriptions.Item>
+                )}
             </Descriptions>
         </Drawer>
     );

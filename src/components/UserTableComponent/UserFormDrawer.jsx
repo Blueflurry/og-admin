@@ -32,7 +32,9 @@ const UserFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
 
     // Check if user is already alumni
     const isAlumni =
-        initialValues?.userAppRole === 4 || initialValues?.userAppRole === "4";
+        initialValues?.role === "alumni" ||
+        initialValues?.userAppRole === 4 ||
+        initialValues?.userAppRole === "4";
 
     // Reset form and initialize values when drawer opens or initialValues changes
     useEffect(() => {
