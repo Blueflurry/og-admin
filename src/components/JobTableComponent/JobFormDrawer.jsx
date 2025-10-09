@@ -13,9 +13,11 @@ import {
     message,
     Avatar,
     Divider,
+    DatePicker,
 } from "antd";
 import { TagOutlined } from "@ant-design/icons";
 import { useAPI } from "../../hooks/useAPI";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -72,6 +74,9 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                     country: initialValues.location?.country || "",
                     status: initialValues.status,
                     type: initialValues.type,
+                    createdAt: initialValues.createdAt
+                        ? dayjs(initialValues.createdAt)
+                        : null,
                 };
                 form.setFieldsValue(formattedValues);
             }
@@ -168,6 +173,11 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                 minSalary: 0,
                 maxSalary: 0,
             };
+
+            // Add createdAt field when editing
+            if (isEditMode && values.createdAt) {
+                jobData.createdAt = values.createdAt.toISOString();
+            }
 
             if (isEditMode) {
                 await api.updateJob(
@@ -397,6 +407,19 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                         </Form.Item>
                     </Col>
                 </Row>
+
+                {isEditMode && (
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item name="createdAt" label="Posted Date">
+                                <DatePicker
+                                    style={{ width: "100%" }}
+                                    format="DD MMM, YYYY"
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                )}
 
                 <Row gutter={16}>
                     <Col span={24}>
