@@ -408,7 +408,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                     </Col>
                 </Row>
 
-                {/* {isEditMode && (
+                {isEditMode && (
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item name="createdAt" label="Posted Date">
@@ -419,7 +419,7 @@ const JobFormDrawer = ({ open, onClose, initialValues = null, onSuccess }) => {
                             </Form.Item>
                         </Col>
                     </Row>
-                )} */}
+                )}
 
                 <Row gutter={16}>
                     <Col span={24}>
