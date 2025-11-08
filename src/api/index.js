@@ -82,7 +82,7 @@ export class API {
     }
 
     // JOBS
-    getJobs(page = 1, limit = 10, sort = "-createdAt", filters = {}) {
+    getJobs(page = 1, limit = 10, sort = "-_id", filters = {}) {
         return this.request(() =>
             this.client.post(
                 `/jobs/search/admin?page=${page}&limit=${limit}&sort=${sort}`,

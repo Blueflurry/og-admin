@@ -62,9 +62,11 @@ const ManageCompaniesFormDrawer = ({
 
     const handleSubmit = async () => {
         try {
+            console.log("handleSubmit");
             const values = await form.validateFields();
             // Format the data for API - create FormData for image upload
             const formData = new FormData();
+            console.log(values);
 
             // Add all form fields to FormData
             formData.append("name", values.name);
@@ -88,6 +90,7 @@ const ManageCompaniesFormDrawer = ({
                 // If editing and image not changed, pass the existing URL
                 formData.append("imageUrl", imageUrl);
             }
+            console.log(isEditMode);
 
             if (isEditMode) {
                 // For edit mode
@@ -97,14 +100,17 @@ const ManageCompaniesFormDrawer = ({
                 );
                 message.success("Company updated successfully");
             } else {
+                console.log("createManageCompany");
                 // For create mode
                 await api.createManageCompany(formData);
+                console.log("createManageCompany done");
                 message.success("Company created successfully");
             }
 
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
+            console.log(error);
             message.error("There was an error processing your request.");
         }
     };
