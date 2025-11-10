@@ -34,15 +34,7 @@ export class API {
     // AUTH
     login(email, password) {
         return this.request(() =>
-            this.client.post(
-                "/auth/admin/login",
-                { email, password },
-                {
-                    headers: {
-                        "x-channel": "App",
-                    },
-                }
-            )
+            this.client.post("/auth/admin/login", { email, password })
         );
     }
 
