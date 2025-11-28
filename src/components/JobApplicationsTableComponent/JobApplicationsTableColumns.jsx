@@ -11,6 +11,7 @@ import {
     MailOutlined,
     DollarOutlined,
     TrophyOutlined,
+    BankOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useUserPermission } from "../../hooks/useUserPermission";
@@ -23,6 +24,42 @@ const getJobApplicationsTableColumns = ({
     const { can } = useUserPermission();
 
     return [
+        {
+            title: "Job Details",
+            key: "job",
+            align: "left",
+            width: 340,
+            render: (_, record) => {
+                return (
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: 16,
+                        }}
+                    >
+                        <Avatar
+                            size={48}
+                            src={record.job.company?.data?.imageUrl}
+                            icon={<BankOutlined />}
+                            style={{
+                                marginRight: 16,
+                                backgroundColor: "#1890ff",
+                            }}
+                        />
+                        <div>
+                            <div style={{ fontWeight: "bold" }}>
+                                {record.job.title || "Job Title"}
+                            </div>
+                            <div style={{ color: "#666" }}>
+                                {record.job.company?.data?.name ||
+                                    "Company Name"}
+                            </div>
+                        </div>
+                    </div>
+                );
+            },
+        },
         {
             title: "Applicant",
             key: "applicant",
