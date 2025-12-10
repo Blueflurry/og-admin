@@ -40,7 +40,7 @@ const getJobApplicationsTableColumns = ({
                     >
                         <Avatar
                             size={48}
-                            src={record.job.company?.data?.imageUrl}
+                            src={record.job?.company?.data?.imageUrl}
                             icon={<BankOutlined />}
                             style={{
                                 marginRight: 16,
@@ -49,10 +49,10 @@ const getJobApplicationsTableColumns = ({
                         />
                         <div>
                             <div style={{ fontWeight: "bold" }}>
-                                {record.job.title || "Job Title"}
+                                {record.job?.title || "Job Title"}
                             </div>
                             <div style={{ color: "#666" }}>
-                                {record.job.company?.data?.name ||
+                                {record.job?.company?.data?.name ||
                                     "Company Name"}
                             </div>
                         </div>
